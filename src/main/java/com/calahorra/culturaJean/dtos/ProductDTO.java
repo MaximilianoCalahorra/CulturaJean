@@ -11,6 +11,7 @@ public class ProductDTO
 	//Atributos:
 	private int productId;
 	private String code;
+	private String category;
 	private Character gender;
 	private String size;
 	private String color;
@@ -22,11 +23,12 @@ public class ProductDTO
 	private boolean enabled;
 	
 	//Constructor:
-	public ProductDTO(int productId, String code, Character gender, String size, String color, float cost, float salePrice, String name,
-			          String description, String imageName, boolean enabled) 
+	public ProductDTO(int productId, String code, String category, Character gender, String size, String color, float cost,
+			          float salePrice, String name, String description, String imageName, boolean enabled) 
 	{
 		setProductId(productId);
 		this.code = code;
+		this.category = category;
 		this.gender = gender;
 		this.size = size;
 		this.color = color;
