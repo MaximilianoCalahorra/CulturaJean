@@ -29,6 +29,9 @@ public class Product
 	@Column(name="code", nullable=false, length=10)
 	private String code;
 	
+	@Column(name="category", nullable=false, length=30)
+	private String category;
+	
 	@Column(name="gender", nullable=false, length=1)
 	private Character gender;
 	
@@ -63,10 +66,11 @@ public class Product
 	private LocalDateTime updatedAt;
 	
 	//Constructor:
-	public Product(String code, Character gender, String size, String color, float cost, float salePrice, String name, String description,
-		           String imageName, boolean enabled) 
+	public Product(String code, String category, Character gender, String size, String color, float cost, float salePrice, String name,
+			       String description, String imageName, boolean enabled) 
 	{
 		this.code = code;
+		this.category = category;
 		this.gender = gender;
 		this.size = size;
 		this.color = color;
