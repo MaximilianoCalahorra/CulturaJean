@@ -1,7 +1,5 @@
 package com.calahorra.culturaJean.dtos;
 
-import com.calahorra.culturaJean.entities.Product;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,13 +10,13 @@ public class StockDTO
 {
 	//Atributos:
 	private int stockId;
-	private Product product;
+	private ProductDTO product;
 	private int desirableAmount;
 	private int minimumAmount;
 	private int actualAmount;
 	
 	//Constructor:
-	public StockDTO(int StockId, Product product, int desirableAmount, int minimumAmount) 
+	public StockDTO(int StockId, ProductDTO product, int desirableAmount, int minimumAmount) 
 	{
 		setStockId(stockId);
 		this.product = product;
