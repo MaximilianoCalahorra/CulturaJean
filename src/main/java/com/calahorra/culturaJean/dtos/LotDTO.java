@@ -13,6 +13,8 @@ public class LotDTO
 {
 	//Atributos:
 	private int lotId;
+	private StockDTO stock;
+	private SupplyOrderDTO supplyOrder;
 	private LocalDate receptionDate;
 	@Min(1)
 	private int initialAmount;
@@ -20,9 +22,12 @@ public class LotDTO
 	private float purchasePrice;
 	
 	//Constructor:
-	public LotDTO(int lotId, LocalDate receptionDate, int initialAmount, int existingAmount, float purchasePrice) 
+	public LotDTO(int lotId, StockDTO stock, SupplyOrderDTO supplyOrder, LocalDate receptionDate, int initialAmount, int existingAmount,
+			      float purchasePrice) 
 	{
 		setLotId(lotId);
+		this.stock = stock;
+		this.supplyOrder = supplyOrder;
 		this.initialAmount = initialAmount;
 		this.existingAmount = existingAmount;
 		this.purchasePrice = purchasePrice;
