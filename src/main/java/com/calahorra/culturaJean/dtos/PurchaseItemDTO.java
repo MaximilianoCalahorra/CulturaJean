@@ -10,12 +10,14 @@ public class PurchaseItemDTO
 {
 	//Atributos:
 	private int purchaseItemId;
+	private ProductDTO product;
 	private int amount;
 	
 	//Constructor:
-	public PurchaseItemDTO(int purchaseItemId, int amount) 
+	public PurchaseItemDTO(int purchaseItemId, ProductDTO product, int amount) 
 	{
 		setPurchaseItemId(purchaseItemId);
+		this.product = product;
 		this.amount = amount;
 	}
 }
