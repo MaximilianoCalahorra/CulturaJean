@@ -11,6 +11,7 @@ import com.calahorra.culturaJean.entities.Product;
 import com.calahorra.culturaJean.repositories.IProductRepository;
 import com.calahorra.culturaJean.services.IProductService;
 
+///Clase ProductService:
 @Service("productService")
 public class ProductService implements IProductService
 {

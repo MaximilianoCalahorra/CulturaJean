@@ -11,6 +11,7 @@ import com.calahorra.culturaJean.entities.PurchaseItem;
 import com.calahorra.culturaJean.repositories.IPurchaseItemRepository;
 import com.calahorra.culturaJean.services.IPurchaseItemService;
 
+///Clase PurchaseItemService:
 @Service("purchaseItemService")
 public class PurchaseItemService implements IPurchaseItemService
 {
@@ -104,5 +105,15 @@ public class PurchaseItemService implements IPurchaseItemService
 	public PurchaseItem insert(PurchaseItem purchaseItem) 
 	{
 		return purchaseItemRepository.save(purchaseItem);
+	}
+	
+	//Calcular:
+	
+	//Calculamos el subtotal del ítem de la compra:
+	@Override
+	public float calculateSubtotal(int purchaseItemId) 
+	{
+		PurchaseItemDTO purchaseItem = modelMapper.map(findByPurchaseItemIdWithProduct(purchaseItemId), PurchaseItemDTO.class);
+		return purchaseItem.getAmount() * purchaseItem.getProduct().getSalePrice();
 	}
 }
