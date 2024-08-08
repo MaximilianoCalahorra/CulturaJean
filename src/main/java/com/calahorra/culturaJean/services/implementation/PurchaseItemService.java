@@ -104,16 +104,6 @@ public class PurchaseItemService implements IPurchaseItemService
 	@Override
 	public PurchaseItem insert(PurchaseItem purchaseItem) 
 	{
-		return purchaseItemRepository.save(purchaseItem);
-	}
-	
-	//Calcular:
-	
-	//Calculamos el subtotal del ítem de la compra:
-	@Override
-	public float calculateSubtotal(int purchaseItemId) 
-	{
-		PurchaseItemDTO purchaseItem = modelMapper.map(findByPurchaseItemIdWithProduct(purchaseItemId), PurchaseItemDTO.class);
-		return purchaseItem.getAmount() * purchaseItem.getProduct().getSalePrice();
+		return purchaseItemRepository.save(purchaseItem); //Insertamos el ítem de la compra en la base de datos.
 	}
 }

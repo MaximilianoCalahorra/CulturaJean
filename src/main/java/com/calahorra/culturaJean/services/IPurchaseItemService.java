@@ -43,9 +43,4 @@ public interface IPurchaseItemService
 	
 	//Agregamos un ítem de compra a la base de datos:
 	public PurchaseItem insert(PurchaseItem purchaseItem);
-	
-	//Calcular:
-	
-	//Calculamos el subtotal del ítem de la compra:
-	public float calculateSubtotal(int purchaseItemId);
 }
