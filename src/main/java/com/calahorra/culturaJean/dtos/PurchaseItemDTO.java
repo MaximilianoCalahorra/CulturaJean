@@ -20,4 +20,12 @@ public class PurchaseItemDTO
 		this.product = product;
 		this.amount = amount;
 	}
+	
+	//Calcular:
+	
+	//Calculamos el subtotal del ítem de la compra:
+	public float calculateSubtotalSale() 
+	{
+		return getAmount() * getProduct().getSalePrice();
+	}
 }
