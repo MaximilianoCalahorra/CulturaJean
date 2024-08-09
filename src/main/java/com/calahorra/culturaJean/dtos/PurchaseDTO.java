@@ -26,4 +26,17 @@ public class PurchaseDTO
 		this.methodOfPay = methodOfPay;
 		this.dateTime = dateTime;
 	}
+	
+	//Calcular:
+	
+	//Calculamos el total de la compra:
+	public float calculateTotalSale()
+	{
+		float total = 0;
+		for(PurchaseItemDTO purchaseItem: getPurchaseItems()) 
+		{
+			total += purchaseItem.calculateSubtotalSale();
+		}
+		return total;
+	}
 }
