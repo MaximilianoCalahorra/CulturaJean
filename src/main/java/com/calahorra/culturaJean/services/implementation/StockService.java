@@ -393,8 +393,8 @@ public class StockService implements IStockService
 					purchaseAmount -= lot.getExistingAmount(); //La cantidad restante por comprar será la original menos la comprada.
 				}
 				
-				//Actualizamos el lote en la base de datos con su nueva cantidad existente:
-				lotService.insertOrUpdate(lot);
+				lot.setExistingAmount(newExistingAmount); //Seteamos la cantidad existente del lote teniendo en cuenta las bajas.
+				lotService.insertOrUpdate(lot); //Actualizamos el lote en la base de datos con su nueva cantidad existente.
 			}
 			i++; //Repetimos el proceso con el siguiente lote.
 		}
