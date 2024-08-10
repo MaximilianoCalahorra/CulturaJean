@@ -19,12 +19,11 @@ public class ProductDTO
 	private float salePrice;
 	private String name;
 	private String description;
-	private String imageName;
 	private boolean enabled;
 	
 	//Constructor:
 	public ProductDTO(int productId, String code, String category, Character gender, String size, String color, float cost,
-			          float salePrice, String name, String description, String imageName, boolean enabled) 
+			          float salePrice, String name, String description, boolean enabled) 
 	{
 		setProductId(productId);
 		this.code = code;
@@ -36,7 +35,6 @@ public class ProductDTO
 		this.salePrice = salePrice;
 		this.name = name;
 		this.description = description;
-		this.imageName = imageName;
 		this.enabled = enabled;
 	}
 }

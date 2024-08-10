@@ -53,9 +53,6 @@ public class Product
 	@Column(name="description", nullable=false, length=100)
 	private String description;
 	
-	@Column(name="image_name", nullable=false, length=60)
-	private String imageName;
-	
 	@Column(name="enabled", nullable=false)
 	private boolean enabled;
 	
@@ -67,7 +64,7 @@ public class Product
 	
 	//Constructor:
 	public Product(String code, String category, Character gender, String size, String color, float cost, float salePrice, String name,
-			       String description, String imageName, boolean enabled) 
+			       String description, boolean enabled) 
 	{
 		this.code = code;
 		this.category = category;
@@ -78,7 +75,6 @@ public class Product
 		this.salePrice = salePrice;
 		this.name = name;
 		this.description = description;
-		this.imageName = imageName;
 		this.enabled = enabled;
 	}
 }
