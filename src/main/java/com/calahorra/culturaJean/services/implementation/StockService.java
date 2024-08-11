@@ -8,10 +8,17 @@ import org.springframework.stereotype.Service;
 
 import com.calahorra.culturaJean.dtos.LotDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
+import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
+import com.calahorra.culturaJean.entities.Product;
 import com.calahorra.culturaJean.entities.Stock;
+import com.calahorra.culturaJean.entities.Supplier;
+import com.calahorra.culturaJean.entities.SupplyOrder;
+import com.calahorra.culturaJean.entities.User;
 import com.calahorra.culturaJean.repositories.IStockRepository;
 import com.calahorra.culturaJean.services.ILotService;
 import com.calahorra.culturaJean.services.IStockService;
+import com.calahorra.culturaJean.services.ISupplierService;
+import com.calahorra.culturaJean.services.ISupplyOrderService;
 
 ///Clase StockService:
 @Service("stockService")
@@ -20,13 +27,20 @@ public class StockService implements IStockService
 	//Atributos:
 	private IStockRepository stockRepository;
 	private ILotService lotService;
+	private ISupplyOrderService supplyOrderService;
+	private ISupplierService supplierService;
+	private UserService userService;
 	private ModelMapper modelMapper;
 	
 	//Constructor:
-	public StockService(IStockRepository stockRepository, ILotService lotService) 
+	public StockService(IStockRepository stockRepository, ILotService lotService, ISupplyOrderService supplyOrderService,
+						ISupplierService supplierService, UserService userService) 
 	{
 		this.stockRepository = stockRepository;
 		this.lotService = lotService;
+		this.supplyOrderService = supplyOrderService;
+		this.supplierService = supplierService;
+		this.userService = userService;
 	}
 	
 	//Encontrar:
@@ -401,5 +415,32 @@ public class StockService implements IStockService
 		totalStock -= amount; //Disminuimos el stock total con la cantidad comprada.
 		stock.setActualAmount(totalStock); //Actualizamos la cantidad actual del stock.
 		insertOrUpdate(stock); //Actualizamos el stock en la base de datos con la baja producida.
+		
+		//Si el stock actual alcanzó o perforó la cantidad mínima que se quiere tener, generamos un pedido de aprovisionamiento automático
+		//que lleva la cantidad actual al nivel de la deseable:
+		if(stock.getActualAmount() <= stock.getMinimumAmount()) 
+		{
+			int supplyOrderAmount = stock.getDesirableAmount() - stock.getActualAmount(); //Calculamos la cantidad que tendrá el pedido de aprovisionamiento.
+			Product product = modelMapper.map(stock.getProduct(), Product.class); //Obtenemos el producto del que se hará el pedido de aprovisionamiento.
+			User user = userService.findByUsernameAndFetchUserRolesEagerly("CultiBot"); //El pedido de aprovisionamiento es realizado por el bot administrador.
+			
+			//Definimos el proveedor del pedido de aprovisionamiento:
+			Supplier supplier = null; 
+			//Para esto tenemos en cuenta la categoría del producto:
+			switch(product.getCategory()) 
+			{
+				case "Short Sleeve T-Shirts": supplier = supplierService.findByName("Short Sleeve T-Shirts"); break;
+				case "Long Sleeve T-Shirts": supplier = supplierService.findByName("Long Sleeve T-Shirts"); break;
+				case "Jumpers": supplier = supplierService.findByName("Jumpers"); break;
+				case "Jackets": supplier = supplierService.findByName("Jackets"); break;
+				case "Shorts": supplier = supplierService.findByName("Shorts"); break;
+				case "Jeans": supplier = supplierService.findByName("Jeans"); break;
+				case "Pants": supplier = supplierService.findByName("Pants"); break;
+			}
+			
+			//Instanciamos un nuevo pedido de aprovisionamiento con la información correspondiente y lo insertamos en la base de datos:
+			SupplyOrder supplyOrder = new SupplyOrder(product, user, supplier, supplyOrderAmount, false);
+			supplyOrderService.insert(modelMapper.map(supplyOrder, SupplyOrderDTO.class)); 
+		}
 	}
 }
