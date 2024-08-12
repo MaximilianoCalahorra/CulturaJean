@@ -20,10 +20,11 @@ public class ProductDTO
 	private String name;
 	private String description;
 	private boolean enabled;
+	private String imageName;
 	
 	//Constructor:
 	public ProductDTO(int productId, String code, String category, Character gender, String size, String color, float cost,
-			          float salePrice, String name, String description, boolean enabled) 
+			          float salePrice, String name, String description, boolean enabled, String imageName) 
 	{
 		setProductId(productId);
 		this.code = code;
@@ -36,5 +37,6 @@ public class ProductDTO
 		this.name = name;
 		this.description = description;
 		this.enabled = enabled;
+		this.imageName = imageName;
 	}
 }

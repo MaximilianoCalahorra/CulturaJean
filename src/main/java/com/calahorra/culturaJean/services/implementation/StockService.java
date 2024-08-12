@@ -433,7 +433,6 @@ public class StockService implements IStockService
 				case "Long Sleeve T-Shirts": supplier = supplierService.findByName("Long Sleeve T-Shirts"); break;
 				case "Jumpers": supplier = supplierService.findByName("Jumpers"); break;
 				case "Jackets": supplier = supplierService.findByName("Jackets"); break;
-				case "Shorts": supplier = supplierService.findByName("Shorts"); break;
 				case "Jeans": supplier = supplierService.findByName("Jeans"); break;
 				case "Pants": supplier = supplierService.findByName("Pants"); break;
 			}
