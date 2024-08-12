@@ -56,6 +56,9 @@ public class Product
 	@Column(name="enabled", nullable=false)
 	private boolean enabled;
 	
+	@Column(name="image_name", nullable=false, length=20)
+	private String imageName;
+	
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
