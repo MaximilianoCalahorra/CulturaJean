@@ -21,8 +21,8 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Serializabl
 	public abstract Purchase findByPurchaseId(int purchaseId);
 	
 	//Encontramos la compra con determinado id y el usuario e ítems de la compra asociados:
-	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.user WHERE p.purchaseId = (:purchaseId) INNER JOIN FETCH p.purchaseItems pi "
-			+ "INNER JOIN FETCH pi.product WHERE p.purchaseId = (:purchaseId)")
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.user INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE p.purchaseId = (:purchaseId)")
 	public abstract Purchase findByPurchaseIdWithUserAndPurchaseItems(@Param("purchaseId")int purchaseId);
 	
 	//Encontramos las compras con determinado método de pago y el usuario e ítems de la compra asociados:

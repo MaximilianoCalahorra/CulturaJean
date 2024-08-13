@@ -67,36 +67,36 @@ public interface ILotRepository extends JpaRepository<Lot, Serializable>
 	public abstract List<Lot> findByPurchasePriceRange(@Param("minimumPrice")float minimumPrice, @Param("maximumPrice")float maximumPrice);
 	
 	//Encontramos los lotes con una cantidad existente determinada:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount = (:existingAmount)")
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount = (:existingAmount)")
 	public abstract List<Lot> findByExistingAmount(@Param("existingAmount")int existingAmount);
 	
 	//Encontramos los lotes con una cantidad existente menor o igual a una determinada:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount <= (:existingAmount)")
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount <= (:existingAmount)")
 	public abstract List<Lot> findByExistingAmountLessThanOrEqualTo(@Param("existingAmount")int existingAmount);
 	
 	//Encontramos los lotes con una cantidad existente mayor o igual a una determinada:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount >= (:existingAmount)")
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount >= (:existingAmount)")
 	public abstract List<Lot> findByExistingAmountGreaterThanOrEqualTo(@Param("existingAmount")int existingAmount);
 	
 	//Encontramos los lotes con una cantidad existente entre un intervalo determinado:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount >= (:minimumAmount) AND "
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.existingAmount >= (:minimumAmount) AND "
 		 + "l.existingAmount <= (:maximumAmount)")
 	public abstract List<Lot> findByExistingAmountRange(@Param("minimumAmount")int minimumAmount, @Param("maximumAmount")float maximumAmount);
 	
 	//Encontramos los lotes con una cantidad inicial determinada:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount = (:initialAmount)")
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount = (:initialAmount)")
 	public abstract List<Lot> findByInitialAmount(@Param("initialAmount")int initialAmount);
 	
 	//Encontramos los lotes con una cantidad inicial menor o igual a una determinada:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount <= (:initialAmount)")
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount <= (:initialAmount)")
 	public abstract List<Lot> findByInitialAmountLessThanOrEqualTo(@Param("initialAmount")int initialAmount);
 	
 	//Encontramos los lotes con una cantidad inicial mayor o igual a una determinada:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount >= (:initialAmount)")
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount >= (:initialAmount)")
 	public abstract List<Lot> findByInitialAmountGreaterThanOrEqualTo(@Param("initialAmount")int initialAmount);
 	
 	//Encontramos los lotes con una cantidad inicial entre un intervalo determinado:
-	@Query("SELECT l FORM Lot l INNER JOIN FECTH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount >= (:minimumAmount) AND "
+	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock INNER JOIN FETCH l.supplyOrder WHERE l.initialAmount >= (:minimumAmount) AND "
 			+ "l.initialAmount <= (:maximumAmount)")
 	public abstract List<Lot> findByInitialAmountRange(@Param("minimumAmount")int minimumAmount, @Param("maximumAmount")float maximumAmount);
 	
