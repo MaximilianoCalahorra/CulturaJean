@@ -26,7 +26,7 @@ public class Product
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int productId;
 	
-	@Column(name="code", nullable=false, length=10)
+	@Column(name="code", nullable=false, length=15)
 	private String code;
 	
 	@Column(name="category", nullable=false, length=30)
@@ -35,7 +35,7 @@ public class Product
 	@Column(name="gender", nullable=false, length=1)
 	private Character gender;
 	
-	@Column(name="size", nullable=false, length=5)
+	@Column(name="size", nullable=false, length=10)
 	private String size;
 	
 	@Column(name="color", nullable=false, length=30)
