@@ -67,7 +67,7 @@ public class Product
 	
 	//Constructor:
 	public Product(String code, String category, Character gender, String size, String color, float cost, float salePrice, String name,
-			       String description, boolean enabled) 
+			       String description, String imageName, boolean enabled) 
 	{
 		this.code = code;
 		this.category = category;
@@ -78,6 +78,7 @@ public class Product
 		this.salePrice = salePrice;
 		this.name = name;
 		this.description = description;
+		this.imageName = imageName;
 		this.enabled = enabled;
 	}
 }
