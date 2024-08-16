@@ -26,7 +26,7 @@ public class Product
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int productId;
 	
-	@Column(name="code", nullable=false, length=10)
+	@Column(name="code", nullable=false, length=15)
 	private String code;
 	
 	@Column(name="category", nullable=false, length=30)
@@ -35,7 +35,7 @@ public class Product
 	@Column(name="gender", nullable=false, length=1)
 	private Character gender;
 	
-	@Column(name="size", nullable=false, length=5)
+	@Column(name="size", nullable=false, length=10)
 	private String size;
 	
 	@Column(name="color", nullable=false, length=30)
@@ -67,7 +67,7 @@ public class Product
 	
 	//Constructor:
 	public Product(String code, String category, Character gender, String size, String color, float cost, float salePrice, String name,
-			       String description, boolean enabled) 
+			       String description, String imageName, boolean enabled) 
 	{
 		this.code = code;
 		this.category = category;
@@ -78,6 +78,7 @@ public class Product
 		this.salePrice = salePrice;
 		this.name = name;
 		this.description = description;
+		this.imageName = imageName;
 		this.enabled = enabled;
 	}
 }
