@@ -1,13 +1,12 @@
-package com.unla.grupo7;
+package com.calahorra.culturaJean;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class Grupo7ApplicationTests {
-
+class CulturaJeanApplicationTests 
+{
 	@Test
 	void contextLoads() {
 	}
-
 }
