@@ -30,7 +30,7 @@ public class StockService implements IStockService
 	private ISupplyOrderService supplyOrderService;
 	private ISupplierService supplierService;
 	private UserService userService;
-	private ModelMapper modelMapper;
+	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
 	public StockService(IStockRepository stockRepository, ILotService lotService, ISupplyOrderService supplyOrderService,

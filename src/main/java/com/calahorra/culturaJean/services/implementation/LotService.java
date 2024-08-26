@@ -18,7 +18,7 @@ public class LotService implements ILotService
 {
 	//Atributos:
 	private ILotRepository lotRepository;
-	private ModelMapper modelMapper;
+	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
 	public LotService(ILotRepository lotRepository) 

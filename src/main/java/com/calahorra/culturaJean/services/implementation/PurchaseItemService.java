@@ -17,7 +17,7 @@ public class PurchaseItemService implements IPurchaseItemService
 {
 	//Atributos:
 	private IPurchaseItemRepository purchaseItemRepository;
-	private ModelMapper modelMapper;
+	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
 	public PurchaseItemService(IPurchaseItemRepository purchaseItemRepository) 

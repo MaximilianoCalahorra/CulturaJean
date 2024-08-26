@@ -17,7 +17,7 @@ public class SupplyOrderService implements ISupplyOrderService
 {
 	//Atributos:
 	private ISupplyOrderRepository supplyOrderRepository;
-	private ModelMapper modelMapper;
+	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
 	public SupplyOrderService(ISupplyOrderRepository supplyOrderRepository) 
