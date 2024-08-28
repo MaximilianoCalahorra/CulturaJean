@@ -4,12 +4,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-///Clase UserDTO:
+///Clase MemberDTO:
 @Getter @Setter @NoArgsConstructor
-public class UserDTO 
+public class MemberDTO 
 {
 	//Atributos:
-	private int userId;
+	private int MemberId;
 	private String username;
 	private boolean enabled;
 	private String name;
@@ -18,9 +18,9 @@ public class UserDTO
 	
 	//Constructor:
 	//Sin listado de roles asignado:
-	public UserDTO(int userId, String username, boolean enabled, String name, String lastName, String email) 
+	public MemberDTO(int memberId, String username, boolean enabled, String name, String lastName, String email) 
 	{
-		setUserId(userId);
+		setMemberId(memberId);
 		this.username = username;
 		this.enabled = enabled;
 		this.name = name;

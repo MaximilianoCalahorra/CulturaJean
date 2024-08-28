@@ -11,17 +11,17 @@ public class SupplyOrderDTO
 	//Atributos:
 	private int supplyOrderId;
 	private ProductDTO product;
-	private UserDTO user;
+	private MemberDTO member;
 	private SupplierDTO supplier;
 	private int amount;
 	private boolean delivered;
 	
 	//Constructor:
-	public SupplyOrderDTO(int supplyOrderId, ProductDTO product, UserDTO user, SupplierDTO supplier, int amount, boolean delivered) 
+	public SupplyOrderDTO(int supplyOrderId, ProductDTO product, MemberDTO member, SupplierDTO supplier, int amount, boolean delivered) 
 	{
 		setSupplyOrderId(supplyOrderId);
 		this.product = product;
-		this.user = user;
+		this.member = member;
 		this.supplier = supplier;
 		this.amount = amount;
 		this.delivered = delivered;

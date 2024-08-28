@@ -38,14 +38,14 @@ public class PurchaseService implements IPurchaseService
 		return purchaseRepository.findByPurchaseId(purchaseId);
 	}
 	
-	//Encontramos la compra con determinado id y el usuario e ítems de la compra asociados:
+	//Encontramos la compra con determinado id y el miembro e ítems de la compra asociados:
 	@Override
-	public Purchase findByPurchaseIdWithUserAndPurchaseItems(int purchaseId) 
+	public Purchase findByPurchaseIdWithMemberAndPurchaseItems(int purchaseId) 
 	{
-		return purchaseRepository.findByPurchaseIdWithUserAndPurchaseItems(purchaseId);
+		return purchaseRepository.findByPurchaseIdWithMemberAndPurchaseItems(purchaseId);
 	}
 	
-	//Encontramos las compras con determinado método de pago y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con determinado método de pago y el miembro e ítems de la compra asociados:
 	@Override
 	public List<PurchaseDTO> findByMethodOfPay(String methodOfPay)
 	{
@@ -55,7 +55,7 @@ public class PurchaseService implements IPurchaseService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
-	//Encontramos las compras con determinada fecha y hora y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con determinada fecha y hora y el miembro e ítems de la compra asociados:
 	@Override
 	public List<PurchaseDTO> findByDateTime(LocalDateTime dateTime)
 	{
@@ -65,7 +65,7 @@ public class PurchaseService implements IPurchaseService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
-	//Encontramos las compras con una fecha y hora anterior o igual a una determinada y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con una fecha y hora anterior o igual a una determinada y el miembro e ítems de la compra asociados:
 	@Override
 	public List<PurchaseDTO> findByDateTimeBeforeThanOrEqual(LocalDateTime dateTime)
 	{
@@ -75,7 +75,7 @@ public class PurchaseService implements IPurchaseService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
-	//Encontramos las compras con una fecha y hora posterior o igual a una determinada y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con una fecha y hora posterior o igual a una determinada y el miembro e ítems de la compra asociados:
 	@Override
 	public List<PurchaseDTO> findByDateTimeAfterThanOrEqual(LocalDateTime dateTime)
 	{
@@ -85,7 +85,7 @@ public class PurchaseService implements IPurchaseService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
-	//Encontramos las compras con una fecha y hora en un rango determinado y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con una fecha y hora en un rango determinado y el miembro e ítems de la compra asociados:
 	@Override
 	public List<PurchaseDTO> findByDateTimeRange(LocalDateTime fromDateTime, LocalDateTime untilDateTime)
 	{
@@ -95,11 +95,11 @@ public class PurchaseService implements IPurchaseService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
-	//Encontramos las compras de un determinado usuario por su nombre de usuario:
+	//Encontramos las compras de un determinado miembro por su nombre de usuario:
 	@Override
-	public List<PurchaseDTO> findByUser(String username)
+	public List<PurchaseDTO> findByMember(String username)
 	{
-		return purchaseRepository.findByUser(username) //Obtenemos las compras con ese nombre de usuario como entidades.
+		return purchaseRepository.findByMember(username) //Obtenemos las compras con ese nombre de usuario como entidades.
 				.stream()
 				.map(purchase -> modelMapper.map(purchase, PurchaseDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
