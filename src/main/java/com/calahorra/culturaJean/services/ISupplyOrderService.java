@@ -37,6 +37,9 @@ public interface ISupplyOrderService
 	//Encontramos los pedidos de aprovisionamiento entregados/no entregados:
 	public List<SupplyOrderDTO> findByDelivered(boolean delivered);
 	
+	//Encontramos los pedidos de aprovisionamiento de determinado administrador por su nombre de usuario:
+	public List<SupplyOrderDTO> findByUser(String username);
+	
 	//Obtener:
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:

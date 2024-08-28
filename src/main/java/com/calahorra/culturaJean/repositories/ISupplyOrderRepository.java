@@ -59,6 +59,11 @@ public interface ISupplyOrderRepository extends JpaRepository<SupplyOrder, Seria
 			+ "WHERE so.delivered = (:delivered)")
 	public abstract List<SupplyOrder> findByDelivered(@Param("delivered")boolean delivered);
 	
+	//Encontramos los pedidos de aprovisionamiento de determinado administrador por su nombre de usuario:
+	@Query("SELECT so FROM SupplyOrder so INNER JOIN FETCH so.product INNER JOIN FETCH so.supplier INNER JOIN FETCH so.user u "
+			+ "WHERE u.username = (:username)")
+	public abstract List<SupplyOrder> findByUser(@Param("username")String username);
+	
 	//Ordernar:
 	
 	//Ordenamos los pedidos de aprovisionamiento por el código del producto asociado de forma ascendente:

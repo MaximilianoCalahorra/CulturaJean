@@ -111,6 +111,16 @@ public class SupplyOrderService implements ISupplyOrderService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
+	//Encontramos los pedidos de aprovisionamiento de determinado administrador por su nombre de usuario:
+	@Override
+	public List<SupplyOrderDTO> findByUser(String username)
+	{
+		return supplyOrderRepository.findByUser(username) //Obtenemos los pedidos de aprovisionamiento de ese usuario como entidades.
+				.stream()
+				.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)) //Convertimos cada entidad en un DTO.
+				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
+	}
+	
 	//Obtener:
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:
