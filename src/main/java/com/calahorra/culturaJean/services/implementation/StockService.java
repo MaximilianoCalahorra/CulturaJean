@@ -13,7 +13,7 @@ import com.calahorra.culturaJean.entities.Product;
 import com.calahorra.culturaJean.entities.Stock;
 import com.calahorra.culturaJean.entities.Supplier;
 import com.calahorra.culturaJean.entities.SupplyOrder;
-import com.calahorra.culturaJean.entities.User;
+import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.repositories.IStockRepository;
 import com.calahorra.culturaJean.services.ILotService;
 import com.calahorra.culturaJean.services.IStockService;
@@ -29,18 +29,18 @@ public class StockService implements IStockService
 	private ILotService lotService;
 	private ISupplyOrderService supplyOrderService;
 	private ISupplierService supplierService;
-	private UserService userService;
+	private MemberService memberService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
 	public StockService(IStockRepository stockRepository, ILotService lotService, ISupplyOrderService supplyOrderService,
-						ISupplierService supplierService, UserService userService) 
+						ISupplierService supplierService, MemberService memberService) 
 	{
 		this.stockRepository = stockRepository;
 		this.lotService = lotService;
 		this.supplyOrderService = supplyOrderService;
 		this.supplierService = supplierService;
-		this.userService = userService;
+		this.memberService = memberService;
 	}
 	
 	//Encontrar:
@@ -422,7 +422,7 @@ public class StockService implements IStockService
 		{
 			int supplyOrderAmount = stock.getDesirableAmount() - stock.getActualAmount(); //Calculamos la cantidad que tendrá el pedido de aprovisionamiento.
 			Product product = modelMapper.map(stock.getProduct(), Product.class); //Obtenemos el producto del que se hará el pedido de aprovisionamiento.
-			User user = userService.findByUsernameAndFetchUserRolesEagerly("CultiBot"); //El pedido de aprovisionamiento es realizado por el bot administrador.
+			Member member = memberService.findByUsernameAndFetchUserRolesEagerly("CultiBot"); //El pedido de aprovisionamiento es realizado por el bot administrador.
 			
 			//Definimos el proveedor del pedido de aprovisionamiento:
 			Supplier supplier = null; 
@@ -438,7 +438,7 @@ public class StockService implements IStockService
 			}
 			
 			//Instanciamos un nuevo pedido de aprovisionamiento con la información correspondiente y lo insertamos en la base de datos:
-			SupplyOrder supplyOrder = new SupplyOrder(product, user, supplier, supplyOrderAmount, false);
+			SupplyOrder supplyOrder = new SupplyOrder(product, member, supplier, supplyOrderAmount, false);
 			supplyOrderService.insert(modelMapper.map(supplyOrder, SupplyOrderDTO.class)); 
 		}
 	}
