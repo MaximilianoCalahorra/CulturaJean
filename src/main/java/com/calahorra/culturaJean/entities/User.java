@@ -34,6 +34,7 @@ public class User
 	@Column(name="password", nullable=false, length=60)
 	private String password;
 
+	@Column(name="enabled", nullable=false)
 	private boolean enabled;
 
 	@CreationTimestamp
