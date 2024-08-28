@@ -13,26 +13,26 @@ public interface IPurchaseService
 	//Encontramos la compra con determinado id:
 	public Purchase findByPurchaseId(int purchaseId);
 	
-	//Encontramos la compra con determinado id y el usuario e ítems de la compra asociados:
-	public Purchase findByPurchaseIdWithUserAndPurchaseItems(int purchaseId);
+	//Encontramos la compra con determinado id y el miembro e ítems de la compra asociados:
+	public Purchase findByPurchaseIdWithMemberAndPurchaseItems(int purchaseId);
 	
-	//Encontramos las compras con determinado método de pago y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con determinado método de pago y el miembro e ítems de la compra asociados:
 	public List<PurchaseDTO> findByMethodOfPay(String methodOfPay);
 	
-	//Encontramos las compras con determinada fecha y hora y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con determinada fecha y hora y el miembro e ítems de la compra asociados:
 	public List<PurchaseDTO> findByDateTime(LocalDateTime dateTime);
 	
-	//Encontramos las compras con una fecha y hora anterior o igual a una determinada y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con una fecha y hora anterior o igual a una determinada y el miembro e ítems de la compra asociados:
 	public List<PurchaseDTO> findByDateTimeBeforeThanOrEqual(LocalDateTime dateTime);
 	
-	//Encontramos las compras con una fecha y hora posterior o igual a una determinada y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con una fecha y hora posterior o igual a una determinada y el miembro e ítems de la compra asociados:
 	public List<PurchaseDTO> findByDateTimeAfterThanOrEqual(LocalDateTime dateTime);
 	
-	//Encontramos las compras con una fecha y hora en un rango determinado y el usuario e ítems de la compra asociados:
+	//Encontramos las compras con una fecha y hora en un rango determinado y el miembro e ítems de la compra asociados:
 	public List<PurchaseDTO> findByDateTimeRange(LocalDateTime fromDateTime, LocalDateTime untilDateTime);
 	
-	//Encontramos las compras de un determinado usuario por su nombre de usuario:
-	public List<PurchaseDTO> findByUser(String username);
+	//Encontramos las compras de un determinado miembro por su nombre de usuario:
+	public List<PurchaseDTO> findByMember(String username);
 	
 	//Obtener:
 	

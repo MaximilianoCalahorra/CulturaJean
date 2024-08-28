@@ -18,15 +18,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-///Entidad User:
+///Entidad Member:
 @Entity
 @Getter @Setter @NoArgsConstructor
-public class User 
+public class Member 
 {
 	//Atributos:
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int userId;
+	private int memberId;
 
 	@Column(name="username", unique=true, nullable=false, length=45)
 	private String username;
@@ -43,7 +43,7 @@ public class User
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
-	@OneToMany(fetch=FetchType.LAZY, mappedBy="user")
+	@OneToMany(fetch=FetchType.LAZY, mappedBy="member")
 	private Set<UserRole> userRoles = new HashSet<>();
 	
 	@Column(name="name", nullable=false, length=30)
@@ -57,7 +57,7 @@ public class User
 
 	//Constructores:
 	//Sin listado de roles asignado:
-	public User(String username, String password, boolean enabled, String name, String lastName, String email) 
+	public Member(String username, String password, boolean enabled, String name, String lastName, String email) 
 	{
 		this.username = username;
 		this.password = password;
@@ -68,7 +68,7 @@ public class User
 	}
 
 	//Con listado de roles asignado:
-	public User(String username, String password, boolean enabled, String name, String lastName, String email, Set<UserRole> userRoles)
+	public Member(String username, String password, boolean enabled, String name, String lastName, String email, Set<UserRole> userRoles)
 	{
 		this.username = username;
 		this.password = password;

@@ -13,8 +13,8 @@ public interface ISupplyOrderService
 	//Encontramos el pedido de aprovisionamiento con determinado id:
 	public SupplyOrder findBySupplyOrderId(int supplyOrderId);
 	
-	//Encontramos el pedido de aprovisionamiento con determinado id y su producto, usuario y proveedor asociados:
-	public SupplyOrder findBySupplyOrderIdWithProductAndUserAndSupplier(int supplyOrderId);
+	//Encontramos el pedido de aprovisionamiento con determinado id y su producto, miembro y proveedor asociados:
+	public SupplyOrder findBySupplyOrderIdWithProductAndMemberAndSupplier(int supplyOrderId);
 	
 	//Encontramos los pedidos de aprovisionamiento de un producto determinado por su código con los objetos asociados:
 	public List<SupplyOrderDTO> findByProductCode(String code);
@@ -38,7 +38,7 @@ public interface ISupplyOrderService
 	public List<SupplyOrderDTO> findByDelivered(boolean delivered);
 	
 	//Encontramos los pedidos de aprovisionamiento de determinado administrador por su nombre de usuario:
-	public List<SupplyOrderDTO> findByUser(String username);
+	public List<SupplyOrderDTO> findByMember(String username);
 	
 	//Obtener:
 	

@@ -34,10 +34,10 @@ public class SupplyOrder
 	@JoinColumn(name="product_id", nullable=false)
 	private Product product;
 	
-	//Relación many to one entre SupplyOrder y User:
+	//Relación many to one entre SupplyOrder y Member:
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user_id", nullable=false)
-	private User user;
+	@JoinColumn(name="member_id", nullable=false)
+	private Member member;
 	
 	//Relación many to one entre SupplyOrder y Supplier:
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -57,10 +57,10 @@ public class SupplyOrder
 	private LocalDateTime updatedAt;
 	
 	//Constructor:
-	public SupplyOrder(Product product, User user, Supplier supplier, int amount, boolean delivered) 
+	public SupplyOrder(Product product, Member member, Supplier supplier, int amount, boolean delivered) 
 	{
 		this.product = product;
-		this.user = user;
+		this.member = member;
 		this.supplier = supplier;
 		this.amount = amount;
 		this.delivered = delivered;

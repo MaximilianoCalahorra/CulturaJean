@@ -34,11 +34,11 @@ public class SupplyOrderService implements ISupplyOrderService
 		return supplyOrderRepository.findBySupplyOrderId(supplyOrderId);
 	}
 	
-	//Encontramos el pedido de aprovisionamiento con determinado id y su producto, usuario y proveedor asociados:
+	//Encontramos el pedido de aprovisionamiento con determinado id y su producto, miembro y proveedor asociados:
 	@Override
-	public SupplyOrder findBySupplyOrderIdWithProductAndUserAndSupplier(int supplyOrderId) 
+	public SupplyOrder findBySupplyOrderIdWithProductAndMemberAndSupplier(int supplyOrderId) 
 	{
-		return supplyOrderRepository.findBySupplyOrderIdWithProductAndUserAndSupplier(supplyOrderId);
+		return supplyOrderRepository.findBySupplyOrderIdWithProductAndMemberAndSupplier(supplyOrderId);
 	}
 	
 	//Encontramos los pedidos de aprovisionamiento de un producto determinado por su código con los objetos asociados:
@@ -113,9 +113,9 @@ public class SupplyOrderService implements ISupplyOrderService
 	
 	//Encontramos los pedidos de aprovisionamiento de determinado administrador por su nombre de usuario:
 	@Override
-	public List<SupplyOrderDTO> findByUser(String username)
+	public List<SupplyOrderDTO> findByMember(String username)
 	{
-		return supplyOrderRepository.findByUser(username) //Obtenemos los pedidos de aprovisionamiento de ese usuario como entidades.
+		return supplyOrderRepository.findByMember(username) //Obtenemos los pedidos de aprovisionamiento de ese miembro como entidades.
 				.stream()
 				.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.

@@ -13,16 +13,16 @@ public class PurchaseDTO
 {
 	//Atributos:
 	private int purchaseId;
-	private UserDTO user;
+	private MemberDTO member;
 	private Set<PurchaseItemDTO> purchaseItems;
 	private String methodOfPay;
 	private LocalDateTime dateTime;
 	
 	//Constructor:
-	public PurchaseDTO(int purchaseId, UserDTO user,String methodOfPay, LocalDateTime dateTime) 
+	public PurchaseDTO(int purchaseId, MemberDTO member, String methodOfPay, LocalDateTime dateTime) 
 	{
 		setPurchaseId(purchaseId);
-		this.user = user;
+		this.member = member;
 		this.methodOfPay = methodOfPay;
 		this.dateTime = dateTime;
 	}

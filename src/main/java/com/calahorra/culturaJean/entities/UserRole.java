@@ -22,7 +22,7 @@ import lombok.Setter;
 ///Entidad UserRole:
 @Entity
 @Getter @Setter @NoArgsConstructor
-@Table(name="user_role", uniqueConstraints=@UniqueConstraint(columnNames= {"role", "user_id"}))
+@Table(name="user_role", uniqueConstraints=@UniqueConstraint(columnNames= {"role", "member_id"}))
 public class UserRole 
 {
 	//Atributos:
@@ -31,8 +31,8 @@ public class UserRole
 	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user_id", nullable=false)
-	private User user;
+	@JoinColumn(name="member_id", nullable=false)
+	private Member member;
 
 	@Column(name="role", nullable=false, length=100)
 	private String role;
@@ -44,10 +44,10 @@ public class UserRole
 	private LocalDateTime updatedAt;
 
 	//Constructor:
-	public UserRole(int id, User user, String role)
+	public UserRole(int id, Member member, String role)
 	{
 		this.id = id;
-		this.user = user;
+		this.member = member;
 		this.role = role;
 	}
 }

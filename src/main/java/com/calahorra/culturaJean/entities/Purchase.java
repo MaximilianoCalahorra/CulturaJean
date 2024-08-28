@@ -32,10 +32,10 @@ public class Purchase
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int purchaseId;
 	
-	//Relación many to one entre Purchase y User:
+	//Relación many to one entre Purchase y Member:
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="user_id", nullable=false)
-	private User user;
+	@JoinColumn(name="member_id", nullable=false)
+	private Member member;
 	
 	//Relación one to many entre Purchase y PurchaseItem:
 	@OneToMany(fetch=FetchType.LAZY, mappedBy="purchase")
@@ -51,9 +51,9 @@ public class Purchase
 	private LocalDateTime updatedAt;
 	
 	//Constructor:
-	public Purchase(User user, String methodOfPay) 
+	public Purchase(Member member, String methodOfPay) 
 	{
-		this.user = user;
+		this.member = member;
 		this.methodOfPay = methodOfPay;
 	}
 }
