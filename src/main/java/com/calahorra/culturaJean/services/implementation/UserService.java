@@ -25,7 +25,7 @@ public class UserService implements UserDetailsService
 {
 	//Atributos:
 	private IUserRepository userRepository;
-	private ModelMapper modelMapper;
+	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
 	public UserService(IUserRepository userRepository)

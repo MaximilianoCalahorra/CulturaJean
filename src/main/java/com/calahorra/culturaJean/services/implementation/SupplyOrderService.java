@@ -17,7 +17,7 @@ public class SupplyOrderService implements ISupplyOrderService
 {
 	//Atributos:
 	private ISupplyOrderRepository supplyOrderRepository;
-	private ModelMapper modelMapper;
+	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
 	public SupplyOrderService(ISupplyOrderRepository supplyOrderRepository) 
@@ -106,6 +106,16 @@ public class SupplyOrderService implements ISupplyOrderService
 	public List<SupplyOrderDTO> findByDelivered(boolean delivered)
 	{
 		return supplyOrderRepository.findByDelivered(delivered) //Obtenemos los pedidos de aprovisionamiento en ese estado como entidades.
+				.stream()
+				.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)) //Convertimos cada entidad en un DTO.
+				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
+	}
+	
+	//Encontramos los pedidos de aprovisionamiento de determinado administrador por su nombre de usuario:
+	@Override
+	public List<SupplyOrderDTO> findByUser(String username)
+	{
+		return supplyOrderRepository.findByUser(username) //Obtenemos los pedidos de aprovisionamiento de ese usuario como entidades.
 				.stream()
 				.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
