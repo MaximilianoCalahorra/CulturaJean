@@ -44,9 +44,8 @@ public class UserRole
 	private LocalDateTime updatedAt;
 
 	//Constructor:
-	public UserRole(int id, Member member, String role)
+	public UserRole(Member member, String role)
 	{
-		this.id = id;
 		this.member = member;
 		this.role = role;
 	}
