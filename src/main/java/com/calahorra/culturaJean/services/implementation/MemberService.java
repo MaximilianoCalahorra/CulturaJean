@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -64,6 +66,12 @@ public class MemberService implements UserDetailsService
 	public Member findByUsernameAndFetchUserRolesEagerly(String username) 
 	{
 		return memberRepository.findByUsernameAndFetchUserRolesEagerly(username);
+	}
+	
+	//Miembro como DTO por determinado nombre de usuario:
+	public MemberDTO findByUsername(String username) 
+	{
+		return modelMapper.map(memberRepository.findByUsernameAndFetchUserRolesEagerly(username), MemberDTO.class);
 	}
 	
 	//Encontramos el miembro con determinado id y sus roles asociados:
@@ -153,7 +161,7 @@ public class MemberService implements UserDetailsService
 		//Validamos que no exista otro miembro con el nombre de usuario elegido:
 		if(findByUsernameAndFetchUserRolesEagerly(member.getUsername()) != null) 
 		{
-			throw new Exception("Error! There is a member with username " + member.getUsername());
+			throw new Exception("There is alredy a member with username " + member.getUsername());
 		}
 		return modelMapper.map(memberRepository.save(member), MemberDTO.class); //Insertamos el miembro en la base de datos y lo retornamos como DTO.
 	}
@@ -173,7 +181,7 @@ public class MemberService implements UserDetailsService
 		*/
 		if(existingMember != null && existingMember.getMemberId() != member.getMemberId()) 
 		{
-			throw new Exception("Error! There is a member with username " + member.getUsername());
+			throw new Exception("There is alredy a member with username " + member.getUsername());
 		}
 		return modelMapper.map(memberRepository.save(member), MemberDTO.class); //Modificamos el miembro en la base de datos y lo retornamos como DTO.
 	}
@@ -194,5 +202,24 @@ public class MemberService implements UserDetailsService
 		{
 			return false;
 		}
+	}
+	
+	//Validar:
+	
+	//Validamos que el email indicado para un miembro sea del formato apropiado:
+	public boolean validateEmail(String email)
+	{
+		//Los emails válidos son aquellos que tengan:
+		//- Debe empezar con una letra minúscula o mayúscula.
+		//- Debe haber como máximo uno de '-', '.', '_', '+' o '&'.
+		//- Debe continuar con números, letras minúsculas o mayúsculas.
+		//- Debe seguir con un '@'.
+		//- Debe seguir con números, letras minúsculas o mayúsculas y/o '-'.
+		//- Debe continuar con un '.'
+		//- Las dos condiciones anteriores se pueden repetir pero en ese orden.
+		//- Debe finalizar con letras minúsculas o mayúsculas con una cantidad mínima de 2 y máxima de 6.
+		Pattern pattern = Pattern.compile("^([a-zA-Z]+[-._+&])*[0-9a-zA-Z]+@([-0-9a-zA-Z]+[.])+[a-zA-Z]{2,6}$"); //Definimos la expresión regular.
+		Matcher matcher = pattern.matcher(email); //Comparamos el email con la expresión regular.
+		return matcher.matches(); //Retornamos si el email es válido o no.
 	}
 }
