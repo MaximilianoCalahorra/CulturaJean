@@ -16,6 +16,9 @@ public interface ISupplierService
 	//Encontramos el proveedor con determinado nombre:
 	public Supplier findByName(String name);
 	
+	//Encontramos el proveedor con determinado nombre:
+	public SupplierDTO findDTOByName(String name);
+	
 	//Encontramos el proveedor con determinado número de teléfono:
 	public Supplier findByPhoneNumber(String phoneNumber);
 	
