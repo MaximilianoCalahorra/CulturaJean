@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import com.calahorra.culturaJean.services.implementation.UserService;
+import com.calahorra.culturaJean.services.implementation.MemberService;
 
 ///Clase SecurityConfiguration:
 @Configuration
@@ -23,10 +23,10 @@ import com.calahorra.culturaJean.services.implementation.UserService;
 public class SecurityConfiguration 
 {
 	//Atributo:
-	private final UserService userService;
+	private final MemberService userService;
 
 	//Constructor:
-	public SecurityConfiguration(UserService userService) 
+	public SecurityConfiguration(MemberService userService) 
 	{
 		this.userService = userService;
 	}
@@ -38,8 +38,9 @@ public class SecurityConfiguration
 				.csrf(AbstractHttpConfigurer::disable)
 				.cors(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> {
-					auth.requestMatchers("/css/*", "/imgs/*", "/js/*", "/vendor/bootstrap/css/*",
-							"/vendor/jquery/*", "/vendor/bootstrap/js/*", "/api/v1/**").permitAll();
+					auth.requestMatchers("/css/*", "/assets/img/**", "/js/*", "/vendor/bootstrap/css/*",
+							"/vendor/jquery/*", "/vendor/bootstrap/js/*", "/api/v1/**", "/", "/registerAdd", "/aboutUs/visitor", "/help/visitor",
+							"/register", "/product/visitor", "/stores/visitor").permitAll();
 					auth.anyRequest().authenticated();
 				})
 				.formLogin(login -> {
