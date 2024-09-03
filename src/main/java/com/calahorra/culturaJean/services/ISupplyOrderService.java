@@ -14,7 +14,7 @@ public interface ISupplyOrderService
 	public SupplyOrder findBySupplyOrderId(int supplyOrderId);
 	
 	//Encontramos el pedido de aprovisionamiento con determinado id y su producto, miembro y proveedor asociados:
-	public SupplyOrder findBySupplyOrderIdWithProductAndMemberAndSupplier(int supplyOrderId);
+	public SupplyOrderDTO findBySupplyOrderIdWithProductAndMemberAndSupplier(int supplyOrderId);
 	
 	//Encontramos los pedidos de aprovisionamiento de un producto determinado por su código con los objetos asociados:
 	public List<SupplyOrderDTO> findByProductCode(String code);

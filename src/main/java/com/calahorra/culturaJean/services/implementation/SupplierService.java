@@ -1,7 +1,7 @@
 package com.calahorra.culturaJean.services.implementation;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Collectors; 
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -39,6 +39,13 @@ public class SupplierService implements ISupplierService
 	public Supplier findByName(String name)
 	{
 		return supplierRepository.findByName(name); //Buscamos el proveedor en la base de datos.
+	}
+	
+	//Enconrtamos el proveedor con determinado nombre:
+	@Override
+	public SupplierDTO findDTOByName(String name)
+	{
+		return modelMapper.map(supplierRepository.findByName(name), SupplierDTO.class); //Buscamos el proveedor en la base de datos.
 	}
 	
 	//Encontramos el proveedor con determinado número de teléfono:

@@ -56,6 +56,17 @@ public class LotService implements ILotService
 		return lotRepository.findByLotIdWithStockAndSupplyOrder(lotId);
 	}
 	
+	//Encontramos el lote que se corresponde con determinado pedido de aprovisionamiento por el id del último:
+	public LotDTO findBySupplyOrder(int supplyOrderId)
+	{
+		Lot lot = lotRepository.findBySupplyOrder(supplyOrderId);
+		if(lot == null) 
+		{
+			return null;
+		}
+		return modelMapper.map(lot, LotDTO.class);
+	}
+	
 	//Encontramos los lotes con determinada fecha de recepción:
 	@Override
 	public List<LotDTO> findByReceptionDate(LocalDate receptionDate)

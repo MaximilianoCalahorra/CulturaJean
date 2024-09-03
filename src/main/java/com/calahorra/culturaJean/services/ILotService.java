@@ -23,6 +23,9 @@ public interface ILotService
 	//Encontramos el lote con determinado id y su stock y su pedido de aprovisionamiento asociados:
 	public Lot findByLotIdWithStockAndSupplyOrder(int lotId);
 	
+	//Encontramos el lote que se corresponde con determinado pedido de aprovisionamiento por el id del último:
+	public LotDTO findBySupplyOrder(int supplyOrderId);
+	
 	//Encontramos los lotes con determinada fecha de recepción:
 	public List<LotDTO> findByReceptionDate(LocalDate receptionDate);
 	

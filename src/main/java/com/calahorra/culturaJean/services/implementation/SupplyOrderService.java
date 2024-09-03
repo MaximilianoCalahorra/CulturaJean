@@ -36,9 +36,9 @@ public class SupplyOrderService implements ISupplyOrderService
 	
 	//Encontramos el pedido de aprovisionamiento con determinado id y su producto, miembro y proveedor asociados:
 	@Override
-	public SupplyOrder findBySupplyOrderIdWithProductAndMemberAndSupplier(int supplyOrderId) 
+	public SupplyOrderDTO findBySupplyOrderIdWithProductAndMemberAndSupplier(int supplyOrderId) 
 	{
-		return supplyOrderRepository.findBySupplyOrderIdWithProductAndMemberAndSupplier(supplyOrderId);
+		return modelMapper.map(supplyOrderRepository.findBySupplyOrderIdWithProductAndMemberAndSupplier(supplyOrderId), SupplyOrderDTO.class);
 	}
 	
 	//Encontramos los pedidos de aprovisionamiento de un producto determinado por su código con los objetos asociados:

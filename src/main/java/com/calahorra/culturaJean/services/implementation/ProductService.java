@@ -1,10 +1,15 @@
 package com.calahorra.culturaJean.services.implementation;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.calahorra.culturaJean.dtos.ProductDTO;
 import com.calahorra.culturaJean.entities.Product;
@@ -237,7 +242,7 @@ public class ProductService implements IProductService
 		//Si existe otro producto con el mismo código evitamos que se registre en la base de datos:
 		if(productRepository.findByCode(product.getCode()) != null) 
 		{
-			throw new Exception("Error! There is a product with code #" + product.getCode());
+			throw new Exception("There is already a product with code #" + product.getCode());
 		}
 		Product savedProduct = productRepository.save(modelMapper.map(product, Product.class)); //Insertamos el producto en la base de datos.
 		return modelMapper.map(savedProduct, ProductDTO.class); //Convertimos en DTO el producto y lo retornamos.
@@ -258,7 +263,7 @@ public class ProductService implements IProductService
 		*/
 		if(existingProduct != null && existingProduct.getProductId() != product.getProductId()) 
 		{
-			throw new Exception("Error! There is a product with code #" + product.getCode());
+			throw new Exception("There is already a product with code #" + product.getCode());
 		}
 		Product updatedProduct = productRepository.save(modelMapper.map(product, Product.class)); //Modificamos el producto en la base de datos.
 		return modelMapper.map(updatedProduct, ProductDTO.class); //Convertimos en DTO el producto y lo retornamos.
@@ -273,13 +278,63 @@ public class ProductService implements IProductService
 		try 
 		{
 			Product product = findByProductId(productId); //Buscamos el producto.
-			product.setEnabled(false); //Deshabilitamos el producto.
-			productRepository.save(product); //Modificamos el registro del producto en la base de datos.
-			return true;
+			
+			//Solo lo actualizamos en la base de datos si está habilitado:
+			if(product.isEnabled()) 
+			{
+				product.setEnabled(false); //Deshabilitamos el producto.
+				productRepository.save(product); //Modificamos el registro del producto en la base de datos.
+				return true;
+			}
+			return false;
 		}
 		catch(Exception e) 
 		{
 			return false;
 		}
+	}
+	
+	//Subir:
+	
+	//Subimos una imagen al servidor y retornamos el producto que la llevará:
+	public boolean uploadImage(ProductDTO product, MultipartFile file) 
+	{
+		boolean completed = true; //Suponemos que el proceso se va a completar:
+		
+		//Verificamos si se subió alguna imagen o no:
+		//En caso de que no se haya subido ninguna imagen se entiende que es porque se cambió el código del producto para que tome la imagen
+		//de otro.
+		if(!file.isEmpty()) 
+		{
+			//En caso de que sí:
+			try 
+			{
+				//Definimos la ruta donde se va a subir la imagen asociada al producto:
+				String upload_address = "src/main/resources/static/assets/img/products/" + product.getGender() + "/" + product.getCategory() + "/";
+				//Verificamos que el nombre del archivo no sea vacío:
+	            //Definimos el nombre del archivo que se va a subir:
+	            String extension = ".jpeg"; //Definimos que la extensión será '.jpeg' porque es el único tipo de archivo que dejamos subir.
+	            String newFileName =  product.getImageName() + extension; //El nuevo nombre del archivo viene dado por la concatenación entre el nombre y la extensión que definimos.
+	 
+	            //Guardamos la imagen en la carpeta especificada:
+	            Path path = Paths.get(upload_address + newFileName); //Definimos el path, que será la dirección + el nombre del archivo.
+	            Files.copy(file.getInputStream(), path); //Obtenemos el archivo y lo guardamos en esa dirección.
+	           
+	            //Hacemos un poco de tiempo para que se suba la imagen:
+	            try 
+	            {
+	    			Thread.sleep(3000);
+	    		} 
+	            catch(InterruptedException e) 
+	            {
+	    			e.printStackTrace();
+	    		}
+	        } 
+			catch(IOException e) 
+			{
+				completed = false; //Falló el proceso de subida de la imagen.
+			}
+		}
+		return completed; //Retornamos el resultado de la operación.
 	}
 }

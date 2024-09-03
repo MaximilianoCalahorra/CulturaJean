@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +37,7 @@ public class Lot
 	private Stock stock;
 	
 	//Relación one to one entre Lot y SupplyOrder:
-	@OneToOne(cascade=CascadeType.ALL)
+	@OneToOne()
     @JoinColumn(name="supply_order_id", referencedColumnName="supplyOrderId", nullable=false)
 	private SupplyOrder supplyOrder;
 	

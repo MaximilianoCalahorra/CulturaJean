@@ -2,6 +2,8 @@ package com.calahorra.culturaJean.services;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.calahorra.culturaJean.dtos.ProductDTO;
 import com.calahorra.culturaJean.entities.Product;
 
@@ -91,4 +93,9 @@ public interface IProductService
 	
 	//Deshabilitamos el producto con determinado id de la base de datos:
 	public boolean logicalDelete(int productId);
+	
+	//Subir:
+	
+	//Subimos una imagen al servidor y retornamos el producto que la llevará:
+	public boolean uploadImage(ProductDTO product, MultipartFile file);
 }
