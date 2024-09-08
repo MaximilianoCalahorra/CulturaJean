@@ -23,12 +23,12 @@ import com.calahorra.culturaJean.services.implementation.MemberService;
 public class SecurityConfiguration 
 {
 	//Atributo:
-	private final MemberService userService;
+	private final MemberService memberService;
 
 	//Constructor:
-	public SecurityConfiguration(MemberService userService) 
+	public SecurityConfiguration(MemberService memberService) 
 	{
-		this.userService = userService;
+		this.memberService = memberService;
 	}
 
 	@Bean
@@ -40,7 +40,7 @@ public class SecurityConfiguration
 				.authorizeHttpRequests(auth -> {
 					auth.requestMatchers("/css/*", "/assets/img/**", "/js/*", "/vendor/bootstrap/css/*",
 							"/vendor/jquery/*", "/vendor/bootstrap/js/*", "/api/v1/**", "/", "/registerAdd", "/aboutUs/visitor", "/help/visitor",
-							"/register", "/product/visitor", "/stores/visitor").permitAll();
+							"/register", "/product/visitor", "/stores/visitor", "/product/moreDetails/visitor/**").permitAll();
 					auth.anyRequest().authenticated();
 				})
 				.formLogin(login -> {
@@ -70,7 +70,7 @@ public class SecurityConfiguration
 	{
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setPasswordEncoder(passwordEncoder());
-		provider.setUserDetailsService(userService);
+		provider.setUserDetailsService(memberService);
 		return provider;
 	}
 

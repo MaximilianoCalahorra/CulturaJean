@@ -83,6 +83,12 @@ public class ViewRouteHelper
 	//Cargamos la vista que muestra al administrador el producto después de haber sido editado:
 	public final static String POST_EDIT_PRODUCT = "shop/edit/post";
 	
+	//Cargamos la vista que muestra más detalles acerca del producto seleccionado al visitante:
+	public final static String MORE_DETAILS_PRODUCT_VISITOR = "shop/moreDetails/visitor";
+	
+	//Cargamos la vista que muestra más detalles acerca del producto seleccionado al cliente:
+	public final static String MORE_DETAILS_PRODUCT_CUSTOMER = "shop/moreDetails/customer";
+	
 	//CUSTOMER
 	
 	//Cargamos la vista de los clientes para el administrador:
