@@ -28,6 +28,10 @@ public interface IMemberRepository extends JpaRepository<Member, Serializable>
 	@Query("SELECT m FROM Member m INNER JOIN FETCH m.userRoles ur WHERE ur.role = (:role)")
 	public abstract List<Member> findByUserRole(@Param("role")String role);
 	
+	//Encontramos los miembros habilitados/deshabilitados con determinado rol:
+	@Query("SELECT m FROM Member m INNER JOIN FETCH m.userRoles ur WHERE m.enabled = (:enabled) AND ur.role = (:role)")
+	public abstract List<Member> findByEnabledAndUserRole(@Param("enabled")boolean enabled, @Param("role")String role);
+	
 	//Ordenar:
 	
 	//Ordenamos los miembros de determinado rol por nombre de forma ascendente:

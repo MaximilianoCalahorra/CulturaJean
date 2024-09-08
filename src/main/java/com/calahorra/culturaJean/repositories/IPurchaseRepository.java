@@ -1,7 +1,9 @@
 package com.calahorra.culturaJean.repositories;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,6 +32,46 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Serializabl
 			+ "WHERE p.methodOfPay = (:methodOfPay)")
 	public abstract List<Purchase> findByMethodOfPay(@Param("methodOfPay")String methodOfPay);
 	
+	//Encontramos las compras con determinada fecha y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE DATE(p.dateTime) = (:date)")
+	public abstract List<Purchase> findByDate(@Param("date")LocalDate date);
+	
+	//Encontramos las compras con una fecha anterior o igual a una determinada y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE DATE(p.dateTime) <= (:date)")
+	public abstract List<Purchase> findByDateBeforeThanOrEqual(@Param("date")LocalDate date);
+	
+	//Encontramos las compras con una fecha posterior o igual a una determinada y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE DATE(p.dateTime) >= (:date)")
+	public abstract List<Purchase> findByDateAfterThanOrEqual(@Param("date")LocalDate date);
+	
+	//Encontramos las compras con una fecha en un rango determinado y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE DATE(p.dateTime) BETWEEN (:fromDate) AND (:untilDate)")
+	public abstract List<Purchase> findByDateRange(@Param("fromDate")LocalDate fromDate,  @Param("untilDate")LocalDate untilDate);
+	
+	//Encontramos las compras con determinada hora y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE TIME(p.dateTime) = (:time)")
+	public abstract List<Purchase> findByTime(@Param("time")LocalTime time);
+	
+	//Encontramos las compras con una hora anterior o igual a una determinada y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE TIME(p.dateTime) <= (:time)")
+	public abstract List<Purchase> findByTimeBeforeThanOrEqual(@Param("time")LocalTime time);
+	
+	//Encontramos las compras con una hora posterior o igual a una determinada y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE TIME(p.dateTime) >= (:time)")
+	public abstract List<Purchase> findByTimeAfterThanOrEqual(@Param("time")LocalTime time);
+	
+	//Encontramos las compras con una hora en un rango determinado y el miembro e ítems de la compra asociados:
+	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
+			+ "WHERE TIME(p.dateTime) BETWEEN (:fromTime) AND (:untilTime)")
+	public abstract List<Purchase> findByTimeRange(@Param("fromTime")LocalTime fromTime, @Param("untilTime")LocalTime untilTime);
+	
 	//Encontramos las compras con determinada fecha y hora y el miembro e ítems de la compra asociados:
 	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
 			+ "WHERE p.dateTime = (:dateTime)")
@@ -55,6 +97,10 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Serializabl
 	@Query("SELECT p FROM Purchase p INNER JOIN FETCH p.member m INNER JOIN FETCH p.purchaseItems pi INNER JOIN FETCH pi.product "
 			+ "WHERE m.username = (:username)")
 	public abstract List<Purchase> findByMember(@Param("username")String username);
+	
+	//Encontramos los nombres de usuario de los clientes que realizaron compras ordenados de forma alfabética:
+	@Query("SELECT m.username FROM Purchase p INNER JOIN p.member m GROUP BY m.username ORDER BY m.username")
+	public abstract List<String> getAllUsernames();
 	
 	//Ordenar:
 	

@@ -1,6 +1,7 @@
 package com.calahorra.culturaJean.services.implementation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -89,6 +90,15 @@ public class MemberService implements UserDetailsService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
+	//Encontramos los miembros habilitados/deshabilitados con determinado rol:
+	public List<MemberDTO> findByEnabledAndUserRole(boolean enabled, String role)
+	{
+		return memberRepository.findByEnabledAndUserRole(enabled, role) //Obtenemos los miembros en ese estado y con ese rol como entidades.
+				.stream()
+				.map(user -> modelMapper.map(user, MemberDTO.class)) //Convertimos cada entidad en un DTO.
+				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
+	}
+	
 	//Obtener:
 	
 	//Obtenemos todos los miembros:
@@ -151,6 +161,48 @@ public class MemberService implements UserDetailsService
 				.stream()
 				.map(user -> modelMapper.map(user, MemberDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
+	}
+	
+	//Ordenamos los miembros por nombre de forma alfabética:
+	public List<MemberDTO> inOrderAscByName(List<MemberDTO> members)
+	{
+		Collections.sort(members, (m1, m2) -> m1.getName().compareToIgnoreCase(m2.getName()));
+		return members;
+	}
+	
+	//Ordenamos los miembros por nombre de forma inversa al alfabeto:
+	public List<MemberDTO> inOrderDescByName(List<MemberDTO> members)
+	{
+		Collections.sort(members, (m1, m2) -> m2.getName().compareToIgnoreCase(m1.getName()));
+		return members;
+	}
+	
+	//Ordenamos los miembros por apellido de forma alfabética:
+	public List<MemberDTO> inOrderAscByLastName(List<MemberDTO> members)
+	{
+		Collections.sort(members, (m1, m2) -> m1.getLastName().compareToIgnoreCase(m2.getLastName()));
+		return members;
+	}
+	
+	//Ordenamos los miembros por apellido de forma inversa al alfabeto:
+	public List<MemberDTO> inOrderDescByLastName(List<MemberDTO> members)
+	{
+		Collections.sort(members, (m1, m2) -> m2.getLastName().compareToIgnoreCase(m1.getLastName()));
+		return members;
+	}
+	
+	//Ordenamos los miembros por nombre de usuario de forma alfabética:
+	public List<MemberDTO> inOrderAscByUsername(List<MemberDTO> members)
+	{
+		Collections.sort(members, (m1, m2) -> m1.getUsername().compareToIgnoreCase(m2.getUsername()));
+		return members;
+	}
+	
+	//Ordenamos los miembros por nombre de usuario de forma inversa al alfabeto:
+	public List<MemberDTO> inOrderDescByUsername(List<MemberDTO> members)
+	{
+		Collections.sort(members, (m1, m2) -> m2.getUsername().compareToIgnoreCase(m1.getUsername()));
+		return members;
 	}
 	
 	//Agregar:
