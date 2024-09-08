@@ -42,7 +42,11 @@ public class SaleController
 							  @RequestParam(value = "rangeFromTime", defaultValue = "")String rangeFromTime,
 							  @RequestParam(value = "rangeUntilTime", defaultValue = "")String rangeUntilTime,
 							  @RequestParam(value = "username", defaultValue = "All")String username,
-							  @RequestParam(value = "methodOfPay", defaultValue = "All")String methodOfPay) 
+							  @RequestParam(value = "methodOfPay", defaultValue = "All")String methodOfPay,
+							  @RequestParam(value = "fromSalePrice", defaultValue = "")String fromSalePrice,
+							  @RequestParam(value = "untilSalePrice", defaultValue = "")String untilSalePrice,
+							  @RequestParam(value = "rangeFromSalePrice", defaultValue = "")String rangeFromSalePrice,
+							  @RequestParam(value = "rangeUntilSalePrice", defaultValue = "")String rangeUntilSalePrice) 
 	{
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SALES);
 		
@@ -127,6 +131,24 @@ public class SaleController
 			sales = purchaseService.filterByMethodOfPay(sales, methodOfPay);
 		}
 		
+		//Aplicamos filtros según corresponda por precio de la venta:
+		if(!fromSalePrice.equals("") && untilSalePrice.equals("") && rangeFromSalePrice.equals("") && rangeUntilSalePrice.equals("")) //Filtramos por mayores o iguales a un precio.
+		{
+			float fromSalePriceNumber = Float.parseFloat(fromSalePrice); //Convertimos la cadena a float.
+			sales = purchaseService.filterByFromPurchasePrice(sales, fromSalePriceNumber); //Nos quedamos con las ventas con ese tipo de precio.
+		}
+		else if(!untilSalePrice.equals("") && fromSalePrice.equals("") && rangeFromSalePrice.equals("") && rangeUntilSalePrice.equals("")) //Filtramos por menores o iguales a un precio.
+		{
+			float untilSalePriceNumber = Float.parseFloat(untilSalePrice); //Convertimos la cadena a float.
+			sales = purchaseService.filterByUntilPurchasePrice(sales, untilSalePriceNumber); //Nos quedamos con las ventas con ese tipo de precio.
+		}
+		else if(!rangeFromSalePrice.equals("") && !rangeUntilSalePrice.equals("") && fromSalePrice.equals("") && untilSalePrice.equals("")) //Filtramos por un rango de precios.
+		{
+			float rangeFromSalePriceNumber = Float.parseFloat(rangeFromSalePrice); //Convertimos la cadena a float.
+			float rangeUntilSalePriceNumber = Float.parseFloat(rangeUntilSalePrice); //Convertimos la cadena a float.
+			sales = purchaseService.filterByPurchasePriceRange(sales, rangeFromSalePriceNumber, rangeUntilSalePriceNumber); //Nos quedamos con las ventas con ese tipo de precio.
+		}
+		
 		//Ordenamos el listado de ventas resultante de los procesos anteriores en base al tipo de ordenamiento elegido:
 		switch(order) 
 		{
@@ -136,6 +158,8 @@ public class SaleController
 			case "orderDescByUsername": sales = purchaseService.inOrderDescByUsername(sales); break; //Inverso al alfabeto por nombre de usuario.
 			case "orderAscByMethodOfPay": sales = purchaseService.inOrderAscByMethodOfPay(sales); break; //Alfabéticamente por método de pago.
 			case "orderDescByMethodOfPay": sales = purchaseService.inOrderDescByMethodOfPay(sales); break; //Inverso al alfabeto por método de pago.
+			case "orderAscByPurchasePrice": sales = purchaseService.inOrderAscByPurchasePrice(sales); break; //Ascendente por precio de compra.
+			case "orderDescByPurchasePrice": sales = purchaseService.inOrderDescByPurchasePrice(sales); break; //Descendente por precio de compra.
 		}
 		
 		//Agregamos la siguiente información a la vista:
@@ -152,6 +176,10 @@ public class SaleController
 		modelAndView.addObject("usernames", purchaseService.getAllUsernames()); //Adjuntamos un listado con los nombres de usuarios que tienen compras.
 		modelAndView.addObject("username", username); //Adjuntamos el nombre de usuario aplicado como filtro.
 		modelAndView.addObject("methodOfPay", methodOfPay); //Adjuntamos el método de pago aplicado como filtro.
+		modelAndView.addObject("fromSalePrice", fromSalePrice); //Adjuntamos el filtro por mayores o iguales a un precio.
+		modelAndView.addObject("untilSalePrice", untilSalePrice); //Adjuntamos el filtro por menores o iguales a un precio.
+		modelAndView.addObject("rangeFromSalePrice", rangeFromSalePrice); //Adjuntamos el filtro por mayores o iguales a un precio dentro de un rango elegido.
+		modelAndView.addObject("rangeUntilSalePrice", rangeUntilSalePrice); //Adjuntamos el filtro por menores o iguales a un precio dentro de un rango elegido.
 		modelAndView.addObject("sales", sales); //Adjuntamos las ventas.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.

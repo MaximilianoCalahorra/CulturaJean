@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -317,6 +318,22 @@ public class PurchaseService implements IPurchaseService
 		return purchases;
 	}
 	
+	//Ordenamos las compras por el importe total de manera ascendente:
+	@Override
+	public List<PurchaseDTO> inOrderAscByPurchasePrice(List<PurchaseDTO> purchases)
+	{
+		purchases.sort(Comparator.comparingDouble(PurchaseDTO::calculateTotalSale));
+		return purchases;
+	}
+	
+	//Ordenamos las compras por el importe total de manera descendente:
+	@Override
+	public List<PurchaseDTO> inOrderDescByPurchasePrice(List<PurchaseDTO> purchases)
+	{
+		purchases.sort(Comparator.comparingDouble(PurchaseDTO::calculateTotalSale).reversed());
+		return purchases;
+	}
+	
 	//Agregar:
 	
 	//Agregamos una compra a la base de datos:
@@ -509,6 +526,60 @@ public class PurchaseService implements IPurchaseService
 			if (purchase.getDateTime().toLocalTime().isBefore(fromTime) || purchase.getDateTime().toLocalTime().isAfter(untilTime)) 
 			{
 				iterator.remove(); //En caso de que no tenga una fecha entre el rango de las del filtro, la removemos del listado.
+	        }
+	    }
+		return purchases; //Retornamos el listado de compras filtrado.
+	}
+	
+	//Filtramos las compras por el importe de la misma mayor o igual a uno determinado:
+	@Override
+	public List<PurchaseDTO> filterByFromPurchasePrice(List<PurchaseDTO> purchases, float fromPurchasePrice)
+	{
+		Iterator<PurchaseDTO> iterator = purchases.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya una compra por analizar:
+		while(iterator.hasNext())
+		{
+			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
+			if (purchase.calculateTotalSale() < fromPurchasePrice) 
+			{
+				iterator.remove(); //En caso de que no tenga un precio mayor o igual al mínimo del filtro, la removemos.
+	        }
+	    }
+		return purchases; //Retornamos el listado de compras filtrado.
+	}
+		
+	//Filtramos las compras por el importe de la misma menor o igual a uno determinado:
+	@Override
+	public List<PurchaseDTO> filterByUntilPurchasePrice(List<PurchaseDTO> purchases, float untilPurchasePrice)
+	{
+		Iterator<PurchaseDTO> iterator = purchases.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya una compra por analizar:
+		while(iterator.hasNext())
+		{
+			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
+			if (purchase.calculateTotalSale() > untilPurchasePrice) 
+			{
+				iterator.remove(); //En caso de que no tenga un precio menor o igual al mínimo del filtro, la removemos.
+	        }
+	    }
+		return purchases; //Retornamos el listado de compras filtrado.
+	}
+		
+	//Filtramos las compras por el importe de la misma entre un rango determinado:
+	@Override
+	public List<PurchaseDTO> filterByPurchasePriceRange(List<PurchaseDTO> purchases, float rangeFromPurchasePrice, float rangeUntilPurchasePrice)
+	{
+		Iterator<PurchaseDTO> iterator = purchases.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya una compra por analizar:
+		while(iterator.hasNext())
+		{
+			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
+			if (purchase.calculateTotalSale() < rangeFromPurchasePrice || purchase.calculateTotalSale() > rangeUntilPurchasePrice) 
+			{
+				iterator.remove(); //En caso de que no tenga un precio entre las del rango del filtro, la removemos.
 	        }
 	    }
 		return purchases; //Retornamos el listado de compras filtrado.
