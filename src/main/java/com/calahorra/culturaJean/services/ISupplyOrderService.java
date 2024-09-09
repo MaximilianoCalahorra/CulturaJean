@@ -120,4 +120,7 @@ public interface ISupplyOrderService
 	//Aplicamos el filtro seleccionado de la sección cantidad:
 	public List<SupplyOrderDTO> applyFilterTypeAmount(List<SupplyOrderDTO> supplyOrders, String amount, String fromAmount, String untilAmount,
 													  String rangeFromAmount, String rangeUntilAmount);
+	
+	//Filtramos los pedidos de aprovisionamiento por el estado de la entrega:
+	public List<SupplyOrderDTO> filterByDelivered(List<SupplyOrderDTO> supplyOrders, boolean delivered); 
 }

@@ -227,7 +227,8 @@ public class MemberController
 									   @RequestParam(value = "fromAmount", defaultValue = "")String fromAmount,
 									   @RequestParam(value = "untilAmount", defaultValue = "")String untilAmount,
 									   @RequestParam(value = "rangeFromAmount", defaultValue = "")String rangeFromAmount,
-									   @RequestParam(value = "rangeUntilAmount", defaultValue = "")String rangeUntilAmount) 
+									   @RequestParam(value = "rangeUntilAmount", defaultValue = "")String rangeUntilAmount,
+									   @RequestParam(value = "delivered", defaultValue = "all")String delivered) 
 	{
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MY_ACCOUNT_ADMIN);
 		
@@ -255,6 +256,13 @@ public class MemberController
 		//Aplicamos el filtro seleccionado de la sección cantidad:
 		supplyOrders = supplyOrderService.applyFilterTypeAmount(supplyOrders, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
 		
+		//Aplicamos el filtro de estado de la entrega que corresponda:
+		if(!delivered.equals("all")) 
+		{
+			boolean deliveredBoolean = Boolean.parseBoolean(delivered); //Convertimos la cadena a un valor booleano.
+			supplyOrders = supplyOrderService.filterByDelivered(supplyOrders, deliveredBoolean); //Nos quedamos con los pedidos de aprovisionamiento en ese estado.
+		}
+		
 		//Aplicamos el ordenamiento seleccionado:
 		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
 		
@@ -267,6 +275,7 @@ public class MemberController
 		modelAndView.addObject("untilAmount", untilAmount); //Adjuntamos el filtro de la cantidad menor o igual a una cantidad específica.
 		modelAndView.addObject("rangeFromAmount", rangeFromAmount); //Adjuntamos el filtro de una cantidad mayor o igual en un rango de cantidades.
 		modelAndView.addObject("rangeUntilAmount", rangeUntilAmount); //Adjuntamos el filtro de una cantidad menor o igual en un rango de cantidades.
+		modelAndView.addObject("delivered", delivered); //Adjuntamos el filtro de estado de entrega.
 		modelAndView.addObject("member", member); //Adjuntamos el administrador.
 		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
 		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode()); //Adjuntamos los códigos de los productos.

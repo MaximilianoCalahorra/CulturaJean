@@ -409,4 +409,21 @@ public class SupplyOrderService implements ISupplyOrderService
 		}
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
 	}
+	
+	//Filtramos los pedidos de aprovisionamiento por el estado de la entrega:
+	public List<SupplyOrderDTO> filterByDelivered(List<SupplyOrderDTO> supplyOrders, boolean delivered)
+	{
+		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un pedido de aprovisionamiento por analizar:
+		while(iterator.hasNext())
+		{
+			SupplyOrderDTO supplyOrder = iterator.next(); //Obtenemos ese pedido de aprovisionamiento.
+			if (!supplyOrder.isDelivered() == delivered) 
+			{
+				iterator.remove(); //En caso de que no tenga el estado del filtro, lo removemos.
+	        }
+	    }
+		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
+	}
 }
