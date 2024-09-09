@@ -106,6 +106,15 @@ public interface IPurchaseService
 	//Ordenamos las compras por método de pago de manera inversa al alfabeto:
 	public List<PurchaseDTO> inOrderDescByMethodOfPay(List<PurchaseDTO> purchases);
 	
+	//Ordenamos las compras por el importe total de manera ascendente:
+	public List<PurchaseDTO> inOrderAscByPurchasePrice(List<PurchaseDTO> purchases);
+	
+	//Ordenamos las compras por el importe total de manera descendente:
+	public List<PurchaseDTO> inOrderDescByPurchasePrice(List<PurchaseDTO> purchases);
+	
+	//Aplicamos el ordenamiento elegido:
+	public List<PurchaseDTO> applyOrder(List<PurchaseDTO> purchases, String order);
+	
 	//Agregar:
 	
 	//Agregamos una compra a la base de datos:
@@ -125,6 +134,13 @@ public interface IPurchaseService
 	//Filtramos las compras por un rango de fechas:
 	public List<PurchaseDTO> filterByDateRange(List<PurchaseDTO> purchases, LocalDate fromDate, LocalDate untilDate);
 	
+	//Aplicamos el filtro elegido de la sección fechas:
+	public List<PurchaseDTO> applyFilterTypeDate(String date, String fromDate, String untilDate, String rangeFromDate, String rangeUntilDate);
+	
+	//Aplicamos el filtro elegido de la sección fechas a un listado que le pasamos:
+	public List<PurchaseDTO> applyFilterTypeDateOnList(List<PurchaseDTO> purchases, String date, String fromDate, String untilDate,
+													   String rangeFromDate, String rangeUntilDate);
+	
 	//Filtramos las compras por hora:
 	public List<PurchaseDTO> filterByTime(List<PurchaseDTO> purchases, LocalTime time);
 	
@@ -137,11 +153,27 @@ public interface IPurchaseService
 	//Filtramos las compras por un rango de horas:
 	public List<PurchaseDTO> filterByTimeRange(List<PurchaseDTO> purchases, LocalTime fromTime, LocalTime untilTime);
 	
+	//Aplicamos el filtro elegido de la sección horas:
+	public List<PurchaseDTO> applyFilterTypeTime(List<PurchaseDTO> purchases, String fromTime, String untilTime, String rangeFromTime, String rangeUntilTime);
+	
 	//Filtramos las compras por nombre de usuario:
 	public List<PurchaseDTO> filterByUsername(List<PurchaseDTO> purchases, String username);
 	
 	//Filtramos las compras por método de pago:
 	public List<PurchaseDTO> filterByMethodOfPay(List<PurchaseDTO> purchases, String methodOfPay);
+	
+	//Filtramos las compras por el importe de la misma mayor o igual a uno determinado:
+	public List<PurchaseDTO> filterByFromPurchasePrice(List<PurchaseDTO> purchases, float fromPurchasePrice);
+	
+	//Filtramos las compras por el importe de la misma menor o igual a uno determinado:
+	public List<PurchaseDTO> filterByUntilPurchasePrice(List<PurchaseDTO> purchases, float untilPurchasePrice);
+	
+	//Filtramos las compras por el importe de la misma entre un rango determinado:
+	public List<PurchaseDTO> filterByPurchasePriceRange(List<PurchaseDTO> purchases, float rangeFromPurchasePrice, float rangeUntilPurchasePrice);	
+	
+	//Aplicamos el filtro elegido de la sección precio de la compra/venta:
+	public List<PurchaseDTO> applyFilterTypePurchasePrice(List<PurchaseDTO> purchases, String fromPurchasePrice, String untilPurchasePrice,
+														  String rangeFromPurchasePrice, String rangeUntilPurchasePrice);
 	
 	//Verificación de valores de inputs tipo date y time:
 	

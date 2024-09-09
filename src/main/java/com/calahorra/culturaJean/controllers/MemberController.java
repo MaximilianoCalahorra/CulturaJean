@@ -129,7 +129,22 @@ public class MemberController
 	
 	//Respondemos a las peticiones de acceso al perfil del cliente presentando la vista:
 	@GetMapping("/myAccount/customer")
-	public ModelAndView myAccountCustomer() 
+	public ModelAndView myAccountCustomer(@RequestParam(value = "order", defaultValue = "orderDescByDateTime")String order,
+										  @RequestParam(value = "date", defaultValue = "")String date,
+										  @RequestParam(value = "fromDate", defaultValue = "")String fromDate,
+										  @RequestParam(value = "untilDate", defaultValue = "")String untilDate,
+										  @RequestParam(value = "rangeFromDate", defaultValue = "")String rangeFromDate,
+										  @RequestParam(value = "rangeUntilDate", defaultValue = "")String rangeUntilDate,
+										  @RequestParam(value = "fromTime", defaultValue = "")String fromTime,
+										  @RequestParam(value = "untilTime", defaultValue = "")String untilTime,
+										  @RequestParam(value = "rangeFromTime", defaultValue = "")String rangeFromTime,
+										  @RequestParam(value = "rangeUntilTime", defaultValue = "")String rangeUntilTime,
+										  @RequestParam(value = "methodOfPay", defaultValue = "All")String methodOfPay,
+										  @RequestParam(value = "fromPurchasePrice", defaultValue = "")String fromPurchasePrice,
+										  @RequestParam(value = "untilPurchasePrice", defaultValue = "")String untilPurchasePrice,
+										  @RequestParam(value = "rangeFromPurchasePrice", defaultValue = "")String rangeFromPurchasePrice,
+										  @RequestParam(value = "rangeUntilPurchasePrice", defaultValue = "")String rangeUntilPurchasePrice)
+											
 	{
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MY_ACCOUNT_CUSTOMER);
 		
@@ -139,19 +154,81 @@ public class MemberController
 		//Obtenemos el DTO del cliente:
 		MemberDTO member = memberService.findByUsername(user.getUsername());
 		
-		//Obtenemos las compras del cliente:
-		List<PurchaseDTO> purchases = purchaseService.findByMember(member.getUsername());
+		List<PurchaseDTO> purchases = purchaseService.findByMember(member.getUsername()); //Obtenemos todas las compras del cliente.
+		
+		//Manejo de posibles envíos de ',' en inputs de tipo date o time vacíos:
+		if(date.equals(",")) date = "";
+		if(fromDate.equals(",")) fromDate = "";
+		if(untilDate.equals(",")) untilDate = "";
+		if(rangeFromDate.equals(",")) rangeFromDate = "";
+		if(rangeUntilDate.equals(",")) rangeUntilDate = "";
+		if(fromTime.equals(",")) fromTime = "";
+		if(untilTime.equals(",")) untilTime = "";
+		if(rangeFromTime.equals(",")) rangeFromTime = "";
+		if(rangeUntilTime.equals(",")) rangeUntilTime = "";
+				
+		//Manejo de posibles envíos de ',' de inputs de tipo date o time al enviar una fecha u hora, respectivamente:
+		date = purchaseService.verifyOrCorrectValue(date);
+		fromDate = purchaseService.verifyOrCorrectValue(fromDate);
+		untilDate = purchaseService.verifyOrCorrectValue(untilDate);
+		rangeFromDate = purchaseService.verifyOrCorrectValue(rangeFromDate);
+		rangeUntilDate = purchaseService.verifyOrCorrectValue(rangeUntilDate);
+		fromTime = purchaseService.verifyOrCorrectValue(fromTime);
+		untilTime = purchaseService.verifyOrCorrectValue(untilTime);
+		rangeFromTime = purchaseService.verifyOrCorrectValue(rangeFromTime);
+		rangeUntilTime = purchaseService.verifyOrCorrectValue(rangeUntilTime);
+		
+		//Aplicamos el filtro de fecha que corresponda:
+		purchases = purchaseService.applyFilterTypeDateOnList(purchases, date, fromDate, untilDate, rangeFromDate, rangeUntilDate);
+		
+		//Aplicamos el filtro de hora que corresponda:
+		purchases = purchaseService.applyFilterTypeTime(purchases, fromTime, untilTime, rangeFromTime, rangeUntilTime);
+		
+		//Aplicamos filtros según corresponda por método de pago:
+		if(!methodOfPay.equals("All")) 
+		{
+			purchases = purchaseService.filterByMethodOfPay(purchases, methodOfPay);
+		}
+		
+		//Aplicamos filtros según corresponda por precio de la compra:
+		purchases = purchaseService.applyFilterTypePurchasePrice(purchases, fromPurchasePrice, untilPurchasePrice, rangeFromPurchasePrice, rangeUntilPurchasePrice);
+		
+		//Ordenamos el listado de ventas resultante de los procesos anteriores en base al tipo de ordenamiento elegido:
+		purchases = purchaseService.applyOrder(purchases, order);
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("member", member);
-		modelAndView.addObject("purchases", purchases);
+		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento elegido.
+		modelAndView.addObject("date", date); //Adjuntamos el filtro por fecha específica elegido.
+		modelAndView.addObject("fromDate", fromDate); //Adjuntamos el filtro por posteriores o iguales a una fecha elegido.
+		modelAndView.addObject("untilDate", untilDate); //Adjuntamos el filtro por anteriores o iguales a una fecha elegido.
+		modelAndView.addObject("rangeFromDate", rangeFromDate); //Adjuntamos el filtro de posteriores o iguales a una fecha dentro de un rango elegido.
+		modelAndView.addObject("rangeUntilDate", rangeUntilDate); //Adjuntamos el filtro de anteriores o iguales a una fecha dentro de un rango elegido.
+		modelAndView.addObject("fromTime", fromTime); //Adjuntamos el filtro por posteriores o iguales a una hora elegido.
+		modelAndView.addObject("untilTime", untilTime); //Adjuntamos el filtro por anteriores o iguales a una hora elegido.
+		modelAndView.addObject("rangeFromTime", rangeFromTime); //Adjuntamos el filtro de posteriores o iguales a una hora dentro de un rango elegido.
+		modelAndView.addObject("rangeUntilTime", rangeUntilTime); //Adjuntamos el filtro de anteriores o iguales a una hora dentro de un rango elegido.
+		modelAndView.addObject("methodOfPay", methodOfPay); //Adjuntamos el método de pago aplicado como filtro.
+		modelAndView.addObject("fromPurchasePrice", fromPurchasePrice); //Adjuntamos el filtro por mayores o iguales a un precio.
+		modelAndView.addObject("untilPurchasePrice", untilPurchasePrice); //Adjuntamos el filtro por menores o iguales a un precio.
+		modelAndView.addObject("rangeFromPurchasePrice", rangeFromPurchasePrice); //Adjuntamos el filtro por mayores o iguales a un precio dentro de un rango elegido.
+		modelAndView.addObject("rangeUntilPurchasePrice", rangeUntilPurchasePrice); //Adjuntamos el filtro por menores o iguales a un precio dentro de un rango elegido.
+		modelAndView.addObject("member", member); //Adjuntamos el cliente.
+		modelAndView.addObject("purchases", purchases); //Adjuntamos su listado de compras.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
 	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:
 	@GetMapping("/myAccount/admin")
-	public ModelAndView myAccountAdmin() 
+	public ModelAndView myAccountAdmin(@RequestParam(value = "order", defaultValue = "orderAscByProductCode")String order,
+									   @RequestParam(value = "productCode", defaultValue = "all")String productCode,
+									   @RequestParam(value = "supplierName", defaultValue = "all")String supplierName,
+									   @RequestParam(value = "amount", defaultValue = "")String amount,
+									   @RequestParam(value = "fromAmount", defaultValue = "")String fromAmount,
+									   @RequestParam(value = "untilAmount", defaultValue = "")String untilAmount,
+									   @RequestParam(value = "rangeFromAmount", defaultValue = "")String rangeFromAmount,
+									   @RequestParam(value = "rangeUntilAmount", defaultValue = "")String rangeUntilAmount,
+									   @RequestParam(value = "delivered", defaultValue = "all")String delivered) 
 	{
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MY_ACCOUNT_ADMIN);
 		
@@ -164,9 +241,45 @@ public class MemberController
 		//Obtenemos los pedidos de aprovisionamiento del administrador:
 		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByMember(member.getUsername());
 		
+		//Aplicamos el filtro seleccionado de la sección código de producto:
+		if(!productCode.equals("all")) 
+		{
+			supplyOrders = supplyOrderService.filterByProductCode(supplyOrders, productCode);
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección nombre de proveedor:
+		if(!supplierName.equals("all")) 
+		{
+			supplyOrders = supplyOrderService.filterBySupplierName(supplyOrders, supplierName);
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección cantidad:
+		supplyOrders = supplyOrderService.applyFilterTypeAmount(supplyOrders, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
+		
+		//Aplicamos el filtro de estado de la entrega que corresponda:
+		if(!delivered.equals("all")) 
+		{
+			boolean deliveredBoolean = Boolean.parseBoolean(delivered); //Convertimos la cadena a un valor booleano.
+			supplyOrders = supplyOrderService.filterByDelivered(supplyOrders, deliveredBoolean); //Nos quedamos con los pedidos de aprovisionamiento en ese estado.
+		}
+		
+		//Aplicamos el ordenamiento seleccionado:
+		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
+		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("member", member);
-		modelAndView.addObject("supplyOrders", supplyOrders);
+		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento.
+		modelAndView.addObject("productCode", productCode); //Adjuntamos el código del producto del filtro.
+		modelAndView.addObject("supplierName", supplierName); //Adjuntamos el nombre del proveedor del filtro.
+		modelAndView.addObject("amount", amount); //Adjuntamos la cantidad del filtro de una cantidad específica.
+		modelAndView.addObject("fromAmount", fromAmount); //Adjuntamos el filtro de la cantidad mayor o igual a una cantidad específica.
+		modelAndView.addObject("untilAmount", untilAmount); //Adjuntamos el filtro de la cantidad menor o igual a una cantidad específica.
+		modelAndView.addObject("rangeFromAmount", rangeFromAmount); //Adjuntamos el filtro de una cantidad mayor o igual en un rango de cantidades.
+		modelAndView.addObject("rangeUntilAmount", rangeUntilAmount); //Adjuntamos el filtro de una cantidad menor o igual en un rango de cantidades.
+		modelAndView.addObject("delivered", delivered); //Adjuntamos el filtro de estado de entrega.
+		modelAndView.addObject("member", member); //Adjuntamos el administrador.
+		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
+		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode()); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName()); //Adjuntamos los nombres de los proveedores.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
