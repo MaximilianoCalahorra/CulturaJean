@@ -64,6 +64,16 @@ public interface ISupplyOrderRepository extends JpaRepository<SupplyOrder, Seria
 			+ "WHERE m.username = (:username)")
 	public abstract List<SupplyOrder> findByMember(@Param("username")String username);
 	
+	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento:
+	@Query(value = "SELECT DISTINCT p.code FROM supply_order so INNER JOIN product p ON so.product_id = p.product_id ORDER BY p.code", 
+		   nativeQuery = true)
+	public abstract List<String> findUniqueEachProductCode();
+	
+	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento:
+	@Query(value = "SELECT DISTINCT s.name FROM supply_order so INNER JOIN supplier s ON so.supplier_id = s.supplier_id ORDER BY s.name", 
+		   nativeQuery = true)
+	public abstract List<String> findUniqueEachSupplierName();
+	
 	//Ordernar:
 	
 	//Ordenamos los pedidos de aprovisionamiento por el código del producto asociado de forma ascendente:

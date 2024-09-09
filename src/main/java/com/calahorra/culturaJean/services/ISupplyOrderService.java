@@ -40,6 +40,12 @@ public interface ISupplyOrderService
 	//Encontramos los pedidos de aprovisionamiento de determinado administrador por su nombre de usuario:
 	public List<SupplyOrderDTO> findByMember(String username);
 	
+	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento:
+	public List<String> findUniqueEachProductCode();
+		
+	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento:
+	public List<String> findUniqueEachSupplierName();
+	
 	//Obtener:
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:
@@ -65,8 +71,53 @@ public interface ISupplyOrderService
 	//Ordenamos los pedidos de aprovisionamiento por la cantidad solicitada de forma descendente:
 	public List<SupplyOrderDTO> getAllInOrderDescByAmount();
 	
+	//Ordenamos el listado de pedidos de aprovisionamiento por el código del producto de forma alfabética:
+	public List<SupplyOrderDTO> inOrderAscByProductCode(List<SupplyOrderDTO> supplyOrders);
+	
+	//Ordenamos el listado de pedidos de aprovisionamiento por el código del producto de forma inversa al alfabeto:
+	public List<SupplyOrderDTO> inOrderDescByProductCode(List<SupplyOrderDTO> supplyOrders);
+	
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del proveedor de forma alfabética:
+	public List<SupplyOrderDTO> inOrderAscBySupplierName(List<SupplyOrderDTO> supplyOrders);
+	
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del proveedor de forma inversa al alfabeto:
+	public List<SupplyOrderDTO> inOrderDescBySupplierName(List<SupplyOrderDTO> supplyOrders);
+	
+	//Ordenamos el listado de pedidos de aprovisionamiento por la cantidad de forma ascendente:
+	public List<SupplyOrderDTO> inOrderAscByAmount(List<SupplyOrderDTO> supplyOrders);
+	
+	//Ordenamos el listado de pedidos de aprovisionamiento por la cantidad de forma descendente:
+	public List<SupplyOrderDTO> inOrderDescByAmount(List<SupplyOrderDTO> supplyOrders);
+	
+	//Aplicamos el ordenamiento seleccionado:
+	public List<SupplyOrderDTO> applyOrder(List<SupplyOrderDTO> supplyOrders, String order);
+	
 	//Agregar:
 	
 	//Agregamos un pedido de aprovisonamiento a la base de datos:
 	public SupplyOrderDTO insert(SupplyOrderDTO supplyOrder);
+	
+	//Filtrar:
+	
+	//Filtramos los pedidos de aprovisionamiento por el código del producto asociado:
+	public List<SupplyOrderDTO> filterByProductCode(List<SupplyOrderDTO> supplyOrders, String productCode);
+	
+	//Filtramos los pedidos de aprovisionamiento por el nombre del proveedor asociado:
+	public List<SupplyOrderDTO> filterBySupplierName(List<SupplyOrderDTO> supplyOrders, String supplierName);
+	
+	//Filtramos los pedidos de aprovisionamiento por la cantidad del mismo:
+	public List<SupplyOrderDTO> filterByAmount(List<SupplyOrderDTO> supplyOrders, int amount);
+	
+	//Filtramos los pedidos de aprovisionamiento por la cantidad si es mayor o igual a una determinada:
+	public List<SupplyOrderDTO> filterByFromAmount(List<SupplyOrderDTO> supplyOrders, int fromAmount);
+	
+	//Filtramos los pedidos de aprovisionamiento por la cantidad si es menor o igual a una determinada:
+	public List<SupplyOrderDTO> filterByUntilAmount(List<SupplyOrderDTO> supplyOrders, int untilAmount);
+	
+	//Filtramos los pedidos de aprovisionamiento por la cantidad si está dentro de un rango determinado:
+	public List<SupplyOrderDTO> filterByAmountRange(List<SupplyOrderDTO> supplyOrders, int rangeFromAmount, int rangeUntilAmount);
+	
+	//Aplicamos el filtro seleccionado de la sección cantidad:
+	public List<SupplyOrderDTO> applyFilterTypeAmount(List<SupplyOrderDTO> supplyOrders, String amount, String fromAmount, String untilAmount,
+													  String rangeFromAmount, String rangeUntilAmount);
 }

@@ -220,7 +220,14 @@ public class MemberController
 	
 	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:
 	@GetMapping("/myAccount/admin")
-	public ModelAndView myAccountAdmin() 
+	public ModelAndView myAccountAdmin(@RequestParam(value = "order", defaultValue = "orderAscByProductCode")String order,
+									   @RequestParam(value = "productCode", defaultValue = "all")String productCode,
+									   @RequestParam(value = "supplierName", defaultValue = "all")String supplierName,
+									   @RequestParam(value = "amount", defaultValue = "")String amount,
+									   @RequestParam(value = "fromAmount", defaultValue = "")String fromAmount,
+									   @RequestParam(value = "untilAmount", defaultValue = "")String untilAmount,
+									   @RequestParam(value = "rangeFromAmount", defaultValue = "")String rangeFromAmount,
+									   @RequestParam(value = "rangeUntilAmount", defaultValue = "")String rangeUntilAmount) 
 	{
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MY_ACCOUNT_ADMIN);
 		
@@ -233,9 +240,37 @@ public class MemberController
 		//Obtenemos los pedidos de aprovisionamiento del administrador:
 		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByMember(member.getUsername());
 		
+		//Aplicamos el filtro seleccionado de la sección código de producto:
+		if(!productCode.equals("all")) 
+		{
+			supplyOrders = supplyOrderService.filterByProductCode(supplyOrders, productCode);
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección nombre de proveedor:
+		if(!supplierName.equals("all")) 
+		{
+			supplyOrders = supplyOrderService.filterBySupplierName(supplyOrders, supplierName);
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección cantidad:
+		supplyOrders = supplyOrderService.applyFilterTypeAmount(supplyOrders, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
+		
+		//Aplicamos el ordenamiento seleccionado:
+		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
+		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("member", member);
-		modelAndView.addObject("supplyOrders", supplyOrders);
+		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento.
+		modelAndView.addObject("productCode", productCode); //Adjuntamos el código del producto del filtro.
+		modelAndView.addObject("supplierName", supplierName); //Adjuntamos el nombre del proveedor del filtro.
+		modelAndView.addObject("amount", amount); //Adjuntamos la cantidad del filtro de una cantidad específica.
+		modelAndView.addObject("fromAmount", fromAmount); //Adjuntamos el filtro de la cantidad mayor o igual a una cantidad específica.
+		modelAndView.addObject("untilAmount", untilAmount); //Adjuntamos el filtro de la cantidad menor o igual a una cantidad específica.
+		modelAndView.addObject("rangeFromAmount", rangeFromAmount); //Adjuntamos el filtro de una cantidad mayor o igual en un rango de cantidades.
+		modelAndView.addObject("rangeUntilAmount", rangeUntilAmount); //Adjuntamos el filtro de una cantidad menor o igual en un rango de cantidades.
+		modelAndView.addObject("member", member); //Adjuntamos el administrador.
+		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
+		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode()); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName()); //Adjuntamos los nombres de los proveedores.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}

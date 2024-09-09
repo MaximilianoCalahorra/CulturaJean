@@ -192,6 +192,7 @@ public class PurchaseService implements IPurchaseService
 	}
 	
 	//Encontramos los nombres de usuario de los clientes que realizaron compras ordenados de forma alfabética:
+	@Override
 	public List<String> getAllUsernames()
 	{
 		return purchaseRepository.getAllUsernames(); //Retornamos el listado de nombres de usuario ordenado.
