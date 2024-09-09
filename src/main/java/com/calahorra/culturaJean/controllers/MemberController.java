@@ -1,7 +1,5 @@
 package com.calahorra.culturaJean.controllers;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -181,45 +179,10 @@ public class MemberController
 		rangeUntilTime = purchaseService.verifyOrCorrectValue(rangeUntilTime);
 		
 		//Aplicamos el filtro de fecha que corresponda:
-		if(!date.equals("") && fromDate.equals("") && untilDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por fecha en específico.
-		{
-			LocalDate dateObject = LocalDate.parse(date); //Convertimos la cadena a un objeto LocalDate.
-			purchases = purchaseService.filterByDate(purchases, dateObject); //Nos quedamos solo con las compras en esa fecha.
-		}
-		else if(!fromDate.equals("") && date.equals("") && untilDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por posteriores o iguales a una fecha.
-		{
-			LocalDate fromDateObject = LocalDate.parse(fromDate); //Convertimos la cadena a un objeto LocalDate.
-			purchases = purchaseService.filterByFromDate(purchases, fromDateObject); //Nos quedamos solo con las compras posteriores o iguales a esa fecha.
-		}
-		else if(!untilDate.equals("") && date.equals("") && fromDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por anteriores o iguales a una fecha.
-		{
-			LocalDate untilDateObject = LocalDate.parse(untilDate); //Convertimos la cadena a un objeto LocalDate.
-			purchases = purchaseService.filterByUntilDate(purchases, untilDateObject); //Nos quedamos solo con las compras anteriores o iguales a esa fecha.
-		}
-		else if(!rangeFromDate.equals("") && !rangeUntilDate.equals("") && fromDate.equals("") && untilDate.equals("") && date.equals("")) //Filtramos por un rango de fechas.
-		{
-			LocalDate rangeFromDateObject = LocalDate.parse(rangeFromDate); //Convertimos la cadena a un objeto LocalDate.
-			LocalDate rangeUntilDateObject = LocalDate.parse(rangeUntilDate); //Convertimos la cadena a un objeto LocalDate.
-			purchases = purchaseService.filterByDateRange(purchases, rangeFromDateObject, rangeUntilDateObject); //Nos quedamos con las compras en ese rango de fechas.
-		}
-				
+		purchases = purchaseService.applyFilterTypeDateOnList(purchases, date, fromDate, untilDate, rangeFromDate, rangeUntilDate);
+		
 		//Aplicamos el filtro de hora que corresponda:
-		if(!fromTime.equals("") && untilTime.equals("") && rangeFromTime.equals("") && rangeUntilTime.equals("")) //Filtramos por posteriores o iguales a una hora.
-		{
-			LocalTime fromTimeObject = LocalTime.parse(fromTime); //Convertimos la cadena a un objeto LocalTime.
-			purchases = purchaseService.filterByFromTime(purchases, fromTimeObject); //Nos quedamos las compras en esa hora o posteriores.
-		}
-		else if(!untilTime.equals("") && fromTime.equals("") && rangeFromTime.equals("") && rangeUntilTime.equals("")) //Filtramos por anteriores o iguales a una hora.
-		{
-			LocalTime untilTimeObject = LocalTime.parse(untilTime); //Convertimos la cadena a un objeto LocalTime.
-			purchases = purchaseService.filterByUntilTime(purchases, untilTimeObject); //Nos quedamos las compras en esa hora o anteriores.
-		}
-		else if(!rangeFromTime.equals("") && !rangeUntilTime.equals("") && fromTime.equals("") && untilTime.equals("")) //Filtramos por un rango de horas.
-		{
-			LocalTime rangeFromTimeObject = LocalTime.parse(rangeFromTime); //Convertimos la cadena a un objeto LocalTime.
-			LocalTime rangeUntilTimeObject = LocalTime.parse(rangeUntilTime); //Convertimos la cadena a un objeto LocalTime.
-			purchases = purchaseService.filterByTimeRange(purchases, rangeFromTimeObject, rangeUntilTimeObject); //Nos quedamos con las compras en ese rango de horas.
-		}
+		purchases = purchaseService.applyFilterTypeTime(purchases, fromTime, untilTime, rangeFromTime, rangeUntilTime);
 		
 		//Aplicamos filtros según corresponda por método de pago:
 		if(!methodOfPay.equals("All")) 
@@ -228,33 +191,10 @@ public class MemberController
 		}
 		
 		//Aplicamos filtros según corresponda por precio de la compra:
-		if(!fromPurchasePrice.equals("") && untilPurchasePrice.equals("") && rangeFromPurchasePrice.equals("") && rangeUntilPurchasePrice.equals("")) //Filtramos por mayores o iguales a un precio.
-		{
-			float fromPurchasePriceNumber = Float.parseFloat(fromPurchasePrice); //Convertimos la cadena a float.
-			purchases = purchaseService.filterByFromPurchasePrice(purchases, fromPurchasePriceNumber); //Nos quedamos con las compras con ese tipo de precio.
-		}
-		else if(!untilPurchasePrice.equals("") && fromPurchasePrice.equals("") && rangeFromPurchasePrice.equals("") && rangeUntilPurchasePrice.equals("")) //Filtramos por menores o iguales a un precio.
-		{
-			float untilPurchasePriceNumber = Float.parseFloat(untilPurchasePrice); //Convertimos la cadena a float.
-			purchases = purchaseService.filterByUntilPurchasePrice(purchases, untilPurchasePriceNumber); //Nos quedamos con las compras con ese tipo de precio.
-		}
-		else if(!rangeFromPurchasePrice.equals("") && !rangeUntilPurchasePrice.equals("") && fromPurchasePrice.equals("") && untilPurchasePrice.equals("")) //Filtramos por un rango de precios.
-		{
-			float rangeFromPurchasePriceNumber = Float.parseFloat(rangeFromPurchasePrice); //Convertimos la cadena a float.
-			float rangeUntilPurchasePriceNumber = Float.parseFloat(rangeUntilPurchasePrice); //Convertimos la cadena a float.
-			purchases = purchaseService.filterByPurchasePriceRange(purchases, rangeFromPurchasePriceNumber, rangeUntilPurchasePriceNumber); //Nos quedamos con las compras con ese tipo de precio.
-		}
-				
+		purchases = purchaseService.applyFilterTypePurchasePrice(purchases, fromPurchasePrice, untilPurchasePrice, rangeFromPurchasePrice, rangeUntilPurchasePrice);
+		
 		//Ordenamos el listado de ventas resultante de los procesos anteriores en base al tipo de ordenamiento elegido:
-		switch(order) 
-		{
-			case "orderAscByDateTime": purchases = purchaseService.inOrderAscByDateTime(purchases); break; //Ascendente por fecha y hora.
-			case "orderDescByDateTime": purchases = purchaseService.inOrderDescByDateTime(purchases); break; //Descendente por fecha y hora.
-			case "orderAscByMethodOfPay": purchases = purchaseService.inOrderAscByMethodOfPay(purchases); break; //Alfabéticamente por método de pago.
-			case "orderDescByMethodOfPay": purchases = purchaseService.inOrderDescByMethodOfPay(purchases); break; //Inverso al alfabeto por método de pago.
-			case "orderAscByPurchasePrice": purchases = purchaseService.inOrderAscByPurchasePrice(purchases); break; //Ascendente por precio de compra.
-			case "orderDescByPurchasePrice": purchases = purchaseService.inOrderDescByPurchasePrice(purchases); break; //Descendente por precio de compra.
-		}
+		purchases = purchaseService.applyOrder(purchases, order);
 		
 		//Agregamos la información a la vista:
 		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento elegido.
