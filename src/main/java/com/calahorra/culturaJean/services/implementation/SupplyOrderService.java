@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
@@ -136,6 +137,24 @@ public class SupplyOrderService implements ISupplyOrderService
 		return supplyOrderRepository.findUniqueEachSupplierName(); //Retornamos el listado de nombres de proveedor ordenado.
 	}
 	
+	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	public List<String> findUniqueEachProductCodeDelivered(boolean delivered)
+	{
+		return supplyOrderRepository.findUniqueEachProductCodeDelivered(delivered); //Retornamos el listado de códigos de producto ordenado.
+	}
+			
+	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	public List<String> findUniqueEachSupplierNameDelivered(boolean delivered)
+	{
+		return supplyOrderRepository.findUniqueEachSupplierNameDelivered(delivered); //Retornamos el listado de nombres de proveedor ordenado.
+	}
+	
+	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	public List<String> findUniqueEachAdminUsernameDelivered(@Param("delivered")boolean delivered)
+	{
+		return supplyOrderRepository.findUniqueEachAdminUsernameDelivered(delivered); //Retornamos el listado de nombres de usuario de los administradores ordenado.
+	}
+	
 	//Obtener:
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:
@@ -234,6 +253,20 @@ public class SupplyOrderService implements ISupplyOrderService
 		Collections.sort(supplyOrders, (so1, so2) -> so2.getSupplier().getName().compareToIgnoreCase(so1.getSupplier().getName()));
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento ordenados.
 	}
+	
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre de usuario del administrador de forma alfabética:
+	public List<SupplyOrderDTO> inOrderAscByAdminUsername(List<SupplyOrderDTO> supplyOrders)
+	{
+		Collections.sort(supplyOrders, (so1, so2) -> so1.getMember().getUsername().compareToIgnoreCase(so2.getMember().getUsername()));
+		return supplyOrders; //Retornamos los pedidos de aprovisionamiento ordenados.
+	}
+		
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre de usuario del administrador de forma inversa al alfabeto:
+	public List<SupplyOrderDTO> inOrderDescByAdminUsername(List<SupplyOrderDTO> supplyOrders)
+	{
+		Collections.sort(supplyOrders, (so1, so2) -> so2.getMember().getUsername().compareToIgnoreCase(so1.getMember().getUsername()));
+		return supplyOrders; //Retornamos los pedidos de aprovisionamiento ordenados.
+	}
 		
 	//Ordenamos el listado de pedidos de aprovisionamiento por la cantidad de forma ascendente:
 	public List<SupplyOrderDTO> inOrderAscByAmount(List<SupplyOrderDTO> supplyOrders)
@@ -259,6 +292,8 @@ public class SupplyOrderService implements ISupplyOrderService
 			case "orderDescByProductCode": supplyOrders = inOrderDescByProductCode(supplyOrders); break; //Inverso al alfabeto por código de producto. 
 			case "orderAscBySupplierName": supplyOrders = inOrderAscBySupplierName(supplyOrders); break; //Alfabéticamente por nombre del proveedor.
 			case "orderDescBySupplierName": supplyOrders = inOrderDescBySupplierName(supplyOrders); break; //Inverso al alfabeto por nombre del proveedor.
+			case "orderAscByAdminUsername": supplyOrders = inOrderAscByAdminUsername(supplyOrders); break; //Alfabéticamente por nombre de usuario del administrador.
+			case "orderDescByAdminUsername": supplyOrders = inOrderDescByAdminUsername(supplyOrders); break; //Inverso al alfabeto por nombre de usuario del administrador.
 			case "orderAscByAmount": supplyOrders = inOrderAscByAmount(supplyOrders); break; //Ascendente por cantidad.
 			case "orderDescByAmount": supplyOrders = inOrderDescByAmount(supplyOrders); break; //Descendente por cantidad. 
 		}
@@ -310,6 +345,23 @@ public class SupplyOrderService implements ISupplyOrderService
 				iterator.remove(); //En caso de que no tenga un nombre de proveedor como el del filtro, lo removemos.
 	        }
 	    }
+		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
+	}
+	
+	//Filtramos los pedidos de aprovisionamiento por el nombre de usuario del administrador que lo generó:
+	public List<SupplyOrderDTO> filterByAdminUsername(List<SupplyOrderDTO> supplyOrders, String adminUsername)
+	{
+		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un pedido de aprovisionamiento por analizar:
+		while(iterator.hasNext())
+		{
+			SupplyOrderDTO supplyOrder = iterator.next(); //Obtenemos ese pedido de aprovisionamiento.
+			if (!supplyOrder.getMember().getUsername().equals(adminUsername)) 
+			{
+				iterator.remove(); //En caso de que no tenga un nombre de usuario como el del filtro, lo removemos.
+			}
+		}
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
 	}
 		
@@ -425,5 +477,28 @@ public class SupplyOrderService implements ISupplyOrderService
 	        }
 	    }
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
+	}
+	
+	//Aplicamos todos los filtros seleccionados:
+	public List<SupplyOrderDTO> applyFilters(List<SupplyOrderDTO> supplyOrders, String productCode, String supplierName, String amount,
+											 String fromAmount, String untilAmount, String rangeFromAmount, String rangeUntilAmount)
+	{
+		//Si el filtro por código de producto está seleccionado por alguno en específico:
+		if(!productCode.equals("all")) 
+		{
+
+			supplyOrders = filterByProductCode(supplyOrders, productCode); //Aplicamos el filtro por código de producto.
+		}
+		
+		//Si el filtro por nombre de proveedor está seleccionado por alguno en específico:
+		if(!supplierName.equals("all"))
+		{
+			supplyOrders = filterBySupplierName(supplyOrders, supplierName); //Aplicamos el filtro por nombre de proveedor.
+		}
+		
+		//Aplicamos el filtro elegido de la sección cantidad:
+		supplyOrders = applyFilterTypeAmount(supplyOrders, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount); 
+		
+		return supplyOrders; //Retornamos el listado filtrado.
 	}
 }

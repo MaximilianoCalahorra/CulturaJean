@@ -2,6 +2,8 @@ package com.calahorra.culturaJean.services;
 
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.entities.SupplyOrder;
 
@@ -46,6 +48,15 @@ public interface ISupplyOrderService
 	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento:
 	public List<String> findUniqueEachSupplierName();
 	
+	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	public List<String> findUniqueEachProductCodeDelivered(boolean delivered);
+		
+	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	public List<String> findUniqueEachSupplierNameDelivered(boolean delivered);
+	
+	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	public List<String> findUniqueEachAdminUsernameDelivered(@Param("delivered")boolean delivered);
+		
 	//Obtener:
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:
@@ -83,6 +94,12 @@ public interface ISupplyOrderService
 	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del proveedor de forma inversa al alfabeto:
 	public List<SupplyOrderDTO> inOrderDescBySupplierName(List<SupplyOrderDTO> supplyOrders);
 	
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre de usuario del administrador de forma alfabética:
+	public List<SupplyOrderDTO> inOrderAscByAdminUsername(List<SupplyOrderDTO> supplyOrders);
+	
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre de usuario del administrador de forma inversa al alfabeto:
+	public List<SupplyOrderDTO> inOrderDescByAdminUsername(List<SupplyOrderDTO> supplyOrders);
+	
 	//Ordenamos el listado de pedidos de aprovisionamiento por la cantidad de forma ascendente:
 	public List<SupplyOrderDTO> inOrderAscByAmount(List<SupplyOrderDTO> supplyOrders);
 	
@@ -105,6 +122,9 @@ public interface ISupplyOrderService
 	//Filtramos los pedidos de aprovisionamiento por el nombre del proveedor asociado:
 	public List<SupplyOrderDTO> filterBySupplierName(List<SupplyOrderDTO> supplyOrders, String supplierName);
 	
+	//Filtramos los pedidos de aprovisionamiento por el nombre de usuario del administrador que lo generó:
+	public List<SupplyOrderDTO> filterByAdminUsername(List<SupplyOrderDTO> supplyOrders, String adminUsername);
+	
 	//Filtramos los pedidos de aprovisionamiento por la cantidad del mismo:
 	public List<SupplyOrderDTO> filterByAmount(List<SupplyOrderDTO> supplyOrders, int amount);
 	
@@ -123,4 +143,8 @@ public interface ISupplyOrderService
 	
 	//Filtramos los pedidos de aprovisionamiento por el estado de la entrega:
 	public List<SupplyOrderDTO> filterByDelivered(List<SupplyOrderDTO> supplyOrders, boolean delivered); 
+	
+	//Aplicamos todos los filtros seleccionados:
+	public List<SupplyOrderDTO> applyFilters(List<SupplyOrderDTO> supplyOrders, String productCode, String supplierName, String amount,
+											 String fromAmount, String untilAmount, String rangeFromAmount, String rangeUntilAmount);
 }
