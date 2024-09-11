@@ -1,5 +1,8 @@
 package com.calahorra.culturaJean.services.implementation;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -170,13 +173,40 @@ public class StockService implements IStockService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
+	//Encontramos un ejemplar de cada categoría de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductCategory()
+	{
+		return stockRepository.findUniqueEachProductCategory(); //Retornamos el listado de categorías de producto ordenado.
+	}
+			
+	//Encontramos un ejemplar de cada género de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductGender()
+	{
+		return stockRepository.findUniqueEachProductGender(); //Retornamos el listado de géneros de producto ordenado.
+	}
+			
+	//Encontramos un ejemplar de cada talle de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductSize()
+	{
+		return stockRepository.findUniqueEachProductSize(); //Retornamos el listado de talles de producto ordenado.
+	}
+		
+	//Encontramos un ejemplar de cada color de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductColor()
+	{
+		return stockRepository.findUniqueEachProductColor(); //Retornamos el listado de colores de producto ordenado.
+	}
+	
 	//Obtener:
 	
 	//Obtenemos todos los stocks:
 	@Override
-	public List<Stock> getAll()
+	public List<StockDTO> getAll()
 	{
-		return stockRepository.findAll();
+		return stockRepository.findAll() //Obtenemos todos los stocks de productos como entidades.
+				.stream()
+				.map(stock -> modelMapper.map(stock, StockDTO.class)) //Convertimos cada entidad en un DTO.
+				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
 	//Ordenar:
@@ -341,6 +371,128 @@ public class StockService implements IStockService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
+	//Ordenamos los stocks por la cantidad deseable de forma ascendente:
+	public List<StockDTO> inOrderAscByDesirableAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> stock.getDesirableAmount()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad deseable de forma descendente:
+	public List<StockDTO> inOrderDescByDesirableAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getDesirableAmount()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad mínima de forma ascendente:
+	public List<StockDTO> inOrderAscByMinimumAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> stock.getMinimumAmount()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad mínima de forma descendente:
+	public List<StockDTO> inOrderDescByMinimumAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getMinimumAmount()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+
+	//Ordenamos los stocks por la cantidad actual de forma ascendente:
+	public List<StockDTO> inOrderAscByActualAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> stock.getActualAmount()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad actual de forma descendente:
+	public List<StockDTO> inOrderDescByActualAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getActualAmount()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
+	//Ordenamos los stocks por código de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductCode(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getCode().compareToIgnoreCase(s2.getProduct().getCode()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
+	//Ordenamos los stocks por código de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductCode(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getCode().compareToIgnoreCase(s1.getProduct().getCode()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+
+	//Ordenamos los stocks por categoría de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductCategory(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getCategory().compareToIgnoreCase(s2.getProduct().getCategory()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por categoría de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductCategory(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getCategory().compareToIgnoreCase(s1.getProduct().getCategory()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la precio de venta del producto de forma ascendente:
+	public List<StockDTO> inOrderAscByProductSalePrice(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingDouble(stock -> stock.getProduct().getSalePrice()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+			
+	//Ordenamos los stocks por precio de venta del producto de forma descendente:
+	public List<StockDTO> inOrderDescByProductSalePrice(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingDouble(stock -> ((StockDTO)stock).getProduct().getSalePrice()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por nombre de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductName(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getName().compareToIgnoreCase(s2.getProduct().getName()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
+	//Ordenamos los stocks por nombre de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductName(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getName().compareToIgnoreCase(s1.getProduct().getName()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Aplicamos el criterio de ordenamiento elegido:
+	public List<StockDTO> applyOrder(List<StockDTO> stocks, String order)
+	{
+		//Según el criterio de ordenamiento elegido:
+		switch(order) 
+		{
+			case "orderAscByDesirableAmount": stocks = inOrderAscByDesirableAmount(stocks); break; //Ascendente por cantidad deseable.
+			case "orderDescByDesirableAmount": stocks = inOrderDescByDesirableAmount(stocks); break; //Descendente por cantidad deseable.
+			case "orderAscByMinimumAmount": stocks = inOrderAscByMinimumAmount(stocks); break; //Ascendente por cantidad mínima.
+			case "orderDescByMinimumAmount": stocks = inOrderDescByMinimumAmount(stocks); break; //Descendente por cantidad mínima.
+			case "orderAscByActualAmount": stocks = inOrderAscByActualAmount(stocks); break; //Ascendente por cantidad actual.
+			case "orderDescByActualAmount": stocks = inOrderDescByActualAmount(stocks); break; //Descendente por cantidad actual.
+			case "orderAscByProductCode": stocks = inOrderAscByProductCode(stocks); break; //Alfabéticamente por código de producto.
+			case "orderDescByProductCode": stocks = inOrderDescByProductCode(stocks); break; //Inverso al alfabeto por código de producto.
+			case "orderAscByProductCategory": stocks = inOrderAscByProductCategory(stocks); break; //Alfabéticamente por cateoría de producto.
+			case "orderDescByProductCategory": stocks = inOrderDescByProductCategory(stocks); break; //Inverso al alfabeto por cateoría de producto.
+			case "orderAscByProductSalePrice": stocks = inOrderAscByProductSalePrice(stocks); break; //Ascendente por precio de venta de producto.
+			case "orderDescByProductSalePrice": stocks = inOrderDescByProductSalePrice(stocks); break; //Descendente por precio de venta de producto.
+			case "orderAscByProductName": stocks = inOrderAscByProductName(stocks); break; //Alfabéticamente por nombre de producto.
+			case "orderDescByProductName": stocks = inOrderDescByProductName(stocks); break; //Inverso al alfabeto por nombre de producto.
+		}
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
 	//Agregar o modificar:
 	
 	//Agregamos o modificamos un stock en la base de datos:
@@ -441,5 +593,210 @@ public class StockService implements IStockService
 			SupplyOrder supplyOrder = new SupplyOrder(product, member, supplier, supplyOrderAmount, false);
 			supplyOrderService.insert(modelMapper.map(supplyOrder, SupplyOrderDTO.class)); 
 		}
+	}
+	
+	//Filtrar:
+	
+	//Filtramos el listado de stocks por la categoría del producto:
+	public List<StockDTO> filterByProductCategory(List<StockDTO> stocks, String category)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (!stock.getProduct().getCategory().equals(category)) 
+			{
+				iterator.remove(); //En caso de que no tenga una categoría de producto como la del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Filtramos el listado de stocks por el género del producto:
+	public List<StockDTO> filterByProductGender(List<StockDTO> stocks, Character gender)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (!stock.getProduct().getGender().equals(gender)) 
+			{
+				iterator.remove(); //En caso de que no tenga un género de producto como el del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Filtramos el listado de stocks por el talle del producto:
+	public List<StockDTO> filterByProductSize(List<StockDTO> stocks, String size)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (!stock.getProduct().getSize().equals(size)) 
+			{
+				iterator.remove(); //En caso de que no tenga un talle de producto como el del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+	
+	//Filtramos el listado de stocks por el color del producto:
+	public List<StockDTO> filterByProductColor(List<StockDTO> stocks, String color)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (!stock.getProduct().getColor().equals(color)) 
+			{
+				iterator.remove(); //En caso de que no tenga un color de producto como el del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Filtramos el listado de stocks por el precio de venta del producto:
+	public List<StockDTO> filterByProductSalePrice(List<StockDTO> stocks, float salePrice)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getProduct().getSalePrice() != salePrice) 
+			{
+				iterator.remove(); //En caso de que no tenga un precio de venta de producto como el del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Filtramos el listado de stocks por el precio de venta del producto mayor o igual a uno determinado:
+	public List<StockDTO> filterByFromProductSalePrice(List<StockDTO> stocks, float fromSalePrice)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getProduct().getSalePrice() < fromSalePrice) 
+			{
+				iterator.remove(); //En caso de que tenga un precio de venta de producto menor al del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Filtramos el listado de stocks por el precio de venta del producto menor o igual a uno determinado:
+	public List<StockDTO> filterByUntilProductSalePrice(List<StockDTO> stocks, float untilSalePrice)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getProduct().getSalePrice() > untilSalePrice) 
+			{
+				iterator.remove(); //En caso de que tenga un precio de venta de producto mayor al del filtro, lo removemos.
+	        }
+	    }	
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Filtramos el listado de stocks por el precio de venta del producto dentro de un rango determinado:
+	public List<StockDTO> filterByProductSalePriceRange(List<StockDTO> stocks, float rangeFromSalePrice, float rangeUntilSalePrice)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getProduct().getSalePrice() < rangeFromSalePrice || stock.getProduct().getSalePrice() > rangeUntilSalePrice) 
+			{
+				iterator.remove(); //En caso de que no tenga un precio de venta de producto entre el rango del filtro, lo removemos.
+	        }
+	    }	
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Aplicamos el filtro seleccionado de la sección precio de venta:
+	public List<StockDTO> applyFilterTypeProductSalePrice(List<StockDTO> stocks, String salePrice, String fromSalePrice, String untilSalePrice,
+															  String rangeFromSalePrice, String rangeUntilSalePrice)
+	{
+		if(!salePrice.equals("") && fromSalePrice.equals("") && untilSalePrice.equals("") && rangeFromSalePrice.equals("") && 
+		   rangeUntilSalePrice.equals("")) //Filtro por precio de venta:
+		{
+			float salePriceNumber = Float.parseFloat(salePrice); //Convertimos la cadena a número.
+			stocks = filterByProductSalePrice(stocks, salePriceNumber); //Nos quedamos con los stocks de productos que cumplan el filtro.
+		}
+		else if(!fromSalePrice.equals("") && salePrice.equals("") && untilSalePrice.equals("") && rangeFromSalePrice.equals("") && 
+				rangeUntilSalePrice.equals("")) //Filtro por precio de venta mayor o igual a uno determinado:
+		{
+			float fromSalePriceNumber = Float.parseFloat(fromSalePrice); //Convertimos la cadena a número.
+			stocks = filterByFromProductSalePrice(stocks, fromSalePriceNumber); //Nos quedamos con los stocks de productos que cumplan el filtro.
+		}
+		else if(!untilSalePrice.equals("") && salePrice.equals("") && fromSalePrice.equals("") && rangeFromSalePrice.equals("") && 
+				rangeUntilSalePrice.equals("")) //Filtro por precio de venta menor o igual a uno determinado:
+		{
+			float untilSalePriceNumber = Float.parseFloat(untilSalePrice); //Convertimos la cadena a número.
+			stocks = filterByUntilProductSalePrice(stocks, untilSalePriceNumber); //Nos quedamos con los stocks de productos que cumplan el filtro.
+		}
+		else if(!rangeFromSalePrice.equals("") && !rangeUntilSalePrice.equals("") && salePrice.equals("") && fromSalePrice.equals("") && 
+				untilSalePrice.equals("")) //Filtro por precio de venta dentro de un rango determinado:
+		{
+			float rangeFromSalePriceNumber = Float.parseFloat(rangeFromSalePrice); //Convertimos la cadena a número.
+			float rangeUntilSalePriceNumber = Float.parseFloat(rangeUntilSalePrice); //Convertimos la cadena a número.
+			stocks = filterByProductSalePriceRange(stocks, rangeFromSalePriceNumber, rangeUntilSalePriceNumber); //Nos quedamos con los stocks de productos que cumplan el filtro.
+		}
+		return stocks; //Retornamos los stocks filtrados.
+	}
+		
+	//Aplicamos los filtros seleccionados de las secciones categoría, género, talle, color y precio de venta del producto:
+	public List<StockDTO> applyFilters(List<StockDTO> stocks, String category, String gender, String size, String color, String salePrice,
+									   String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice)
+	{
+		//Aplicamos el filtro seleccionado de la sección categoría:
+		if(!category.equals("all")) //Si se eligió alguna de las categorías:
+		{
+			stocks = filterByProductCategory(stocks, category); //Nos quedamos con los stocks de productos de la categoría del filtro.
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección género:
+		if(!gender.equals("all")) //Si se eligió alguno de los géneros:
+		{
+			Character genderChar = gender.charAt(0); //Convertimos la cadena en un caracter.
+			stocks = filterByProductGender(stocks, genderChar); //Nos quedamos con los stocks de productos del género del filtro.
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección talle:
+		if(!size.equals("all")) //Si se eligió alguno de los talles:
+		{
+			stocks = filterByProductSize(stocks, size); //Nos quedamos con los stocks de productos del talle del filtro.
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección color:
+		if(!color.equals("all")) //Si se eligió alguno de los colores:
+		{
+			stocks = filterByProductColor(stocks, color); //Nos quedamos con los stocks de productos del color del filtro.
+		}
+		
+		//Aplicamos el filtro seleccionado de la sección precio de venta:
+		stocks = applyFilterTypeProductSalePrice(stocks, salePrice, fromSalePrice, untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice); 
+		
+		return stocks; //Retornamos los stocks filtrados.
 	}
 }

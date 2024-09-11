@@ -52,10 +52,22 @@ public interface IStockService
 	//Encontramos los productos con un precio de venta entre determinado rango:
 	public List<StockDTO> findBySalePriceRange(float minimumPrice, float maximumPrice);
 	
+	//Encontramos un ejemplar de cada categoría de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductCategory();
+		
+	//Encontramos un ejemplar de cada género de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductGender();
+		
+	//Encontramos un ejemplar de cada talle de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductSize();
+		
+	//Encontramos un ejemplar de cada color de producto de los cuales hay stocks:
+	public List<String> findUniqueEachProductColor();
+	
 	//Obtener:
 	
 	//Obtenemos todos los stocks:
-	public List<Stock> getAll();
+	public List<StockDTO> getAll();
 	
 	//Ordenar:
 	
@@ -107,6 +119,51 @@ public interface IStockService
 	//Ordenamos los stocks por el nombre del producto asociado de manera inversa al alfabeto:
 	public List<StockDTO> getAllInOrderDescByProductName();
 	
+	//Ordenamos los stocks por la cantidad deseable de forma ascendente:
+	public List<StockDTO> inOrderAscByDesirableAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad deseable de forma descendente:
+	public List<StockDTO> inOrderDescByDesirableAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad mínima de forma ascendente:
+	public List<StockDTO> inOrderAscByMinimumAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad mínima de forma descendente:
+	public List<StockDTO> inOrderDescByMinimumAmount(List<StockDTO> stocks);
+
+	//Ordenamos los stocks por la cantidad actual de forma ascendente:
+	public List<StockDTO> inOrderAscByActualAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad actual de forma descendente:
+	public List<StockDTO> inOrderDescByActualAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por código de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductCode(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por código de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductCode(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por categoría de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductCategory(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por categoría de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductCategory(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la precio de venta del producto de forma ascendente:
+	public List<StockDTO> inOrderAscByProductSalePrice(List<StockDTO> stocks);
+		
+	//Ordenamos los stocks por precio de venta del producto de forma descendente:
+	public List<StockDTO> inOrderDescByProductSalePrice(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por nombre de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductName(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por nombre de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductName(List<StockDTO> stocks);
+	
+	//Aplicamos el criterio de ordenamiento elegido:
+	public List<StockDTO> applyOrder(List<StockDTO> stocks, String order);
+	
 	//Agregar o modificar:
 	
 	//Agregamos o modificamos un stock en la base de datos:
@@ -121,4 +178,38 @@ public interface IStockService
 	
 	//Disminuimos el stock de los lotes que sean necesarios para satisfacer la compra:
 	public void decreaseStock(int productId, int amount) throws Exception;
+	
+	//Filtrar:
+	
+	//Filtramos el listado de stocks por la categoría del producto:
+	public List<StockDTO> filterByProductCategory(List<StockDTO> stocks, String category);
+	
+	//Filtramos el listado de stocks por el género del producto:
+	public List<StockDTO> filterByProductGender(List<StockDTO> stocks, Character gender);
+	
+	//Filtramos el listado de stocks por el talle del producto:
+	public List<StockDTO> filterByProductSize(List<StockDTO> stocks, String size);
+	
+	//Filtramos el listado de stocks por el color del producto:
+	public List<StockDTO> filterByProductColor(List<StockDTO> stocks, String color);
+	
+	//Filtramos el listado de stocks por el precio de venta del producto:
+	public List<StockDTO> filterByProductSalePrice(List<StockDTO> stocks, float salePrice);
+	
+	//Filtramos el listado de stocks por el precio de venta del producto mayor o igual a uno determinado:
+	public List<StockDTO> filterByFromProductSalePrice(List<StockDTO> stocks, float fromSalePrice);
+	
+	//Filtramos el listado de stocks por el precio de venta del producto menor o igual a uno determinado:
+	public List<StockDTO> filterByUntilProductSalePrice(List<StockDTO> stocks, float untilSalePrice);
+	
+	//Filtramos el listado de stocks por el precio de venta del producto dentro de un rango determinado:
+	public List<StockDTO> filterByProductSalePriceRange(List<StockDTO> stocks, float rangeFromSalePrice, float rangeUntilSalePrice);
+	
+	//Aplicamos el filtro seleccionado de la sección precio de venta:
+	public List<StockDTO> applyFilterTypeProductSalePrice(List<StockDTO> stocks, String salePrice, String fromSalePrice, String untilSalePrice,
+														  String rangeFromSalePrice, String rangeUntilSalePrice);
+	
+	//Aplicamos los filtros seleccionados de las secciones categoría, género, talle, color y precio de venta del producto:
+	public List<StockDTO> applyFilters(List<StockDTO> stocks, String category, String gender, String size, String color, String salePrice,
+									   String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice);
 }

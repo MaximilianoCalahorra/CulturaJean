@@ -71,6 +71,26 @@ public interface IStockRepository extends JpaRepository<Stock, Serializable>
 	@Query("SELECT s FROM Stock s INNER JOIN FETCH s.product p WHERE p.salePrice >= (:minimumPrice) AND p.salePrice <= (:maximumPrice)")
 	public abstract List<Stock> findBySalePriceRange(@Param("minimumPrice")float minimumPrice, @Param("maximumPrice")float maximumPrice);
 	
+	//Encontramos un ejemplar de cada categoría de producto de los cuales hay stocks:
+	@Query(value = "SELECT DISTINCT p.category FROM stock s INNER JOIN product p ON s.product_id = p.product_id ORDER BY p.category", 
+		   nativeQuery = true)
+	public abstract List<String> findUniqueEachProductCategory();
+	
+	//Encontramos un ejemplar de cada género de producto de los cuales hay stocks:
+	@Query(value = "SELECT DISTINCT p.gender FROM stock s INNER JOIN product p ON s.product_id = p.product_id ORDER BY p.gender", 
+			nativeQuery = true)
+	public abstract List<String> findUniqueEachProductGender();
+	
+	//Encontramos un ejemplar de cada talle de producto de los cuales hay stocks:
+	@Query(value = "SELECT DISTINCT p.size FROM stock s INNER JOIN product p ON s.product_id = p.product_id ORDER BY p.size", 
+			nativeQuery = true)
+	public abstract List<String> findUniqueEachProductSize();
+	
+	//Encontramos un ejemplar de cada color de producto de los cuales hay stocks:
+	@Query(value = "SELECT DISTINCT p.color FROM stock s INNER JOIN product p ON s.product_id = p.product_id ORDER BY p.color", 
+			nativeQuery = true)
+	public abstract List<String> findUniqueEachProductColor();
+	
 	//Ordenar:
 	
 	//Ordenamos los stocks por id de manera ascendente con su producto asociado:
