@@ -130,4 +130,7 @@ public class ViewRouteHelper
 	
 	//Responde LotController --> lots():
 	public final static String REDIRECT_LOTS = "/lot/lots";
+	
+	//Responde CustomerController --> customers():
+	public final static String REDIRECT_CUSTOMERS = "/customer/customers";
 }
