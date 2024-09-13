@@ -55,6 +55,41 @@ public interface IProductRepository extends JpaRepository<Product, Serializable>
 	@Query("SELECT p FROM Product p WHERE p.salePrice >= (:price)")
 	public abstract List<Product> findBySalePriceGreaterThanOrEqualTo(@Param("price")float price);
 	
+	//Encontramos los productos con determinado nombre de imagen:
+	@Query("SELECT p FROM Product p WHERE p.imageName = (:imageName) AND p.enabled = (:enabled)")
+	public abstract List<Product> findByImageNameAndEnabled(@Param("imageName")String imageName, @Param("enabled")boolean enabled);
+	
+	//Encontramos un producto por cada nombre de imagen:
+	@Query(value = "SELECT p.* FROM product p INNER JOIN (SELECT MIN(product_id) AS product_id FROM product GROUP BY image_name) AS subquery ON p.product_id = subquery.product_id", 
+           nativeQuery = true)
+	public abstract List<Product> findUniqueEachImageName();
+	
+	//Encontramos un producto habilitado/deshabilitado por cada nombre de imagen:
+	@Query(value = "SELECT p.* FROM product p INNER JOIN (SELECT MIN(product_id) AS product_id FROM product WHERE enabled = (:enabled) GROUP BY image_name) AS subquery ON p.product_id = subquery.product_id", 
+			nativeQuery = true)
+	public abstract List<Product> findUniqueEnabledEachImageName(@Param("enabled")boolean enabled);
+	
+	//Encontramos un producto habilitado/deshabilitado de determinado talle por cada nombre de imagen:
+	@Query(value = "SELECT p.* FROM product p INNER JOIN (SELECT MIN(product_id) AS product_id FROM product WHERE enabled = (:enabled) AND size = (:size) GROUP BY image_name) AS subquery ON p.product_id = subquery.product_id", 
+			nativeQuery = true)
+	public abstract List<Product> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("size")String size);
+	
+	//Encontramos un ejemplar de cada categoría de producto:
+	@Query(value = "SELECT DISTINCT p.category FROM product p ORDER BY p.category", nativeQuery = true)
+	public abstract List<String> findUniqueEachCategory();
+	
+	//Encontramos un ejemplar de cada género de producto:
+	@Query(value = "SELECT DISTINCT p.gender FROM product p ORDER BY p.gender", nativeQuery = true)
+	public abstract List<String> findUniqueEachGender();
+	
+	//Encontramos un ejemplar de cada talle de producto:
+	@Query(value = "SELECT DISTINCT p.size FROM product p ORDER BY p.size", nativeQuery = true)
+	public abstract List<String> findUniqueEachSize();
+	
+	//Encontramos un ejemplar de cada color de producto:
+	@Query(value = "SELECT DISTINCT p.color FROM product p ORDER BY p.color", nativeQuery = true)
+	public abstract List<String> findUniqueEachColor();
+
 	//Ordenar:
 	
 	//Ordenamos los productos por el código de manera alfabética:
