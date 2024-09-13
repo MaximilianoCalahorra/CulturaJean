@@ -347,6 +347,7 @@ public class StockService implements IStockService
 	}
 	
 	//Ordenamos los stocks por la cantidad deseable de forma ascendente:
+	@Override
 	public List<StockDTO> inOrderAscByDesirableAmount(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingInt(stock -> stock.getDesirableAmount()));
@@ -354,6 +355,7 @@ public class StockService implements IStockService
 	}
 		
 	//Ordenamos los stocks por la cantidad deseable de forma descendente:
+	@Override
 	public List<StockDTO> inOrderDescByDesirableAmount(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getDesirableAmount()).reversed());
@@ -361,6 +363,7 @@ public class StockService implements IStockService
 	}
 		
 	//Ordenamos los stocks por la cantidad mínima de forma ascendente:
+	@Override
 	public List<StockDTO> inOrderAscByMinimumAmount(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingInt(stock -> stock.getMinimumAmount()));
@@ -368,6 +371,7 @@ public class StockService implements IStockService
 	}
 		
 	//Ordenamos los stocks por la cantidad mínima de forma descendente:
+	@Override
 	public List<StockDTO> inOrderDescByMinimumAmount(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getMinimumAmount()).reversed());
@@ -375,6 +379,7 @@ public class StockService implements IStockService
 	}
 
 	//Ordenamos los stocks por la cantidad actual de forma ascendente:
+	@Override
 	public List<StockDTO> inOrderAscByActualAmount(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingInt(stock -> stock.getActualAmount()));
@@ -382,6 +387,7 @@ public class StockService implements IStockService
 	}
 		
 	//Ordenamos los stocks por la cantidad actual de forma descendente:
+	@Override
 	public List<StockDTO> inOrderDescByActualAmount(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getActualAmount()).reversed());
@@ -389,6 +395,7 @@ public class StockService implements IStockService
 	}
 	
 	//Ordenamos los stocks por código de producto de forma alfabética:
+	@Override
 	public List<StockDTO> inOrderAscByProductCode(List<StockDTO> stocks)
 	{
 		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getCode().compareToIgnoreCase(s2.getProduct().getCode()));
@@ -396,6 +403,7 @@ public class StockService implements IStockService
 	}
 	
 	//Ordenamos los stocks por código de producto de forma inversa al alfabeto:
+	@Override
 	public List<StockDTO> inOrderDescByProductCode(List<StockDTO> stocks)
 	{
 		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getCode().compareToIgnoreCase(s1.getProduct().getCode()));
@@ -403,6 +411,7 @@ public class StockService implements IStockService
 	}
 
 	//Ordenamos los stocks por categoría de producto de forma alfabética:
+	@Override
 	public List<StockDTO> inOrderAscByProductCategory(List<StockDTO> stocks)
 	{
 		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getCategory().compareToIgnoreCase(s2.getProduct().getCategory()));
@@ -410,6 +419,7 @@ public class StockService implements IStockService
 	}
 		
 	//Ordenamos los stocks por categoría de producto de forma inversa al alfabeto:
+	@Override
 	public List<StockDTO> inOrderDescByProductCategory(List<StockDTO> stocks)
 	{
 		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getCategory().compareToIgnoreCase(s1.getProduct().getCategory()));
@@ -417,6 +427,7 @@ public class StockService implements IStockService
 	}
 		
 	//Ordenamos los stocks por la precio de venta del producto de forma ascendente:
+	@Override
 	public List<StockDTO> inOrderAscByProductSalePrice(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingDouble(stock -> stock.getProduct().getSalePrice()));
@@ -424,6 +435,7 @@ public class StockService implements IStockService
 	}
 			
 	//Ordenamos los stocks por precio de venta del producto de forma descendente:
+	@Override
 	public List<StockDTO> inOrderDescByProductSalePrice(List<StockDTO> stocks)
 	{
 		stocks.sort(Comparator.comparingDouble(stock -> ((StockDTO)stock).getProduct().getSalePrice()).reversed());
@@ -431,6 +443,7 @@ public class StockService implements IStockService
 	}
 		
 	//Ordenamos los stocks por nombre de producto de forma alfabética:
+	@Override
 	public List<StockDTO> inOrderAscByProductName(List<StockDTO> stocks)
 	{
 		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getName().compareToIgnoreCase(s2.getProduct().getName()));
@@ -438,6 +451,7 @@ public class StockService implements IStockService
 	}
 	
 	//Ordenamos los stocks por nombre de producto de forma inversa al alfabeto:
+	@Override
 	public List<StockDTO> inOrderDescByProductName(List<StockDTO> stocks)
 	{
 		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getName().compareToIgnoreCase(s1.getProduct().getName()));
@@ -445,6 +459,7 @@ public class StockService implements IStockService
 	}
 		
 	//Aplicamos el criterio de ordenamiento elegido:
+	@Override
 	public List<StockDTO> applyOrder(List<StockDTO> stocks, String order)
 	{
 		//Según el criterio de ordenamiento elegido:
@@ -471,6 +486,7 @@ public class StockService implements IStockService
 	//Agregar o modificar:
 	
 	//Agregamos o modificamos un stock en la base de datos:
+	@Override
 	public StockDTO insertOrUpdate(StockDTO stock) 
 	{
 		Stock saveStock = modelMapper.map(stock, Stock.class);
@@ -481,6 +497,7 @@ public class StockService implements IStockService
 	//Calcular:
 	
 	//Calculamos la cnatidad actual de stock:
+	@Override
 	public int actualAmount(int stockId) 
 	{
 		int actualAmount = 0;
@@ -495,6 +512,7 @@ public class StockService implements IStockService
 	//Disminuir:
 	
 	//Disminuimos el stock de los lotes que sean necesarios para satisfacer la compra:
+	@Override
 	public void decreaseStock(int productId, int amount) throws Exception
 	{
 		StockDTO stock = findByProduct(productId); //Obtenemos el stock del producto.

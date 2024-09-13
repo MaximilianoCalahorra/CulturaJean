@@ -349,6 +349,7 @@ public class ProductService implements IProductService
 	}
 		
 	//Aplicamos el criterio de ordenamiento seleccionado:
+	@Override
 	public List<ProductDTO> applyOrder(List<ProductDTO> products, String order)
 	{
 		//Según el criterio de ordenamiento elegido:
@@ -365,6 +366,7 @@ public class ProductService implements IProductService
 	//Agregar:
 	
 	//Agregamos un producto a la base de datos:
+	@Override
 	public ProductDTO insert(ProductDTO product) throws Exception
 	{
 		//Si existe otro producto con el mismo código evitamos que se registre en la base de datos:
@@ -379,6 +381,7 @@ public class ProductService implements IProductService
 	//Modificar:
 	
 	//Modificamos un producto de la base de datos:
+	@Override
 	public ProductDTO update(ProductDTO product) throws Exception
 	{
 		Product existingProduct = productRepository.findByCode(product.getCode()); //Buscamos si existe un producto con el código del que se quiere modificar.
@@ -614,6 +617,7 @@ public class ProductService implements IProductService
 	}
 			
 	//Aplicamos el filtro seleccionado de la sección precio de venta:
+	@Override
 	public List<ProductDTO> applyFilterTypeSalePrice(List<ProductDTO> products, String salePrice, String fromSalePrice, String untilSalePrice,
 													 String rangeFromSalePrice, String rangeUntilSalePrice)
 	{

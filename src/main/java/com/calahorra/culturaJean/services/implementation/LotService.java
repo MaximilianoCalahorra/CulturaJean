@@ -61,6 +61,7 @@ public class LotService implements ILotService
 	}
 	
 	//Encontramos el lote que se corresponde con determinado pedido de aprovisionamiento por el id del último:
+	@Override
 	public LotDTO findBySupplyOrder(int supplyOrderId)
 	{
 		Lot lot = lotRepository.findBySupplyOrder(supplyOrderId);
@@ -363,6 +364,7 @@ public class LotService implements ILotService
 	}
 	
 	//Ordenamos el listado de lotes por id del stock asociado de forma ascendente:
+	@Override
 	public List<LotDTO> inOrderAscByStockId(List<LotDTO> lots)
 	{
 		lots.sort(Comparator.comparingInt(lot -> lot.getStock().getStockId()));
@@ -370,6 +372,7 @@ public class LotService implements ILotService
 	}
 		
 	//Ordenamos el listado de lotes por id del stock asociado de forma descendente:
+	@Override
 	public List<LotDTO> inOrderDescByStockId(List<LotDTO> lots)
 	{
 		lots.sort(Comparator.comparingInt(lot -> ((LotDTO) lot).getStock().getStockId()).reversed());
@@ -377,6 +380,7 @@ public class LotService implements ILotService
 	}
 		
 	//Ordenamos el listado de lotes por fecha de recepción de forma ascendente:
+	@Override
 	public List<LotDTO> inOrderAscByReceptionDate(List<LotDTO> lots)
 	{
 		Collections.sort(lots, (l1, l2) -> l1.getReceptionDate().compareTo(l2.getReceptionDate()));
@@ -384,6 +388,7 @@ public class LotService implements ILotService
 	}
 		
 	//Ordenamos el listado de lotes por fecha de recepción de forma ascendente:
+	@Override
 	public List<LotDTO> inOrderDescByReceptionDate(List<LotDTO> lots)
 	{
 		Collections.sort(lots, (l1, l2) -> l2.getReceptionDate().compareTo(l1.getReceptionDate()));
@@ -391,6 +396,7 @@ public class LotService implements ILotService
 	}
 	
 	//Ordenamos el listado de lotes por cantidad existente de forma ascendente:
+	@Override
 	public List<LotDTO> inOrderAscByExistingAmount(List<LotDTO> lots)
 	{
 		lots.sort(Comparator.comparingInt(LotDTO::getExistingAmount));
@@ -398,6 +404,7 @@ public class LotService implements ILotService
 	}
 		
 	//Ordenamos el listado de lotes por cantidad existente de forma ascendente:
+	@Override
 	public List<LotDTO> inOrderDescByExistingAmount(List<LotDTO> lots)
 	{
 		lots.sort(Comparator.comparingInt(LotDTO::getExistingAmount).reversed());
@@ -405,6 +412,7 @@ public class LotService implements ILotService
 	}
 		
 	//Aplicamos el criterio de ordenamiento seleccionado:
+	@Override
 	public List<LotDTO> applyOrder(List<LotDTO> lots, String order)
 	{
 		//Según el criterio de ordenamiento elegido:

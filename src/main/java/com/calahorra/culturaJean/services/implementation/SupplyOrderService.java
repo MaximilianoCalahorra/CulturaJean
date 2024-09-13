@@ -126,30 +126,35 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 	
 	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento:
+	@Override
 	public List<String> findUniqueEachProductCode()
 	{
 		return supplyOrderRepository.findUniqueEachProductCode(); //Retornamos el listado de códigos de producto ordenado.
 	}
 			
 	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento:
+	@Override
 	public List<String> findUniqueEachSupplierName()
 	{
 		return supplyOrderRepository.findUniqueEachSupplierName(); //Retornamos el listado de nombres de proveedor ordenado.
 	}
 	
 	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	@Override
 	public List<String> findUniqueEachProductCodeDelivered(boolean delivered)
 	{
 		return supplyOrderRepository.findUniqueEachProductCodeDelivered(delivered); //Retornamos el listado de códigos de producto ordenado.
 	}
 			
 	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	@Override
 	public List<String> findUniqueEachSupplierNameDelivered(boolean delivered)
 	{
 		return supplyOrderRepository.findUniqueEachSupplierNameDelivered(delivered); //Retornamos el listado de nombres de proveedor ordenado.
 	}
 	
 	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	@Override
 	public List<String> findUniqueEachAdminUsernameDelivered(@Param("delivered")boolean delivered)
 	{
 		return supplyOrderRepository.findUniqueEachAdminUsernameDelivered(delivered); //Retornamos el listado de nombres de usuario de los administradores ordenado.
@@ -227,6 +232,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 	
 	//Ordenamos el listado de pedidos de aprovisionamiento por el código del producto de forma alfabética:
+	@Override
 	public List<SupplyOrderDTO> inOrderAscByProductCode(List<SupplyOrderDTO> supplyOrders)
 	{
 		Collections.sort(supplyOrders, (so1, so2) -> so1.getProduct().getCode().compareToIgnoreCase(so2.getProduct().getCode()));
@@ -234,6 +240,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Ordenamos el listado de pedidos de aprovisionamiento por el código del producto de forma inversa al alfabeto:
+	@Override
 	public List<SupplyOrderDTO> inOrderDescByProductCode(List<SupplyOrderDTO> supplyOrders)
 	{
 		Collections.sort(supplyOrders, (so1, so2) -> so2.getProduct().getCode().compareToIgnoreCase(so1.getProduct().getCode()));
@@ -241,6 +248,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del proveedor de forma alfabética:
+	@Override
 	public List<SupplyOrderDTO> inOrderAscBySupplierName(List<SupplyOrderDTO> supplyOrders)
 	{
 		Collections.sort(supplyOrders, (so1, so2) -> so1.getSupplier().getName().compareToIgnoreCase(so2.getSupplier().getName()));
@@ -248,6 +256,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del proveedor de forma inversa al alfabeto:
+	@Override
 	public List<SupplyOrderDTO> inOrderDescBySupplierName(List<SupplyOrderDTO> supplyOrders)
 	{
 		Collections.sort(supplyOrders, (so1, so2) -> so2.getSupplier().getName().compareToIgnoreCase(so1.getSupplier().getName()));
@@ -255,6 +264,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 	
 	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre de usuario del administrador de forma alfabética:
+	@Override
 	public List<SupplyOrderDTO> inOrderAscByAdminUsername(List<SupplyOrderDTO> supplyOrders)
 	{
 		Collections.sort(supplyOrders, (so1, so2) -> so1.getMember().getUsername().compareToIgnoreCase(so2.getMember().getUsername()));
@@ -262,6 +272,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre de usuario del administrador de forma inversa al alfabeto:
+	@Override
 	public List<SupplyOrderDTO> inOrderDescByAdminUsername(List<SupplyOrderDTO> supplyOrders)
 	{
 		Collections.sort(supplyOrders, (so1, so2) -> so2.getMember().getUsername().compareToIgnoreCase(so1.getMember().getUsername()));
@@ -269,6 +280,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Ordenamos el listado de pedidos de aprovisionamiento por la cantidad de forma ascendente:
+	@Override
 	public List<SupplyOrderDTO> inOrderAscByAmount(List<SupplyOrderDTO> supplyOrders)
 	{
 		supplyOrders.sort(Comparator.comparingInt(SupplyOrderDTO::getAmount));
@@ -276,6 +288,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Ordenamos el listado de pedidos de aprovisionamiento por la cantidad de forma descendente:
+	@Override
 	public List<SupplyOrderDTO> inOrderDescByAmount(List<SupplyOrderDTO> supplyOrders)
 	{
 		supplyOrders.sort(Comparator.comparingInt(SupplyOrderDTO::getAmount).reversed());
@@ -283,6 +296,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Aplicamos el ordenamiento seleccionado:
+	@Override
 	public List<SupplyOrderDTO> applyOrder(List<SupplyOrderDTO> supplyOrders, String order)
 	{
 		//Ordenamos el listado de pedidos de aprovisionamiento resultante de los procesos anteriores en base al tipo de ordenamiento elegido:
@@ -303,6 +317,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	//Agregar:
 	
 	//Agregamos un pedido de aprovisionamiento a la base de datos:
+	@Override
 	public SupplyOrderDTO insert(SupplyOrderDTO supplyOrder) 
 	{
 		SupplyOrder savedSupplyOrder = modelMapper.map(supplyOrder, SupplyOrder.class);
@@ -315,6 +330,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	//Filtrar:
 	
 	//Filtramos los pedidos de aprovisionamiento por el código del producto asociado:
+	@Override
 	public List<SupplyOrderDTO> filterByProductCode(List<SupplyOrderDTO> supplyOrders, String productCode)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -332,6 +348,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Filtramos los pedidos de aprovisionamiento por el nombre del proveedor asociado:
+	@Override
 	public List<SupplyOrderDTO> filterBySupplierName(List<SupplyOrderDTO> supplyOrders, String supplierName)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -349,6 +366,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 	
 	//Filtramos los pedidos de aprovisionamiento por el nombre de usuario del administrador que lo generó:
+	@Override
 	public List<SupplyOrderDTO> filterByAdminUsername(List<SupplyOrderDTO> supplyOrders, String adminUsername)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -366,6 +384,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Filtramos los pedidos de aprovisionamiento por la cantidad del mismo:
+	@Override
 	public List<SupplyOrderDTO> filterByAmount(List<SupplyOrderDTO> supplyOrders, int amount)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -383,6 +402,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Filtramos los pedidos de aprovisionamiento por la cantidad si es mayor o igual a una determinada:
+	@Override
 	public List<SupplyOrderDTO> filterByFromAmount(List<SupplyOrderDTO> supplyOrders, int fromAmount)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -400,6 +420,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Filtramos los pedidos de aprovisionamiento por la cantidad si es menor o igual a una determinada:
+	@Override
 	public List<SupplyOrderDTO> filterByUntilAmount(List<SupplyOrderDTO> supplyOrders, int untilAmount)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -417,6 +438,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Filtramos los pedidos de aprovisionamiento por la cantidad si está dentro de un rango determinado:
+	@Override
 	public List<SupplyOrderDTO> filterByAmountRange(List<SupplyOrderDTO> supplyOrders, int rangeFromAmount, int rangeUntilAmount)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -434,6 +456,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 		
 	//Aplicamos el filtro seleccionado de la sección cantidad:
+	@Override
 	public List<SupplyOrderDTO> applyFilterTypeAmount(List<SupplyOrderDTO> supplyOrders, String amount, String fromAmount, String untilAmount,
 														  String rangeFromAmount, String rangeUntilAmount)
 	{
@@ -463,6 +486,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 	
 	//Filtramos los pedidos de aprovisionamiento por el estado de la entrega:
+	@Override
 	public List<SupplyOrderDTO> filterByDelivered(List<SupplyOrderDTO> supplyOrders, boolean delivered)
 	{
 		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
@@ -480,6 +504,7 @@ public class SupplyOrderService implements ISupplyOrderService
 	}
 	
 	//Aplicamos todos los filtros seleccionados:
+	@Override
 	public List<SupplyOrderDTO> applyFilters(List<SupplyOrderDTO> supplyOrders, String productCode, String supplierName, String amount,
 											 String fromAmount, String untilAmount, String rangeFromAmount, String rangeUntilAmount)
 	{
