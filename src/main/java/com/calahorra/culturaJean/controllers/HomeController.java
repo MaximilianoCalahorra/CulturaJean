@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.calahorra.culturaJean.dtos.ProductDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
+import com.calahorra.culturaJean.services.IProductService;
 import com.calahorra.culturaJean.services.IStockService;
 
 ///CLase HomeController:
@@ -22,11 +24,13 @@ public class HomeController
 {
 	//Atributo:
 	private IStockService stockService;
+	private IProductService productService;
 	
 	//Constructor:
-	public HomeController(IStockService stockService) 
+	public HomeController(IStockService stockService, IProductService productService) 
 	{
 		this.stockService = stockService;
+		this.productService = productService;
 	} 
 	
 	//Respondemos a la ruta base del sitio web con la vista de inicio del visitante:
@@ -61,22 +65,32 @@ public class HomeController
 			//La vista a cargar es la de inicio del administrador:
 			modelAndView = new ModelAndView(ViewRouteHelper.ADMIN_INDEX);
 			
-			//Instanciamos un listado de stocks donde vamos a cargar los stocks filtrados y ordenados.
-			List<StockDTO> stocks = new ArrayList<StockDTO>(); 
+			//Instanciamos un listado de productos donde vamos a cargar los productos filtrados y ordenados.
+			List<ProductDTO> products = new ArrayList<ProductDTO>(); 
 			
 			//Aplicamos el filtro seleccionado de la sección estado de los productos:
 			if(!enabled.equals("all")) //Si se elegió la opción de habilitados o la deshabilitados:
 			{
 				boolean enabledValue = Boolean.parseBoolean(enabled); //Convertimos la cadena a valor booleano.
-				stocks = stockService.findByProductEnabled(enabledValue); //Obtenemos los stocks de productos habilitados/inhabilitados desde la base de datos. 
+				products = productService.findByEnabled(enabledValue); //Obtenemos los productos habilitados/inhabilitados desde la base de datos. 
 			}
 			else //Por el contrario, si se eligió la de todos:
 			{
-				stocks = stockService.getAll(); //Obtenemos todos los stocks desde la base de datos.
+				products = productService.getAllProducts(); //Obtenemos todos los productos desde la base de datos.
 			}
 			
 			//Aplicamos los filtros seleccionados de las secciones categoría, género, talle, color y precio de venta:
-			stocks = stockService.applyFilters(stocks, category, gender, size, color, salePrice, fromSalePrice, untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice);
+			products = productService.applyFilters(products, category, gender, size, color, salePrice, fromSalePrice, untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice);
+			
+			//Instanciamos un listado de stock donde se guardarán el stock de cada producto filtrado y ordenado:
+			List<StockDTO> stocks = new ArrayList<StockDTO>();
+			
+			//Recorremos los productos:
+			for(ProductDTO product: products) 
+			{
+				//Obtenemos el stock de cada uno y lo agregamos a la lista:
+				stocks.add(stockService.findByProduct(product.getProductId()));
+			}
 			
 			//Aplicamos el criterio de ordenamiento seleccionado:
 			stocks = stockService.applyOrder(stocks, order);
@@ -93,10 +107,10 @@ public class HomeController
 			modelAndView.addObject("rFSPri", rangeFromSalePrice); //Adjuntamos el precio mayor o igual de un rango para el filtro.
 			modelAndView.addObject("rUSPri", rangeUntilSalePrice); //Adjuntamos el precio menor o igual de un rango para el filtro.
 			modelAndView.addObject("ena", enabled); //Adjuntamos el estado de los productos para el filtro.
-			modelAndView.addObject("productCategories", stockService.findUniqueEachProductCategory()); //Adjuntamos el listado de categorías de producto.
-			modelAndView.addObject("productGenders", stockService.findUniqueEachProductGender()); //Adjuntamos el listado de géneros de producto.
-			modelAndView.addObject("productSizes", stockService.findUniqueEachProductSize()); //Adjuntamos el listado de talles de producto.
-			modelAndView.addObject("productColors", stockService.findUniqueEachProductColor()); //Adjuntamos el listado de colores de producto.
+			modelAndView.addObject("productCategories", productService.findUniqueEachCategory()); //Adjuntamos el listado de categorías de producto.
+			modelAndView.addObject("productGenders", productService.findUniqueEachGender()); //Adjuntamos el listado de géneros de producto.
+			modelAndView.addObject("productSizes", productService.findUniqueEachSize()); //Adjuntamos el listado de talles de producto.
+			modelAndView.addObject("productColors", productService.findUniqueEachColor()); //Adjuntamos el listado de colores de producto.
 			modelAndView.addObject("stocks", stocks); //Adjuntamos los stocks filtrados y ordenados.
 			
 		}
@@ -107,37 +121,4 @@ public class HomeController
 		}
 		return modelAndView; //Retornamos la vista que corresponda.
 	}
-	
-	/*
-	//Respondemos a las peticiones de cargar la vista principal con la vista en cuestión según el tipo de miembro:
-	@GetMapping("/index")
-	public ModelAndView index()
-	{
-		//Obtenemos el usuario que se logueó:
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		
-		ModelAndView modelAndView;
-		
-		//Si se trata de un administrador:
-		if(user.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_ADMIN")))
-		{
-			//La vista a cargar es la de inicio del administrador:
-			modelAndView = new ModelAndView(ViewRouteHelper.ADMIN_INDEX);
-			
-			//Obtenemos de la base de datos la información a presentar en la vista:
-			//En este caso, cada stock con su producto ordenados de menor a mayor por la cantidad actual.
-			List<StockDTO> stocks = stockService.getAllInOrderAscByActualAmount();
-			
-			//Agregamos la información a la vista:
-			modelAndView.addObject("stocks", stocks);
-			
-		}
-		else //En caso contrario, el miembro logueado es un cliente, por lo que procedemos de la siguiente forma:
-		{
-			//La vista a cargar es la de inicio de los clientes:
-			modelAndView = new ModelAndView(ViewRouteHelper.CUSTOMER_INDEX);
-		}
-		return modelAndView; //Retornamos la vista que corresponda.
-	}
-	*/
 }
