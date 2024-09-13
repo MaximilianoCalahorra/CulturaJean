@@ -52,18 +52,6 @@ public interface IStockService
 	//Encontramos los productos con un precio de venta entre determinado rango:
 	public List<StockDTO> findBySalePriceRange(float minimumPrice, float maximumPrice);
 	
-	//Encontramos un ejemplar de cada categoría de producto de los cuales hay stocks:
-	public List<String> findUniqueEachProductCategory();
-		
-	//Encontramos un ejemplar de cada género de producto de los cuales hay stocks:
-	public List<String> findUniqueEachProductGender();
-		
-	//Encontramos un ejemplar de cada talle de producto de los cuales hay stocks:
-	public List<String> findUniqueEachProductSize();
-		
-	//Encontramos un ejemplar de cada color de producto de los cuales hay stocks:
-	public List<String> findUniqueEachProductColor();
-	
 	//Obtener:
 	
 	//Obtenemos todos los stocks:
@@ -178,38 +166,4 @@ public interface IStockService
 	
 	//Disminuimos el stock de los lotes que sean necesarios para satisfacer la compra:
 	public void decreaseStock(int productId, int amount) throws Exception;
-	
-	//Filtrar:
-	
-	//Filtramos el listado de stocks por la categoría del producto:
-	public List<StockDTO> filterByProductCategory(List<StockDTO> stocks, String category);
-	
-	//Filtramos el listado de stocks por el género del producto:
-	public List<StockDTO> filterByProductGender(List<StockDTO> stocks, Character gender);
-	
-	//Filtramos el listado de stocks por el talle del producto:
-	public List<StockDTO> filterByProductSize(List<StockDTO> stocks, String size);
-	
-	//Filtramos el listado de stocks por el color del producto:
-	public List<StockDTO> filterByProductColor(List<StockDTO> stocks, String color);
-	
-	//Filtramos el listado de stocks por el precio de venta del producto:
-	public List<StockDTO> filterByProductSalePrice(List<StockDTO> stocks, float salePrice);
-	
-	//Filtramos el listado de stocks por el precio de venta del producto mayor o igual a uno determinado:
-	public List<StockDTO> filterByFromProductSalePrice(List<StockDTO> stocks, float fromSalePrice);
-	
-	//Filtramos el listado de stocks por el precio de venta del producto menor o igual a uno determinado:
-	public List<StockDTO> filterByUntilProductSalePrice(List<StockDTO> stocks, float untilSalePrice);
-	
-	//Filtramos el listado de stocks por el precio de venta del producto dentro de un rango determinado:
-	public List<StockDTO> filterByProductSalePriceRange(List<StockDTO> stocks, float rangeFromSalePrice, float rangeUntilSalePrice);
-	
-	//Aplicamos el filtro seleccionado de la sección precio de venta:
-	public List<StockDTO> applyFilterTypeProductSalePrice(List<StockDTO> stocks, String salePrice, String fromSalePrice, String untilSalePrice,
-														  String rangeFromSalePrice, String rangeUntilSalePrice);
-	
-	//Aplicamos los filtros seleccionados de las secciones categoría, género, talle, color y precio de venta del producto:
-	public List<StockDTO> applyFilters(List<StockDTO> stocks, String category, String gender, String size, String color, String salePrice,
-									   String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice);
 }
