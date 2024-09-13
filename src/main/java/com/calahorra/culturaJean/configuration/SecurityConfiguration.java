@@ -40,7 +40,7 @@ public class SecurityConfiguration
 				.authorizeHttpRequests(auth -> {
 					auth.requestMatchers("/css/*", "/assets/img/**", "/js/*", "/vendor/bootstrap/css/*",
 							"/vendor/jquery/*", "/vendor/bootstrap/js/*", "/api/v1/**", "/", "/registerAdd", "/aboutUs/visitor", "/help/visitor",
-							"/register", "/product/visitor", "/stores/visitor", "/product/moreDetails/visitor/**").permitAll();
+							"/register", "/product/products/visitor", "/stores/visitor", "/product/moreDetails/visitor/**").permitAll();
 					auth.anyRequest().authenticated();
 				})
 				.formLogin(login -> {
