@@ -241,20 +241,8 @@ public class MemberController
 		//Obtenemos los pedidos de aprovisionamiento del administrador:
 		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByMember(member.getUsername());
 		
-		//Aplicamos el filtro seleccionado de la sección código de producto:
-		if(!productCode.equals("all")) 
-		{
-			supplyOrders = supplyOrderService.filterByProductCode(supplyOrders, productCode);
-		}
-		
-		//Aplicamos el filtro seleccionado de la sección nombre de proveedor:
-		if(!supplierName.equals("all")) 
-		{
-			supplyOrders = supplyOrderService.filterBySupplierName(supplyOrders, supplierName);
-		}
-		
-		//Aplicamos el filtro seleccionado de la sección cantidad:
-		supplyOrders = supplyOrderService.applyFilterTypeAmount(supplyOrders, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
+		//Aplicamos los filtros seleccionados de las secciones código de producto, nombre de proveedor y cantidad:
+		supplyOrders = supplyOrderService.applyFilters(supplyOrders, productCode, supplierName, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
 		
 		//Aplicamos el filtro de estado de la entrega que corresponda:
 		if(!delivered.equals("all")) 

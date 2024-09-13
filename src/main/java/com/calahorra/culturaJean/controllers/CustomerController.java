@@ -5,11 +5,14 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.MemberDTO;
+import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
 import com.calahorra.culturaJean.services.implementation.MemberService;
 
@@ -61,5 +64,27 @@ public class CustomerController
 		modelAndView.addObject("customers", customers); //Agregamos los clientes filtrados y/u ordenados a la vista.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
+	}
+	
+	//
+	@GetMapping("/changeEnabled/{memberId}/{enabled}")
+	public RedirectView changeEnabled(@PathVariable("memberId")int memberId, @PathVariable("enabled")boolean enabled) 
+	{
+		//Obtenemos el cliente al que se le quiere cambiar el estado:
+		Member customer = memberService.findByMemberIdWithUserRoles(memberId);
+		
+		customer.setEnabled(!enabled); //Le seteamos el estado al contrario que tiene.
+		
+		//Intentamos modificar el cliente en la base de datos con su nuevo estado:
+		try 
+		{
+			memberService.update(customer);
+		} 
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		return new RedirectView(ViewRouteHelper.REDIRECT_CUSTOMERS); //Redirigimos el flujo para cargar el listado de clientes nuevamente.
 	}
 }

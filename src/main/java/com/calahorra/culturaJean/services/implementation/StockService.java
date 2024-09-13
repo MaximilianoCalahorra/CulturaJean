@@ -1,5 +1,7 @@
 package com.calahorra.culturaJean.services.implementation;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -174,9 +176,12 @@ public class StockService implements IStockService
 	
 	//Obtenemos todos los stocks:
 	@Override
-	public List<Stock> getAll()
+	public List<StockDTO> getAll()
 	{
-		return stockRepository.findAll();
+		return stockRepository.findAll() //Obtenemos todos los stocks de productos como entidades.
+				.stream()
+				.map(stock -> modelMapper.map(stock, StockDTO.class)) //Convertimos cada entidad en un DTO.
+				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
 	//Ordenar:
@@ -341,9 +346,147 @@ public class StockService implements IStockService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
+	//Ordenamos los stocks por la cantidad deseable de forma ascendente:
+	@Override
+	public List<StockDTO> inOrderAscByDesirableAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> stock.getDesirableAmount()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad deseable de forma descendente:
+	@Override
+	public List<StockDTO> inOrderDescByDesirableAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getDesirableAmount()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad mínima de forma ascendente:
+	@Override
+	public List<StockDTO> inOrderAscByMinimumAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> stock.getMinimumAmount()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad mínima de forma descendente:
+	@Override
+	public List<StockDTO> inOrderDescByMinimumAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getMinimumAmount()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+
+	//Ordenamos los stocks por la cantidad actual de forma ascendente:
+	@Override
+	public List<StockDTO> inOrderAscByActualAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> stock.getActualAmount()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la cantidad actual de forma descendente:
+	@Override
+	public List<StockDTO> inOrderDescByActualAmount(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingInt(stock -> ((StockDTO)stock).getActualAmount()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
+	//Ordenamos los stocks por código de producto de forma alfabética:
+	@Override
+	public List<StockDTO> inOrderAscByProductCode(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getCode().compareToIgnoreCase(s2.getProduct().getCode()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
+	//Ordenamos los stocks por código de producto de forma inversa al alfabeto:
+	@Override
+	public List<StockDTO> inOrderDescByProductCode(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getCode().compareToIgnoreCase(s1.getProduct().getCode()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+
+	//Ordenamos los stocks por categoría de producto de forma alfabética:
+	@Override
+	public List<StockDTO> inOrderAscByProductCategory(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getCategory().compareToIgnoreCase(s2.getProduct().getCategory()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por categoría de producto de forma inversa al alfabeto:
+	@Override
+	public List<StockDTO> inOrderDescByProductCategory(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getCategory().compareToIgnoreCase(s1.getProduct().getCategory()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por la precio de venta del producto de forma ascendente:
+	@Override
+	public List<StockDTO> inOrderAscByProductSalePrice(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingDouble(stock -> stock.getProduct().getSalePrice()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+			
+	//Ordenamos los stocks por precio de venta del producto de forma descendente:
+	@Override
+	public List<StockDTO> inOrderDescByProductSalePrice(List<StockDTO> stocks)
+	{
+		stocks.sort(Comparator.comparingDouble(stock -> ((StockDTO)stock).getProduct().getSalePrice()).reversed());
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Ordenamos los stocks por nombre de producto de forma alfabética:
+	@Override
+	public List<StockDTO> inOrderAscByProductName(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s1.getProduct().getName().compareToIgnoreCase(s2.getProduct().getName()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
+	//Ordenamos los stocks por nombre de producto de forma inversa al alfabeto:
+	@Override
+	public List<StockDTO> inOrderDescByProductName(List<StockDTO> stocks)
+	{
+		Collections.sort(stocks, (s1, s2) -> s2.getProduct().getName().compareToIgnoreCase(s1.getProduct().getName()));
+		return stocks; //Retornamos los stocks ordenados.
+	}
+		
+	//Aplicamos el criterio de ordenamiento elegido:
+	@Override
+	public List<StockDTO> applyOrder(List<StockDTO> stocks, String order)
+	{
+		//Según el criterio de ordenamiento elegido:
+		switch(order) 
+		{
+			case "orderAscByDesirableAmount": stocks = inOrderAscByDesirableAmount(stocks); break; //Ascendente por cantidad deseable.
+			case "orderDescByDesirableAmount": stocks = inOrderDescByDesirableAmount(stocks); break; //Descendente por cantidad deseable.
+			case "orderAscByMinimumAmount": stocks = inOrderAscByMinimumAmount(stocks); break; //Ascendente por cantidad mínima.
+			case "orderDescByMinimumAmount": stocks = inOrderDescByMinimumAmount(stocks); break; //Descendente por cantidad mínima.
+			case "orderAscByActualAmount": stocks = inOrderAscByActualAmount(stocks); break; //Ascendente por cantidad actual.
+			case "orderDescByActualAmount": stocks = inOrderDescByActualAmount(stocks); break; //Descendente por cantidad actual.
+			case "orderAscByProductCode": stocks = inOrderAscByProductCode(stocks); break; //Alfabéticamente por código de producto.
+			case "orderDescByProductCode": stocks = inOrderDescByProductCode(stocks); break; //Inverso al alfabeto por código de producto.
+			case "orderAscByProductCategory": stocks = inOrderAscByProductCategory(stocks); break; //Alfabéticamente por cateoría de producto.
+			case "orderDescByProductCategory": stocks = inOrderDescByProductCategory(stocks); break; //Inverso al alfabeto por cateoría de producto.
+			case "orderAscByProductSalePrice": stocks = inOrderAscByProductSalePrice(stocks); break; //Ascendente por precio de venta de producto.
+			case "orderDescByProductSalePrice": stocks = inOrderDescByProductSalePrice(stocks); break; //Descendente por precio de venta de producto.
+			case "orderAscByProductName": stocks = inOrderAscByProductName(stocks); break; //Alfabéticamente por nombre de producto.
+			case "orderDescByProductName": stocks = inOrderDescByProductName(stocks); break; //Inverso al alfabeto por nombre de producto.
+		}
+		return stocks; //Retornamos los stocks ordenados.
+	}
+	
 	//Agregar o modificar:
 	
 	//Agregamos o modificamos un stock en la base de datos:
+	@Override
 	public StockDTO insertOrUpdate(StockDTO stock) 
 	{
 		Stock saveStock = modelMapper.map(stock, Stock.class);
@@ -354,6 +497,7 @@ public class StockService implements IStockService
 	//Calcular:
 	
 	//Calculamos la cnatidad actual de stock:
+	@Override
 	public int actualAmount(int stockId) 
 	{
 		int actualAmount = 0;
@@ -368,6 +512,7 @@ public class StockService implements IStockService
 	//Disminuir:
 	
 	//Disminuimos el stock de los lotes que sean necesarios para satisfacer la compra:
+	@Override
 	public void decreaseStock(int productId, int amount) throws Exception
 	{
 		StockDTO stock = findByProduct(productId); //Obtenemos el stock del producto.

@@ -55,7 +55,7 @@ public interface IStockService
 	//Obtener:
 	
 	//Obtenemos todos los stocks:
-	public List<Stock> getAll();
+	public List<StockDTO> getAll();
 	
 	//Ordenar:
 	
@@ -106,6 +106,51 @@ public interface IStockService
 	
 	//Ordenamos los stocks por el nombre del producto asociado de manera inversa al alfabeto:
 	public List<StockDTO> getAllInOrderDescByProductName();
+	
+	//Ordenamos los stocks por la cantidad deseable de forma ascendente:
+	public List<StockDTO> inOrderAscByDesirableAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad deseable de forma descendente:
+	public List<StockDTO> inOrderDescByDesirableAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad mínima de forma ascendente:
+	public List<StockDTO> inOrderAscByMinimumAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad mínima de forma descendente:
+	public List<StockDTO> inOrderDescByMinimumAmount(List<StockDTO> stocks);
+
+	//Ordenamos los stocks por la cantidad actual de forma ascendente:
+	public List<StockDTO> inOrderAscByActualAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la cantidad actual de forma descendente:
+	public List<StockDTO> inOrderDescByActualAmount(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por código de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductCode(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por código de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductCode(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por categoría de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductCategory(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por categoría de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductCategory(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por la precio de venta del producto de forma ascendente:
+	public List<StockDTO> inOrderAscByProductSalePrice(List<StockDTO> stocks);
+		
+	//Ordenamos los stocks por precio de venta del producto de forma descendente:
+	public List<StockDTO> inOrderDescByProductSalePrice(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por nombre de producto de forma alfabética:
+	public List<StockDTO> inOrderAscByProductName(List<StockDTO> stocks);
+	
+	//Ordenamos los stocks por nombre de producto de forma inversa al alfabeto:
+	public List<StockDTO> inOrderDescByProductName(List<StockDTO> stocks);
+	
+	//Aplicamos el criterio de ordenamiento elegido:
+	public List<StockDTO> applyOrder(List<StockDTO> stocks, String order);
 	
 	//Agregar o modificar:
 	

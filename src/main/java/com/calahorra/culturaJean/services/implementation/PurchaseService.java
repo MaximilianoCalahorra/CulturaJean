@@ -480,6 +480,7 @@ public class PurchaseService implements IPurchaseService
 	}
 	
 	//Aplicamos el filtro elegido de la sección fechas:
+	@Override
 	public List<PurchaseDTO> applyFilterTypeDate(String date, String fromDate, String untilDate, String rangeFromDate, String rangeUntilDate)
 	{
 		//Instanciamos una lista de compras/ventas para cargarla con las ventas filtradas y ordenadas:
@@ -515,6 +516,7 @@ public class PurchaseService implements IPurchaseService
 	}
 	
 	//Aplicamos el filtro elegido de la sección fechas a un listado que le pasamos:
+	@Override
 	public List<PurchaseDTO> applyFilterTypeDateOnList(List<PurchaseDTO> purchases, String date, String fromDate, String untilDate, String rangeFromDate, String rangeUntilDate)
 	{
 		//Aplicamos el filtro de fecha que corresponda:
@@ -615,6 +617,7 @@ public class PurchaseService implements IPurchaseService
 	}
 	
 	//Aplicamos el filtro elegido de la sección horas:
+	@Override
 	public List<PurchaseDTO> applyFilterTypeTime(List<PurchaseDTO> purchases, String fromTime, String untilTime, String rangeFromTime, String rangeUntilTime)
 	{
 		//Aplicamos el filtro de hora que corresponda:
@@ -692,6 +695,7 @@ public class PurchaseService implements IPurchaseService
 	}
 	
 	//Aplicamos el filtro elegido de la sección precio de la compra/venta:
+	@Override
 	public List<PurchaseDTO> applyFilterTypePurchasePrice(List<PurchaseDTO> purchases, String fromPurchasePrice, String untilPurchasePrice,
 														  String rangeFromPurchasePrice, String rangeUntilPurchasePrice)
 	{
@@ -718,6 +722,7 @@ public class PurchaseService implements IPurchaseService
 	//Verificar o corregir:
 	
 	//Verificamos o corregimos los valores que llegan de los inputs tipo date y time para evitar la presencia de ',' en ellos:
+	@Override
 	public String verifyOrCorrectValue(String value) 
 	{
 		//La clave está en saber si contiene una ',' o no:

@@ -2,6 +2,7 @@ package com.calahorra.culturaJean.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
@@ -11,17 +12,18 @@ import com.calahorra.culturaJean.helpers.ViewRouteHelper;
 @RequestMapping("/stores")
 public class StoresController 
 {
-	//Respondemos a las peticiones de información sobre las tiendas para el visitante:
-	@GetMapping("/visitor")
-	public String visitor() 
+	//Respondemos a las peticiones de información sobre las tiendas para el cliente/visitante:
+	@GetMapping("/{role}")
+	public String visitor(@PathVariable("role")String role) 
 	{
-		return ViewRouteHelper.STORES_VISITOR;
-	}
-	
-	//Respondemos a las peticiones de información sobre las tiendas para el cliente:
-	@GetMapping("/customer")
-	public String customer() 
-	{
-		return ViewRouteHelper.STORES_CUSTOMER;
+		String view = "";
+			
+		//Según el rol que peticionó:
+		switch(role) 
+		{
+			case "customer": view = ViewRouteHelper.STORES_CUSTOMER; break; //Le mostramos la vista del cliente.
+			case "visitor": view = ViewRouteHelper.STORES_VISITOR; break; //Le mostramos la vista del visitante.
+		}
+		return view; //Retornamos la vista que corresponda.
 	}
 }

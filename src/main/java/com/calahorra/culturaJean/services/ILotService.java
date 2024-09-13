@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.calahorra.culturaJean.dtos.LotDTO;
+import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.entities.Lot;
 
 ///Interfaz ILotService:
@@ -77,10 +78,13 @@ public interface ILotService
 	//Encontramos los lotes de determinado stock:
 	public List<LotDTO> findByStock(int stockId);
 	
+	//Encontramos un ejemplar de cada id de stock de los cuales hay lotes:
+	public List<String> findUniqueEachStockId();
+	
 	//Obtener:
 	
 	//Obtenemos todos los lotes:
-	public List<Lot> getAll();
+	public List<LotDTO> getAll();
 	
 	//Ordernar:
 	
@@ -114,8 +118,86 @@ public interface ILotService
 	//Ordenamos los lotes por el id del stock asociado a cada uno de manera descendente:
 	public List<LotDTO> getAllInOrderDescByStockId();
 	
+	//Ordenamos el listado de lotes por id del stock asociado de forma ascendente:
+	public List<LotDTO> inOrderAscByStockId(List<LotDTO> lots);
+	
+	//Ordenamos el listado de lotes por id del stock asociado de forma descendente:
+	public List<LotDTO> inOrderDescByStockId(List<LotDTO> lots);
+	
+	//Ordenamos el listado de lotes por fecha de recepción de forma ascendente:
+	public List<LotDTO> inOrderAscByReceptionDate(List<LotDTO> lots);
+	
+	//Ordenamos el listado de lotes por fecha de recepción de forma ascendente:
+	public List<LotDTO> inOrderDescByReceptionDate(List<LotDTO> lots);
+	
+	//Ordenamos el listado de lotes por cantidad existente de forma ascendente:
+	public List<LotDTO> inOrderAscByExistingAmount(List<LotDTO> lots);
+	
+	//Ordenamos el listado de lotes por cantidad existente de forma ascendente:
+	public List<LotDTO> inOrderDescByExistingAmount(List<LotDTO> lots);
+	
+	//Aplicamos el criterio de ordenamiento seleccionado:
+	public List<LotDTO> applyOrder(List<LotDTO> lots, String order);
+	
 	//Agregar o modificar:
 	
 	//Agregamos o modificamos un lote en la base de datos:
 	public LotDTO insertOrUpdate(LotDTO lot);
+	
+	//Filtrar:
+	
+	//Filtramos los pedidos de aprovisionamiento entregados para quedarnos solo con los que todavía no tienen un lote asociado:
+	public List<SupplyOrderDTO> filterBySupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders);
+	
+	//Filtramos los códigos de productos de pedidos de aprovisionamiento para quedarnos solo con los que figuran en pedidos sin lote generado:
+	public List<String> filterByProductCodeOnSupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders, List<String> productCodes);
+	
+	//Filtramos los nombre de proveedores de pedidos de aprovisionamiento para quedarnos solo con los que figuran en pedidos sin lote generado:
+	public List<String> filterBySupplierNameOnSupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders, List<String> supplierNames);
+	
+	//Filtramos los lotes por id del stock asociado:
+	public List<LotDTO> filterByStockId(List<LotDTO> lots, int stockId);
+	
+	//Filtramos los lotes por determinada fecha de recepción:
+	public List<LotDTO> filterByReceptionDate(List<LotDTO> lots, LocalDate receptionDate);
+	
+	//Filtramos los lotes por posteriores o iguales a una fecha de recepción:
+	public List<LotDTO> filterByFromReceptionDate(List<LotDTO> lots, LocalDate fromReceptionDate);
+	
+	//Filtramos los lotes por anteriores o iguales a una fecha de recepción:
+	public List<LotDTO> filterByUntilReceptionDate(List<LotDTO> lots, LocalDate untilReceptionDate);
+	
+	//Filtramos los lotes por dentro de un rango de fechas de recepción:
+	public List<LotDTO> filterByReceptionDateRange(List<LotDTO> lots, LocalDate rangeFromReceptionDate, LocalDate rangeUntilReceptionDate);
+	
+	//Filtramos los lotes por id del stock asociado:
+	public List<LotDTO> applyFilterTypeReceptionDate(List<LotDTO> lots, String receptionDate, String fromReceptionDate, String untilReceptionDate,
+											  		 String rangeFromReceptionDate, String rangeUntilReceptionDate);
+	
+	//Filtramos los lotes por determinada cantidad existente:
+	public List<LotDTO> filterByExistingAmount(List<LotDTO> lots, int existingAmount);
+	
+	//Filtramos los lotes por mayores o iguales a cantidad existente:
+	public List<LotDTO> filterByFromExistingAmount(List<LotDTO> lots, int fromExistingAmount);
+	
+	//Filtramos los lotes por menores o iguales a una cantidad existente:
+	public List<LotDTO> filterByUntilExistingAmount(List<LotDTO> lots, int untilExistingAmount);
+	
+	//Filtramos los lotes por dentro de un rango de cantidades existentes:
+	public List<LotDTO> filterByExistingAmountRange(List<LotDTO> lots, int rangeFromExistingAmount, int rangeUntilExistingAmount);
+	
+	//Filtramos los lotes por id del stock asociado:
+	public List<LotDTO> applyFilterTypeExistingAmount(List<LotDTO> lots, String existingAmount, String fromExistingAmount, String untilExistingAmount,
+													  String rangeFromExistingAmount, String rangeUntilExistingAmount);
+	
+	//Aplicamos todos los filtros seleccionados:
+	public List<LotDTO> applyFilters(List<LotDTO> lots, String stockId, String receptionDate, String fromReceptionDate, 
+									 String untilReceptionDate, String rangeFromReceptionDate, String rangeUntilReceptionDate, 
+									 String existingAmount, String fromExistingAmount, String untilExistingAmount, 
+									 String rangeFromExistingAmount, String rangeUntilExistingAmount);
+	
+	//Verificar o corregir:
+	
+	//Verificamos o corregimos los valores que llegan de los inputs tipo date y time para evitar la presencia de ',' en ellos:
+	public String verifyOrCorrectValue(String value);
 }

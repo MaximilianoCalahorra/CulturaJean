@@ -1,13 +1,13 @@
 package com.calahorra.culturaJean.controllers;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -40,33 +40,104 @@ public class LotController
 	
 	//Respondemos a las peticiones de información sobre los lotes para el administrador:
 	@GetMapping("/lots")
-	public ModelAndView lots() 
+	public ModelAndView lots(@RequestParam(value = "orderSO", defaultValue = "orderDescByAmount")String orderSupplyOrders,
+						     @RequestParam(value = "pCode", defaultValue = "all")String productCode,
+						     @RequestParam(value = "sName", defaultValue = "all")String supplierName,
+							 @RequestParam(value = "amount", defaultValue = "")String amount,
+							 @RequestParam(value = "fAmount", defaultValue = "")String fromAmount,
+							 @RequestParam(value = "uAmount", defaultValue = "")String untilAmount,
+							 @RequestParam(value = "rFAmount", defaultValue = "")String rangeFromAmount,
+							 @RequestParam(value = "rUAmount", defaultValue = "")String rangeUntilAmount,
+							 @RequestParam(value = "orderL", defaultValue = "orderAscByExistingAmount")String orderLots,
+							 @RequestParam(value = "stockId", defaultValue = "all")String stockId,
+							 @RequestParam(value = "rDate", defaultValue = "")String receptionDate, 
+							 @RequestParam(value = "fRDate", defaultValue = "")String fromReceptionDate,
+							 @RequestParam(value = "uRDate", defaultValue = "")String untilReceptionDate,
+							 @RequestParam(value = "rFRDate", defaultValue = "")String rangeFromReceptionDate,
+							 @RequestParam(value = "rURDate", defaultValue = "")String rangeUntilReceptionDate,
+							 @RequestParam(value = "eAmount", defaultValue = "")String existingAmount,
+							 @RequestParam(value = "fEAmount", defaultValue = "")String fromExistingAmount,
+							 @RequestParam(value = "uEAmount", defaultValue = "")String untilExistingAmount,
+							 @RequestParam(value = "rFEAmount", defaultValue = "")String rangeFromExistingAmount,
+							 @RequestParam(value = "rUEAmount", defaultValue = "")String rangeUntilExistingAmount) 
 	{
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.LOTS);
 		
 		//Obtenemos los lotes que pueden ser dados de alta:
 		//Primero obtenemos los pedidos de aprovisionamiento que han sido entregados:
-		List<SupplyOrderDTO> deliveredSupplyOrders = supplyOrderService.findByDelivered(true); 
+		List<SupplyOrderDTO> supplyOrdersToLots = supplyOrderService.findByDelivered(true); 
+				
+		//Ahora filtramos esos pedidos de aprovisionamiento para quedarnos solo con los que no hayan generado un pedido de aprovisionamiento:
+		supplyOrdersToLots = lotService.filterBySupplyOrderWithInexistingLot(supplyOrdersToLots);
 		
-		//Definimos un listado donde estarán los pedidos de aprovisionamiento que pueden dar de alta lotes:
-		List<SupplyOrderDTO> supplyOrdersToLots = new ArrayList<SupplyOrderDTO>();
+		//Obtenemos los códigos de productos de pedidos de aprovisionamiento entregados.
+		List<String> productCodes = supplyOrderService.findUniqueEachProductCodeDelivered(true); 
+		//Sin embargo, hay que filtrar ese listado para quedarnos solo los que estén en pedidos de aprovisionamiento sin lote generado:
+		productCodes = lotService.filterByProductCodeOnSupplyOrderWithInexistingLot(supplyOrdersToLots, productCodes); 
 		
-		//Recorremos el listado de pedidos de aprovisionamiento entregados para operar solo con los que no tengan un lote asociado:
-		for(SupplyOrderDTO supplyOrder: deliveredSupplyOrders) 
-		{
-			//En caso de que el pedido de aprovisionamiento no tenga un lote asociado:
-			if(lotService.findBySupplyOrder(supplyOrder.getSupplyOrderId()) == null) 
-			{
-				supplyOrdersToLots.add(supplyOrder); //Agregamos el pedido de aprovisionamiento a la lista de los que pueden dar de alta lotes.
-			}
-		}
+		//Obtenemos los nombres de proveedores de pedidos de aprovisionamiento entregados.
+		List<String> supplierNames = supplyOrderService.findUniqueEachSupplierNameDelivered(true); //Obtenemos los nombres de proveedores de pedidos de aprovisionamiento entregados.
+		//Sin embargo, hay que filtrar ese listado para quedarnos solo los que estén en pedidos de aprovisionamiento sin lote generado:
+		supplierNames = lotService.filterBySupplierNameOnSupplyOrderWithInexistingLot(supplyOrdersToLots, supplierNames);		
 		
-		//Obtenemos los lotes ordenados de forma ascendente por cantidad existente:
-		List<LotDTO> lotsRegistered = lotService.getAllInOrderAscByExistingAmount();
+		//Aplicamos los filtros seleccionados de las secciones código de producto, nombre de proveedor y cantidad:
+		supplyOrdersToLots = supplyOrderService.applyFilters(supplyOrdersToLots, productCode, supplierName, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
+		
+		//Aplicamos el ordenamiento seleccionado:
+		supplyOrdersToLots = supplyOrderService.applyOrder(supplyOrdersToLots, orderSupplyOrders);
+		
+		//Obtenemos todos los lotes:
+		List<LotDTO> lotsRegistered = lotService.getAll();
+		
+		//Manejo de posibles envíos de ',' en inputs de tipo date vacíos:
+		if(receptionDate.equals(",")) receptionDate = "";
+		if(fromReceptionDate.equals(",")) fromReceptionDate = "";
+		if(untilReceptionDate.equals(",")) untilReceptionDate = "";
+		if(rangeFromReceptionDate.equals(",")) rangeFromReceptionDate = "";
+		if(rangeUntilReceptionDate.equals(",")) rangeUntilReceptionDate = "";
+						
+		//Manejo de posibles envíos de ',' de inputs de tipo date al enviar una fecha:
+		receptionDate = lotService.verifyOrCorrectValue(receptionDate);
+		fromReceptionDate = lotService.verifyOrCorrectValue(fromReceptionDate);
+		untilReceptionDate = lotService.verifyOrCorrectValue(untilReceptionDate);
+		rangeFromReceptionDate = lotService.verifyOrCorrectValue(rangeFromReceptionDate);
+		rangeUntilReceptionDate = lotService.verifyOrCorrectValue(rangeUntilReceptionDate);
+		
+		//Aplicamos los filtros seleccionados de las secciones stock, fecha de recepción y cantidad existente:
+		lotsRegistered = lotService.applyFilters(lotsRegistered, stockId, receptionDate, fromReceptionDate, untilReceptionDate,
+												 rangeFromReceptionDate, rangeUntilReceptionDate, existingAmount, fromExistingAmount,
+												 untilExistingAmount, rangeFromExistingAmount, rangeUntilExistingAmount);
+		
+		//Aplicamos el ordenamiento seleccionado:
+		lotsRegistered = lotService.applyOrder(lotsRegistered, orderLots);
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("supplyOrdersToLots", supplyOrdersToLots);
-		modelAndView.addObject("lotsRegistered", lotsRegistered);
+		modelAndView.addObject("orderSO", orderSupplyOrders); //Adjuntamos el criterio de ordenamiento de los pedidos de aprovisionamiento.
+		modelAndView.addObject("pCode", productCode); //Adjuntamos el código del producto del filtro.
+		modelAndView.addObject("sName", supplierName); //Adjuntamos el nombre del proveedor del filtro.
+		modelAndView.addObject("amount", amount); //Adjuntamos la cantidad del filtro de una cantidad específica.
+		modelAndView.addObject("fAmount", fromAmount); //Adjuntamos el filtro de la cantidad mayor o igual a una cantidad específica.
+		modelAndView.addObject("uAmount", untilAmount); //Adjuntamos el filtro de la cantidad menor o igual a una cantidad específica.
+		modelAndView.addObject("rFAmount", rangeFromAmount); //Adjuntamos el filtro de una cantidad mayor o igual en un rango de cantidades.
+		modelAndView.addObject("rUAmount", rangeUntilAmount); //Adjuntamos el filtro de una cantidad menor o igual en un rango de cantidades.
+		modelAndView.addObject("supplyOrdersToLots", supplyOrdersToLots); //Adjuntamos los pedidos de aprovisionamiento que pueden generar lotes.
+		modelAndView.addObject("productCodes", productCodes); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", supplierNames); //Adjuntamos los nombres de los proveedores.
+		
+		modelAndView.addObject("orderL", orderLots); //Adjuntamos el criterio de ordenamiento de los lotes registados.
+		modelAndView.addObject("stockId", stockId); //Adjuntamos el filtro de un stock específico.
+		modelAndView.addObject("rDate", receptionDate); //Adjuntamos el filtro de una fecha de recepción específica.
+		modelAndView.addObject("fRDate", fromReceptionDate); //Adjuntamos el filtro de la fecha de recepción posterior o igual a una específica.
+		modelAndView.addObject("uRDate", untilReceptionDate); //Adjuntamos el filtro de la fecha de recepción anterior o igual a una específica.
+		modelAndView.addObject("rFRDate", rangeFromReceptionDate); //Adjuntamos el filtro de la fecha de recepción posterior o igual dentro de un rango.
+		modelAndView.addObject("rURDate", rangeUntilReceptionDate); //Adjuntamos el filtro de la fecha de recepción anterior o igual dentro de un rango.
+		modelAndView.addObject("eAmount", existingAmount); //Adjuntamos la cantidad existente del filtro de una cantidad específica.
+		modelAndView.addObject("fEAmount", fromExistingAmount); //Adjuntamos el filtro de la cantidad existente mayor o igual a una cantidad específica.
+		modelAndView.addObject("uEAmount", untilExistingAmount); //Adjuntamos el filtro de la cantidad existente menor o igual a una cantidad específica.
+		modelAndView.addObject("rFEAmount", rangeFromExistingAmount); //Adjuntamos el filtro de una cantidad existente mayor o igual en un rango de cantidades.
+		modelAndView.addObject("rUEAmount", rangeUntilExistingAmount); //Adjuntamos el filtro de una cantidad existente menor o igual en un rango de cantidades.
+		modelAndView.addObject("lotsRegistered", lotsRegistered); //Adjuntamos los lotes registrados.
+		modelAndView.addObject("stockIds", lotService.findUniqueEachStockId()); //Adjuntamos los ids de los stocks.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
