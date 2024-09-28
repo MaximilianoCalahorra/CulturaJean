@@ -92,10 +92,10 @@ public class ProductController
 		modelAndView.addObject("uSPri", untilSalePrice); //Adjuntamos el precio de venta menor o igual para el filtro.
 		modelAndView.addObject("rFSPri", rangeFromSalePrice); //Adjuntamos el precio mayor o igual de un rango para el filtro.
 		modelAndView.addObject("rUSPri", rangeUntilSalePrice); //Adjuntamos el precio menor o igual de un rango para el filtro.
-		modelAndView.addObject("categories", productService.findUniqueEachCategory()); //Adjuntamos el listado de categorías de producto.
-		modelAndView.addObject("genders", productService.findUniqueEachGender()); //Adjuntamos el listado de géneros de producto.
-		modelAndView.addObject("sizes", productService.findUniqueEachSize()); //Adjuntamos el listado de talles de producto.
-		modelAndView.addObject("colors", productService.findUniqueEachColor()); //Adjuntamos el listado de colores de producto.
+		modelAndView.addObject("categories", productService.findUniqueEachCategory(products)); //Adjuntamos el listado de categorías de producto.
+		modelAndView.addObject("genders", productService.findUniqueEachGender(products)); //Adjuntamos el listado de géneros de producto.
+		modelAndView.addObject("sizes", productService.findUniqueEnabledEachSize(products, size)); //Adjuntamos el listado de talles de producto.
+		modelAndView.addObject("colors", productService.findUniqueEachColor(products)); //Adjuntamos el listado de colores de producto.
 		modelAndView.addObject("products", products); //Adjuntamos los productos.
 		
 		return modelAndView; //Retornamos la vista con la información obtenida.

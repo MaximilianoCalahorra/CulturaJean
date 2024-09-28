@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -189,30 +190,148 @@ public class ProductService implements IProductService
 	
 	//Encontramos un ejemplar de cada categoría de producto:
 	@Override
-	public List<String> findUniqueEachCategory()
+	public List<String> findUniqueEachCategory(List<ProductDTO> products)
 	{
-		return productRepository.findUniqueEachCategory(); //Retornamos el listado de categorías de producto ordenado.
+		List<String> categories = new ArrayList<String>(); //Definimos un listado donde se guardarán las categorías.
+		
+		//Analizamos cada producto para saber si su categoría se encuentra en el listado:
+		for(ProductDTO product: products) 
+		{
+			String category = product.getCategory(); //Obtenemos la categoría del producto.
+			
+			//Si la categoría no está en el listado:
+			if(!categories.contains(category)) 
+			{
+				categories.add(category); //Agregamos la categoría.
+			}
+		}
+		
+		//Ordenamos el listado de categorías de forma alfabética:
+		categories.sort(null);
+		
+		return categories; //Retornamos el listado de categorías de producto.
 	}
 			
 	//Encontramos un ejemplar de cada género de producto:
 	@Override
-	public List<String> findUniqueEachGender()
+	public List<Character> findUniqueEachGender(List<ProductDTO> products)
 	{
-		return productRepository.findUniqueEachGender(); //Retornamos el listado de géneros de producto ordenado.
+		List<Character> genders = new ArrayList<Character>(); //Definimos un listado donde se guardarán los géneros.
+		
+		//Analizamos cada producto para saber si su género se encuentra en el listado:
+		for(ProductDTO product: products) 
+		{
+			Character gender = product.getGender(); //Obtenemos el género del producto.
+			
+			//Si el género no está en el listado:
+			if(!genders.contains(gender)) 
+			{
+				genders.add(gender); //Agregamos el género.
+			}
+		}
+		
+		//Ordenamos el listado de géneros de forma alfabética:
+		genders.sort(null);
+		
+		return genders; //Retornamos el listado de géneros de producto.
 	}
 			
 	//Encontramos un ejemplar de cada talle de producto:
 	@Override
-	public List<String> findUniqueEachSize()
+	public List<String> findUniqueEachSize(List<ProductDTO> products)
 	{
-		return productRepository.findUniqueEachSize(); //Retornamos el listado de talles de producto ordenado.
+		List<String> sizes = new ArrayList<String>(); //Definimos un listado donde se guardarán los talles.
+		
+		//Analizamos cada producto para saber si su talle se encuentra en el listado:
+		for(ProductDTO product: products) 
+		{
+			String size = product.getSize(); //Obtenemos el talle del producto.
+			
+			//Si el talle no está en el listado:
+			if(!sizes.contains(size)) 
+			{
+				sizes.add(size); //Agregamos el talle.
+			}
+		}
+		
+		//Ordenamos el listado de talles de forma alfabética:
+		sizes.sort(null);
+		
+		return sizes; //Retornamos el listado de talles de producto.
+	}
+	
+	//Encontramos un ejemplar de cada talle de producto:
+	@Override  
+	public List<String> findUniqueEnabledEachSize(List<ProductDTO> products, String sizeFilter)
+	{
+		List<String> sizes = new ArrayList<String>(); //Definimos un listado donde se guardarán los talles.
+		
+		//Analizamos cada producto para saber si sus talles se encuentra en el listado:
+		for(ProductDTO product: products) 
+		{
+			//Obtenemos todos los talles del producto:
+			List<String> sizesOfProduct = productRepository.findUniqueEnabledEachSize(product.getImageName()); 
+			
+			//Ahora debemos aplicar el filtro seleccionado y guardar los que cumplan en otra lista:
+			List<String> sizesOfProductFiltered = new ArrayList<String>();
+			
+			//Verificamos si hay que filtrar los talles encontrados por alguno en específico:
+			if(sizeFilter.equals("all")) 
+			{
+				sizesOfProductFiltered = sizesOfProduct; //Como no hay que filtrar, el listado es el inicial.
+			}
+			else 
+			{
+				//En caso de que se haya aplicado un filtro, recorremos los talles:
+				for(String sizeOfProduct: sizesOfProduct) 
+				{
+					//Si el talle es el que indica el filtro:
+					if(sizeOfProduct.equals(sizeFilter)) 
+					{
+						sizesOfProductFiltered.add(sizeOfProduct); //Lo agregamos a la lista de talles filtrados del producto.
+					}
+				}
+			}
+			
+			//Recorremos los talles encontrados para agregar los que no estén en el listado de talles de todos los productos:
+			for(String size: sizesOfProductFiltered)
+			{	
+				//Si el talle no está en el listado:
+				if(!sizes.contains(size)) 
+				{
+					sizes.add(size); //Agregamos el talle.
+				}
+			}
+		}
+		
+		//Ordenamos el listado de talles de forma alfabética:
+		sizes.sort(null);
+		
+		return sizes; //Retornamos el listado de talles de producto.
 	}
 		
 	//Encontramos un ejemplar de cada color de producto:
 	@Override
-	public List<String> findUniqueEachColor()
+	public List<String> findUniqueEachColor(List<ProductDTO> products)
 	{
-		return productRepository.findUniqueEachColor(); //Retornamos el listado de colores de producto ordenado.
+		List<String> colors = new ArrayList<String>(); //Definimos un listado donde se guardarán los colores.
+		
+		//Analizamos cada producto para saber si su color se encuentra en el listado:
+		for(ProductDTO product: products) 
+		{
+			String color = product.getColor(); //Obtenemos el color del producto.
+			
+			//Si el color no está en el listado:
+			if(!colors.contains(color)) 
+			{
+				colors.add(color); //Agregamos el color.
+			}
+		}
+		
+		//Ordenamos el listado de colores de forma alfabética:
+		colors.sort(null);
+		
+		return colors; //Retornamos el listado de colores de producto.
 	}
 	
 	//Obtener:
