@@ -127,13 +127,13 @@ public class SupplyOrderController
 		modelAndView.addObject("rUAmountD", rangeUntilAmountDelivered); //Adjuntamos el filtro de una cantidad menor o igual en un rango de cantidades de los pedidos de aprovisionamiento entregados.
 		modelAndView.addObject("deliveredSupplyOrders", deliveredSupplyOrders); //Adjuntamos los pedidos de aprovisionamiento entregados.
 		
-		modelAndView.addObject("productCodesU", supplyOrderService.findUniqueEachProductCodeDelivered(false)); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento no entregados.
-		modelAndView.addObject("supplierNamesU", supplyOrderService.findUniqueEachSupplierNameDelivered(false)); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento no entregados.
-		modelAndView.addObject("adminUsernamesU", supplyOrderService.findUniqueEachAdminUsernameDelivered(false)); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento no entregados.
+		modelAndView.addObject("productCodesU", supplyOrderService.findUniqueEachProductCode(undeliveredSupplyOrders)); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento no entregados.
+		modelAndView.addObject("supplierNamesU", supplyOrderService.findUniqueEachSupplierName(undeliveredSupplyOrders)); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento no entregados.
+		modelAndView.addObject("adminUsernamesU", supplyOrderService.findUniqueEachAdminUsername(undeliveredSupplyOrders)); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento no entregados.
 		
-		modelAndView.addObject("productCodesD", supplyOrderService.findUniqueEachProductCodeDelivered(true)); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento entregados.
-		modelAndView.addObject("supplierNamesD", supplyOrderService.findUniqueEachSupplierNameDelivered(true)); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento entregados.
-		modelAndView.addObject("adminUsernamesD", supplyOrderService.findUniqueEachAdminUsernameDelivered(true)); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("productCodesD", supplyOrderService.findUniqueEachProductCode(deliveredSupplyOrders)); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("supplierNamesD", supplyOrderService.findUniqueEachSupplierName(deliveredSupplyOrders)); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("adminUsernamesD", supplyOrderService.findUniqueEachAdminUsername(deliveredSupplyOrders)); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento entregados.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}

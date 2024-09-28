@@ -2,8 +2,6 @@ package com.calahorra.culturaJean.services;
 
 import java.util.List;
 
-import org.springframework.data.repository.query.Param;
-
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.entities.SupplyOrder;
 
@@ -43,19 +41,13 @@ public interface ISupplyOrderService
 	public List<SupplyOrderDTO> findByMember(String username);
 	
 	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento:
-	public List<String> findUniqueEachProductCode();
+	public List<String> findUniqueEachProductCode(List<SupplyOrderDTO> supplyOrders);
 		
 	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento:
-	public List<String> findUniqueEachSupplierName();
+	public List<String> findUniqueEachSupplierName(List<SupplyOrderDTO> supplyOrders);
 	
-	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	public List<String> findUniqueEachProductCodeDelivered(boolean delivered);
-		
-	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	public List<String> findUniqueEachSupplierNameDelivered(boolean delivered);
-	
-	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	public List<String> findUniqueEachAdminUsernameDelivered(@Param("delivered")boolean delivered);
+	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento:
+	public List<String> findUniqueEachAdminUsername(List<SupplyOrderDTO> supplyOrders);
 		
 	//Obtener:
 	

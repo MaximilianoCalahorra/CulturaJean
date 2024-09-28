@@ -1,5 +1,6 @@
 package com.calahorra.culturaJean.services.implementation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -7,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
@@ -127,37 +127,74 @@ public class SupplyOrderService implements ISupplyOrderService
 	
 	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento:
 	@Override
-	public List<String> findUniqueEachProductCode()
+	public List<String> findUniqueEachProductCode(List<SupplyOrderDTO> supplyOrders)
 	{
-		return supplyOrderRepository.findUniqueEachProductCode(); //Retornamos el listado de códigos de producto ordenado.
+		List<String> productCodes = new ArrayList<String>(); //Definimos un listado donde se guardarán los códigos de producto.
+		
+		//Analizamos cada pedido de aprovisionamiento para saber si su código de producto se encuentra en el listado:
+		for(SupplyOrderDTO supplyOrder: supplyOrders) 
+		{
+			String productCode = supplyOrder.getProduct().getCode(); //Obtenemos el código del producto.
+			
+			//Si el código no está en el listado:
+			if(!productCodes.contains(productCode)) 
+			{
+				productCodes.add(productCode); //Agregamos el código.
+			}
+		}
+		
+		//Ordenamos el listado de códigos de producto de forma alfabética:
+		productCodes.sort(null);
+		
+		return productCodes; //Retornamos el listado de códigos de producto.
 	}
 			
 	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento:
 	@Override
-	public List<String> findUniqueEachSupplierName()
+	public List<String> findUniqueEachSupplierName(List<SupplyOrderDTO> supplyOrders)
 	{
-		return supplyOrderRepository.findUniqueEachSupplierName(); //Retornamos el listado de nombres de proveedor ordenado.
-	}
-	
-	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	@Override
-	public List<String> findUniqueEachProductCodeDelivered(boolean delivered)
-	{
-		return supplyOrderRepository.findUniqueEachProductCodeDelivered(delivered); //Retornamos el listado de códigos de producto ordenado.
-	}
+		List<String> supplierNames = new ArrayList<String>(); //Definimos un listado donde se guardarán los nombres de proveedor.
+		
+		//Analizamos cada pedido de aprovisionamiento para saber si su nombre de proveedor se encuentra en el listado:
+		for(SupplyOrderDTO supplyOrder: supplyOrders) 
+		{
+			String supplierName = supplyOrder.getSupplier().getName(); //Obtenemos el nombre del proveedor.
 			
-	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	@Override
-	public List<String> findUniqueEachSupplierNameDelivered(boolean delivered)
-	{
-		return supplyOrderRepository.findUniqueEachSupplierNameDelivered(delivered); //Retornamos el listado de nombres de proveedor ordenado.
+			//Si el nombre no está en el listado:
+			if(!supplierNames.contains(supplierName)) 
+			{
+				supplierNames.add(supplierName); //Agregamos el nombre.
+			}
+		}
+		
+		//Ordenamos el listado de nombres de proveedor de forma alfabética:
+		supplierNames.sort(null);
+		
+		return supplierNames; //Retornamos el listado de nombres de proveedor.
 	}
 	
-	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
+	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento:
 	@Override
-	public List<String> findUniqueEachAdminUsernameDelivered(@Param("delivered")boolean delivered)
+	public List<String> findUniqueEachAdminUsername(List<SupplyOrderDTO> supplyOrders)
 	{
-		return supplyOrderRepository.findUniqueEachAdminUsernameDelivered(delivered); //Retornamos el listado de nombres de usuario de los administradores ordenado.
+		List<String> adminUsernames = new ArrayList<String>(); //Definimos un listado donde se guardarán los nombres de usuari de los administradores.
+		
+		//Analizamos cada pedido de aprovisionamiento para saber si su nombre de usuario del administrador se encuentra en el listado:
+		for(SupplyOrderDTO supplyOrder: supplyOrders) 
+		{
+			String adminUsername = supplyOrder.getMember().getUsername(); //Obtenemos el nombre de usuario del administrador.
+			
+			//Si el nombre de usuario no está en el listado:
+			if(!adminUsernames.contains(adminUsername)) 
+			{
+				adminUsernames.add(adminUsername); //Agregamos el nombre de usuario.
+			}
+		}
+		
+		//Ordenamos el listado de nombres de usuario de administrador de forma alfabética:
+		adminUsernames.sort(null);
+		
+		return adminUsernames; //Retornamos el listado de nombres de usuario de los administradores.
 	}
 	
 	//Obtener:
@@ -255,7 +292,7 @@ public class SupplyOrderService implements ISupplyOrderService
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento ordenados.
 	}
 		
-	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del proveedor de forma inversa al alfabeto:
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del) proveedor de forma inversa al alfabeto:
 	@Override
 	public List<SupplyOrderDTO> inOrderDescBySupplierName(List<SupplyOrderDTO> supplyOrders)
 	{
