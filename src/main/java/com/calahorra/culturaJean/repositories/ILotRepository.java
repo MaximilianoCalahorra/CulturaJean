@@ -108,11 +108,6 @@ public interface ILotRepository extends JpaRepository<Lot, Serializable>
 	@Query("SELECT l FROM Lot l INNER JOIN FETCH l.stock s INNER JOIN FETCH l.supplyOrder WHERE s.stockId = (:stockId)")
 	public abstract List<Lot> findByStock(@Param("stockId")int stockId);
 	
-	//Encontramos un ejemplar de cada id de stock de los cuales hay lotes:
-	@Query(value = "SELECT DISTINCT s.stock_id FROM lot l INNER JOIN stock s ON l.stock_id = s.stock_id ORDER BY s.stock_id", 
-		   nativeQuery = true)
-	public abstract List<String> findUniqueEachStockId();
-	
 	//Ordernar:
 	
 	//Ordenamos los lotes por fecha de recepción de manera ascendente:

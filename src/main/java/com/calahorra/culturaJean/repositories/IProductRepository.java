@@ -74,21 +74,9 @@ public interface IProductRepository extends JpaRepository<Product, Serializable>
 			nativeQuery = true)
 	public abstract List<Product> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("size")String size);
 	
-	//Encontramos un ejemplar de cada categoría de producto:
-	@Query(value = "SELECT DISTINCT p.category FROM product p ORDER BY p.category", nativeQuery = true)
-	public abstract List<String> findUniqueEachCategory();
-	
-	//Encontramos un ejemplar de cada género de producto:
-	@Query(value = "SELECT DISTINCT p.gender FROM product p ORDER BY p.gender", nativeQuery = true)
-	public abstract List<String> findUniqueEachGender();
-	
-	//Encontramos un ejemplar de cada talle de producto:
-	@Query(value = "SELECT DISTINCT p.size FROM product p ORDER BY p.size", nativeQuery = true)
-	public abstract List<String> findUniqueEachSize();
-	
-	//Encontramos un ejemplar de cada color de producto:
-	@Query(value = "SELECT DISTINCT p.color FROM product p ORDER BY p.color", nativeQuery = true)
-	public abstract List<String> findUniqueEachColor();
+	//Encontramos los talles de un producto según el filtro indicado:
+	@Query("SELECT p.size FROM Product p WHERE p.imageName = (:imageName)")
+	public abstract List<String> findUniqueEnabledEachSize(@Param("imageName")String imageName);
 
 	//Ordenar:
 	

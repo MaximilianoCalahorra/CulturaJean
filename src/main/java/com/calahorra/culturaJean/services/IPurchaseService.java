@@ -61,7 +61,7 @@ public interface IPurchaseService
 	public List<PurchaseDTO> findByMember(String username);
 	
 	//Encontramos los nombres de usuario de los clientes que realizaron compras ordenados de forma alfabética:
-	public List<String> getAllUsernames();
+	public List<String> getAllUsernames(List<PurchaseDTO> purchases);
 		
 	//Obtener:
 	

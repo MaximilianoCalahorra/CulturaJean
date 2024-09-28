@@ -64,31 +64,6 @@ public interface ISupplyOrderRepository extends JpaRepository<SupplyOrder, Seria
 			+ "WHERE m.username = (:username)")
 	public abstract List<SupplyOrder> findByMember(@Param("username")String username);
 	
-	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento:
-	@Query(value = "SELECT DISTINCT p.code FROM supply_order so INNER JOIN product p ON so.product_id = p.product_id ORDER BY p.code", 
-		   nativeQuery = true)
-	public abstract List<String> findUniqueEachProductCode();
-	
-	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento:
-	@Query(value = "SELECT DISTINCT s.name FROM supply_order so INNER JOIN supplier s ON so.supplier_id = s.supplier_id ORDER BY s.name", 
-		   nativeQuery = true)
-	public abstract List<String> findUniqueEachSupplierName();
-	
-	//Encontramos un ejemplar de cada código de producto de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	@Query(value = "SELECT DISTINCT p.code FROM supply_order so INNER JOIN product p ON so.product_id = p.product_id WHERE so.delivered = (:delivered) ORDER BY p.code", 
-		   nativeQuery = true)
-	public abstract List<String> findUniqueEachProductCodeDelivered(@Param("delivered")boolean delivered);
-	
-	//Encontramos un ejemplar de cada nombre de proveedor de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	@Query(value = "SELECT DISTINCT s.name FROM supply_order so INNER JOIN supplier s ON so.supplier_id = s.supplier_id WHERE so.delivered = (:delivered) ORDER BY s.name", 
-		   nativeQuery = true)
-	public abstract List<String> findUniqueEachSupplierNameDelivered(@Param("delivered")boolean delivered);
-	
-	//Encontramos un ejemplar de cada nombre de usuario de los administradores de los cuales hay pedidos de aprovisionamiento entregados/no entregados:
-	@Query(value = "SELECT DISTINCT m.username FROM supply_order so INNER JOIN member m ON so.member_id = m.member_id WHERE so.delivered = (:delivered) ORDER BY m.username", 
-		   nativeQuery = true)
-	public abstract List<String> findUniqueEachAdminUsernameDelivered(@Param("delivered")boolean delivered);
-	
 	//Ordernar:
 	
 	//Ordenamos los pedidos de aprovisionamiento por el código del producto asociado de forma ascendente:

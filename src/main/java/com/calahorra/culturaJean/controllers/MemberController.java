@@ -266,8 +266,8 @@ public class MemberController
 		modelAndView.addObject("delivered", delivered); //Adjuntamos el filtro de estado de entrega.
 		modelAndView.addObject("member", member); //Adjuntamos el administrador.
 		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
-		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode()); //Adjuntamos los códigos de los productos.
-		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName()); //Adjuntamos los nombres de los proveedores.
+		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode(supplyOrders)); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrders)); //Adjuntamos los nombres de los proveedores.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}

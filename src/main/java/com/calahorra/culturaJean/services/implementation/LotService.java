@@ -1,6 +1,7 @@
 package com.calahorra.culturaJean.services.implementation;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -244,9 +245,26 @@ public class LotService implements ILotService
 	
 	//Encontramos un ejemplar de cada id de stock de los cuales hay lotes:
 	@Override
-	public List<String> findUniqueEachStockId()
+	public List<Integer> findUniqueEachStockId(List<LotDTO> lots)
 	{
-		return lotRepository.findUniqueEachStockId(); //Retornamos el listado de ids de stocks ordenado.
+		List<Integer> stockIds = new ArrayList<Integer>(); //Definimos un listado donde se guardarán los ids de stock.
+		
+		//Analizamos cada lote para saber si su id de stock se encuentra en el listado:
+		for(LotDTO lot: lots) 
+		{
+			int stockId = lot.getStock().getStockId(); //Obtenemos el id del stock.
+			
+			//Si el id no está en el listado:
+			if(!stockIds.contains(stockId)) 
+			{
+				stockIds.add(stockId); //Agregamos el id.
+			}
+		}
+		
+		//Ordenamos el listado de ids de stock de forma ascendente:
+		stockIds.sort(null);
+		
+		return stockIds; //Retornamos el listado de ids de stock.
 	}
 	
 	//Obtener:
@@ -457,72 +475,6 @@ public class LotService implements ILotService
 	        }
 	    }
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados, de forma que quedaron solo los que no generaron lotes todavía.
-	}
-	
-	//Filtramos los códigos de productos de pedidos de aprovisionamiento para quedarnos solo con los que figuran en pedidos sin lote generado:
-	@Override
-	public List<String> filterByProductCodeOnSupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders, List<String> productCodes)
-	{
-		Iterator<String> iterator = productCodes.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya un código de producto por analizar:
-		while(iterator.hasNext())
-		{
-			String productCode = iterator.next(); //Obtenemos ese código de producto.
-			boolean match = false; //Suponemos que no está en algún pedido de aprovisionamiento que puede generar un lote.
-			int i = 0;
-			
-			//Vamos a comparar contra todos los pedidos de aprovisionamiento mientras no se haya levantado la bandera de que está en al menos
-			//uno y queden pedidos de aprovisionamiento por analizar:
-			while(!match && i < supplyOrders.size()) 
-			{
-				if (supplyOrders.get(i).getProduct().getCode().equals(productCode)) //Hay coincidencia de código:
-				{
-					match = true; //Levantamos la bandera.
-		        }
-				i++;				
-			}
-			
-			//En caso de que el código no haya estado en ningún pedido de aprovisionamiento:
-			if(!match) 
-			{
-				iterator.remove(); //Lo removemos.
-			}
-	    }
-		return productCodes; //Retornamos el listado de códigos de producto filtrado.
-	}
-		
-	//Filtramos los nombre de proveedores de pedidos de aprovisionamiento para quedarnos solo con los que figuran en pedidos sin lote generado:
-	@Override
-	public List<String> filterBySupplierNameOnSupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders, List<String> supplierNames)
-	{
-		Iterator<String> iterator = supplierNames.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya un nombre de proveedor por analizar:
-		while(iterator.hasNext())
-		{
-			String supplierName = iterator.next(); //Obtenemos ese nombre de proveedor.
-			boolean match = false; //Suponemos que no está en algún pedido de aprovisionamiento que puede generar un lote.
-			int i = 0;
-			
-			//Vamos a comparar contra todos los pedidos de aprovisionamiento mientras no se haya levantado la bandera de que está en al menos
-			//uno y queden pedidos de aprovisionamiento por analizar:
-			while(!match && i < supplyOrders.size()) 
-			{
-				if (supplyOrders.get(i).getSupplier().getName().equals(supplierName)) //Hay coincidencia de nombre:
-				{
-					match = true; //Levantamos la bandera.
-		        }
-				i++;				
-			}
-			
-			//En caso de que el nombre no haya estado en ningún pedido de aprovisionamiento:
-			if(!match) 
-			{
-				iterator.remove(); //Lo removemos.
-			}
-	    }
-		return supplierNames; //Retornamos el listado de nombres de proveedores filtrado.
 	}
 	
 	//Filtramos los lotes por id del stock asociado:

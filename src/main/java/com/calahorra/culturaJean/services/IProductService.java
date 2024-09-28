@@ -62,16 +62,19 @@ public interface IProductService
 	public List<ProductDTO> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("size")String size);
 	
 	//Encontramos un ejemplar de cada categoría de producto:
-	public List<String> findUniqueEachCategory();
+	public List<String> findUniqueEachCategory(List<ProductDTO> products);
 		
 	//Encontramos un ejemplar de cada género de producto:
-	public List<String> findUniqueEachGender();
+	public List<Character> findUniqueEachGender(List<ProductDTO> products);
 		
 	//Encontramos un ejemplar de cada talle de producto:
-	public List<String> findUniqueEachSize();
+	public List<String> findUniqueEachSize(List<ProductDTO> products);
+	
+	//Encontramos un ejemplar de cada talle de producto:
+	public List<String> findUniqueEnabledEachSize(List<ProductDTO> products, String sizeFilter);
 		
 	//Encontramos un ejemplar de cada color de producto:
-	public List<String> findUniqueEachColor();
+	public List<String> findUniqueEachColor(List<ProductDTO> products);
 	
 	//Obtener:
 	

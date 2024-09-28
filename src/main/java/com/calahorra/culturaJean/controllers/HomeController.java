@@ -107,10 +107,10 @@ public class HomeController
 			modelAndView.addObject("rFSPri", rangeFromSalePrice); //Adjuntamos el precio mayor o igual de un rango para el filtro.
 			modelAndView.addObject("rUSPri", rangeUntilSalePrice); //Adjuntamos el precio menor o igual de un rango para el filtro.
 			modelAndView.addObject("ena", enabled); //Adjuntamos el estado de los productos para el filtro.
-			modelAndView.addObject("productCategories", productService.findUniqueEachCategory()); //Adjuntamos el listado de categorías de producto.
-			modelAndView.addObject("productGenders", productService.findUniqueEachGender()); //Adjuntamos el listado de géneros de producto.
-			modelAndView.addObject("productSizes", productService.findUniqueEachSize()); //Adjuntamos el listado de talles de producto.
-			modelAndView.addObject("productColors", productService.findUniqueEachColor()); //Adjuntamos el listado de colores de producto.
+			modelAndView.addObject("productCategories", productService.findUniqueEachCategory(products)); //Adjuntamos el listado de categorías de producto.
+			modelAndView.addObject("productGenders", productService.findUniqueEachGender(products)); //Adjuntamos el listado de géneros de producto.
+			modelAndView.addObject("productSizes", productService.findUniqueEachSize(products)); //Adjuntamos el listado de talles de producto.
+			modelAndView.addObject("productColors", productService.findUniqueEachColor(products)); //Adjuntamos el listado de colores de producto.
 			modelAndView.addObject("stocks", stocks); //Adjuntamos los stocks filtrados y ordenados.
 			
 		}
