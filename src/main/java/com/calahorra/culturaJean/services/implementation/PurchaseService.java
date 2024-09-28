@@ -193,9 +193,26 @@ public class PurchaseService implements IPurchaseService
 	
 	//Encontramos los nombres de usuario de los clientes que realizaron compras ordenados de forma alfabética:
 	@Override
-	public List<String> getAllUsernames()
+	public List<String> getAllUsernames(List<PurchaseDTO> purchases)
 	{
-		return purchaseRepository.getAllUsernames(); //Retornamos el listado de nombres de usuario ordenado.
+		List<String> usernames = new ArrayList<String>(); //Definimos un listado donde se guardarán los nombres de usuario.
+		
+		//Analizamos cada compra para saber si su nombre de usuario del cliente se encuentra en el listado:
+		for(PurchaseDTO purchase: purchases) 
+		{
+			String username = purchase.getMember().getUsername(); //Obtenemos el nombre de usuario del cliente.
+			
+			//Si el nombre de usuario no está en el listado:
+			if(!usernames.contains(username)) 
+			{
+				usernames.add(username); //Agregamos el nombre de usuario.
+			}
+		}
+		
+		//Ordenamos el listado de nombres de usuario de forma alfabética:
+		usernames.sort(null);
+		
+		return usernames; //Retornamos el listado de nombres de usuario.
 	}
 		
 	//Obtener:

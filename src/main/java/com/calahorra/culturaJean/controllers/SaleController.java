@@ -105,7 +105,7 @@ public class SaleController
 		modelAndView.addObject("untilTime", untilTime); //Adjuntamos el filtro por anteriores o iguales a una hora elegido.
 		modelAndView.addObject("rangeFromTime", rangeFromTime); //Adjuntamos el filtro de posteriores o iguales a una hora dentro de un rango elegido.
 		modelAndView.addObject("rangeUntilTime", rangeUntilTime); //Adjuntamos el filtro de anteriores o iguales a una hora dentro de un rango elegido.
-		modelAndView.addObject("usernames", purchaseService.getAllUsernames()); //Adjuntamos un listado con los nombres de usuarios que tienen compras.
+		modelAndView.addObject("usernames", purchaseService.getAllUsernames(sales)); //Adjuntamos un listado con los nombres de usuarios que tienen compras.
 		modelAndView.addObject("username", username); //Adjuntamos el nombre de usuario aplicado como filtro.
 		modelAndView.addObject("methodOfPay", methodOfPay); //Adjuntamos el método de pago aplicado como filtro.
 		modelAndView.addObject("fromSalePrice", fromSalePrice); //Adjuntamos el filtro por mayores o iguales a un precio.
