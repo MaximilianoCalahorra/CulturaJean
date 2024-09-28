@@ -98,10 +98,6 @@ public interface IPurchaseRepository extends JpaRepository<Purchase, Serializabl
 			+ "WHERE m.username = (:username)")
 	public abstract List<Purchase> findByMember(@Param("username")String username);
 	
-	//Encontramos los nombres de usuario de los clientes que realizaron compras ordenados de forma alfabética:
-	@Query("SELECT m.username FROM Purchase p INNER JOIN p.member m GROUP BY m.username ORDER BY m.username")
-	public abstract List<String> getAllUsernames();
-	
 	//Ordenar:
 	
 	//Ordenamos las compras por método de pago de manera alfabética:
