@@ -79,7 +79,7 @@ public interface ILotService
 	public List<LotDTO> findByStock(int stockId);
 	
 	//Encontramos un ejemplar de cada id de stock de los cuales hay lotes:
-	public List<String> findUniqueEachStockId();
+	public List<Integer> findUniqueEachStockId(List<LotDTO> lots);
 	
 	//Obtener:
 	
@@ -148,12 +148,6 @@ public interface ILotService
 	
 	//Filtramos los pedidos de aprovisionamiento entregados para quedarnos solo con los que todavía no tienen un lote asociado:
 	public List<SupplyOrderDTO> filterBySupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders);
-	
-	//Filtramos los códigos de productos de pedidos de aprovisionamiento para quedarnos solo con los que figuran en pedidos sin lote generado:
-	public List<String> filterByProductCodeOnSupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders, List<String> productCodes);
-	
-	//Filtramos los nombre de proveedores de pedidos de aprovisionamiento para quedarnos solo con los que figuran en pedidos sin lote generado:
-	public List<String> filterBySupplierNameOnSupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders, List<String> supplierNames);
 	
 	//Filtramos los lotes por id del stock asociado:
 	public List<LotDTO> filterByStockId(List<LotDTO> lots, int stockId);

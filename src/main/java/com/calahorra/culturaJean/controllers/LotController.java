@@ -68,17 +68,7 @@ public class LotController
 		List<SupplyOrderDTO> supplyOrdersToLots = supplyOrderService.findByDelivered(true); 
 				
 		//Ahora filtramos esos pedidos de aprovisionamiento para quedarnos solo con los que no hayan generado un pedido de aprovisionamiento:
-		supplyOrdersToLots = lotService.filterBySupplyOrderWithInexistingLot(supplyOrdersToLots);
-		
-		//Obtenemos los códigos de productos de pedidos de aprovisionamiento entregados.
-		List<String> productCodes = supplyOrderService.findUniqueEachProductCodeDelivered(true); 
-		//Sin embargo, hay que filtrar ese listado para quedarnos solo los que estén en pedidos de aprovisionamiento sin lote generado:
-		productCodes = lotService.filterByProductCodeOnSupplyOrderWithInexistingLot(supplyOrdersToLots, productCodes); 
-		
-		//Obtenemos los nombres de proveedores de pedidos de aprovisionamiento entregados.
-		List<String> supplierNames = supplyOrderService.findUniqueEachSupplierNameDelivered(true); //Obtenemos los nombres de proveedores de pedidos de aprovisionamiento entregados.
-		//Sin embargo, hay que filtrar ese listado para quedarnos solo los que estén en pedidos de aprovisionamiento sin lote generado:
-		supplierNames = lotService.filterBySupplierNameOnSupplyOrderWithInexistingLot(supplyOrdersToLots, supplierNames);		
+		supplyOrdersToLots = lotService.filterBySupplyOrderWithInexistingLot(supplyOrdersToLots);		
 		
 		//Aplicamos los filtros seleccionados de las secciones código de producto, nombre de proveedor y cantidad:
 		supplyOrdersToLots = supplyOrderService.applyFilters(supplyOrdersToLots, productCode, supplierName, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
@@ -121,8 +111,8 @@ public class LotController
 		modelAndView.addObject("rFAmount", rangeFromAmount); //Adjuntamos el filtro de una cantidad mayor o igual en un rango de cantidades.
 		modelAndView.addObject("rUAmount", rangeUntilAmount); //Adjuntamos el filtro de una cantidad menor o igual en un rango de cantidades.
 		modelAndView.addObject("supplyOrdersToLots", supplyOrdersToLots); //Adjuntamos los pedidos de aprovisionamiento que pueden generar lotes.
-		modelAndView.addObject("productCodes", productCodes); //Adjuntamos los códigos de los productos.
-		modelAndView.addObject("supplierNames", supplierNames); //Adjuntamos los nombres de los proveedores.
+		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode(supplyOrdersToLots)); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrdersToLots)); //Adjuntamos los nombres de los proveedores.
 		
 		modelAndView.addObject("orderL", orderLots); //Adjuntamos el criterio de ordenamiento de los lotes registados.
 		modelAndView.addObject("stockId", stockId); //Adjuntamos el filtro de un stock específico.
@@ -137,7 +127,7 @@ public class LotController
 		modelAndView.addObject("rFEAmount", rangeFromExistingAmount); //Adjuntamos el filtro de una cantidad existente mayor o igual en un rango de cantidades.
 		modelAndView.addObject("rUEAmount", rangeUntilExistingAmount); //Adjuntamos el filtro de una cantidad existente menor o igual en un rango de cantidades.
 		modelAndView.addObject("lotsRegistered", lotsRegistered); //Adjuntamos los lotes registrados.
-		modelAndView.addObject("stockIds", lotService.findUniqueEachStockId()); //Adjuntamos los ids de los stocks.
+		modelAndView.addObject("stockIds", lotService.findUniqueEachStockId(lotsRegistered)); //Adjuntamos los ids de los stocks.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
