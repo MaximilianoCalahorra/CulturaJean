@@ -38,9 +38,11 @@ public class Member
 	private boolean enabled;
 
 	@CreationTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime createdAt;
 
 	@UpdateTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime updatedAt;
 
 	@OneToMany(fetch=FetchType.LAZY, mappedBy="member")

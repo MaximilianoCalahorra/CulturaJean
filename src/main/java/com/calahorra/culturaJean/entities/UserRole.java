@@ -38,9 +38,11 @@ public class UserRole
 	private String role;
 
 	@CreationTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime createdAt;
 
 	@UpdateTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime updatedAt;
 
 	//Constructor:
