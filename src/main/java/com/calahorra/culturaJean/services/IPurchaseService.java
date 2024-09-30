@@ -179,4 +179,9 @@ public interface IPurchaseService
 	
 	//Verificamos o corregimos los valores que llegan de los inputs tipo date y time para evitar la presencia de ',' en ellos:
 	public String verifyOrCorrectValue(String value);
+	
+	//Mapear:
+	
+	//Mapeamos un PurchaseDTO a Entity Purchase:
+	public Purchase mapDTOToEntity(PurchaseDTO purchaseDTO);
 }

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import com.calahorra.culturaJean.dtos.PurchaseDTO;
 import com.calahorra.culturaJean.entities.Purchase;
-import com.calahorra.culturaJean.entities.PurchaseItem;
 import com.calahorra.culturaJean.repositories.IPurchaseRepository;
 import com.calahorra.culturaJean.services.IPurchaseService;
 
@@ -25,14 +24,12 @@ public class PurchaseService implements IPurchaseService
 {
 	//Atributos:
 	private IPurchaseRepository purchaseRepository;
-	private PurchaseItemService purchaseItemService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
-	public PurchaseService(IPurchaseRepository purchaseRepository, PurchaseItemService purchaseItemService) 
+	public PurchaseService(IPurchaseRepository purchaseRepository) 
 	{
 		this.purchaseRepository = purchaseRepository;
-		this.purchaseItemService = purchaseItemService;
 	}
 	
 	//Encontrar:
@@ -377,13 +374,8 @@ public class PurchaseService implements IPurchaseService
 	@Override
 	public PurchaseDTO insert(PurchaseDTO purchaseDTO) 
 	{
-		Purchase purchase = modelMapper.map(purchaseDTO, Purchase.class); 
-		for(PurchaseItem purchaseItem: purchase.getPurchaseItems()) 
-		{
-			purchaseItemService.insert(purchaseItem); //Inserto cada ítem de la compra en la base de datos.
-		}
-		return modelMapper.map(purchaseRepository.save(purchase), PurchaseDTO.class); //Inserto la compra en la base de datos y la
-																					  //retorno como DTO.
+		Purchase purchaseSaved = purchaseRepository.save(modelMapper.map(purchaseDTO, Purchase.class)); //Inserto la compra en la base de datos.
+		return modelMapper.map(purchaseSaved, PurchaseDTO.class); //Retorno el DTO de la compra insertada.
 	}
 	
 	//Filtrar:
@@ -758,5 +750,14 @@ public class PurchaseService implements IPurchaseService
 			}
 		}
 		return value; //Retornamos el valor verificado/corregido.
+	}
+	
+	//Mapear:
+	
+	//Mapeamos un PurchaseDTO a Entity Purchase:
+	@Override
+	public Purchase mapDTOToEntity(PurchaseDTO purchaseDTO) 
+	{
+		return modelMapper.map(purchaseDTO, Purchase.class); //Retornamos el mapeo del DTO a entity.
 	}
 }
