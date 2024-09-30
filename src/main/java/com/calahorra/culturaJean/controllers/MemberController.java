@@ -273,8 +273,8 @@ public class MemberController
 	}
 	
 	//Respondemos a la solicitud de modificación del perfil con una vista que tiene un formulario para ello:
-	@GetMapping("/modifyProfileForm/{username}")
-	public ModelAndView modifyProfileForm(@PathVariable("username")String username) 
+	@GetMapping("/modifyProfileForm/{role}/{username}")
+	public ModelAndView modifyProfileForm(@PathVariable("role")String role, @PathVariable("username")String username) 
 	{
 		//La vista a presentar será la que permite modificar los datos de la cuenta:
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MODIFY_PROFILE_FORM); 
@@ -282,15 +282,16 @@ public class MemberController
 		//Obtenemos el miembro del cual se quiere modificar la información:
 		Member member = memberService.findByUsernameAndFetchUserRolesEagerly(username);
 		
-		//Agregamos el miembro a la vista:
+		//Agregamos el miembro y su rol a la vista:
+		modelAndView.addObject("role", role);
 		modelAndView.addObject("member", member);
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
 	//Respondemos al intento de modificación del perfil del miembro:
-	@PostMapping("/modifyProfile")
-	public ModelAndView modifyProfile(@ModelAttribute("member")Member member) 
+	@PostMapping("/modifyProfile/{role}")
+	public ModelAndView modifyProfile(@PathVariable("role")String role, @ModelAttribute("member")Member member) 
 	{
 		//Suponemos que no se va a poder completar la modificación del perfil, por lo que la vista a mostrar será la del formulario nuevamente
 		//con un mensaje indicando el error:
@@ -327,6 +328,8 @@ public class MemberController
 			//En caso de que no sea válido, adjuntamos el mensaje de error a la vista:
 			modelAndView.addObject("error", "The email " + member.getEmail() + " is invalid.");
 		}
+		
+		modelAndView.addObject("role", role); //Agregamos el rol del miembro.
 		
 		return modelAndView; //Retornamos la vista e información que corresponda según el resultado de la operación.
 	}
