@@ -19,6 +19,12 @@ public class PurchaseDTO
 	private LocalDateTime dateTime;
 	
 	//Constructor:
+	public PurchaseDTO(MemberDTO member, Set<PurchaseItemDTO> purchaseItems) 
+	{
+		this.member = member;
+		this.purchaseItems = purchaseItems;
+	}
+	
 	public PurchaseDTO(int purchaseId, MemberDTO member, String methodOfPay, LocalDateTime dateTime) 
 	{
 		setPurchaseId(purchaseId);
