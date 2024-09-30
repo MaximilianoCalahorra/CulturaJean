@@ -138,27 +138,6 @@ public class SupplyOrderController
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
-	/*
-	//Respondemos a las peticiones de información sobre los pedidos de aprovisionamiento para el administrador:
-	@GetMapping("/supplyOrders")
-	public ModelAndView supplyOrders() 
-	{
-		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SUPPLY_ORDERS);
-		
-		//Obtenemos los pedidos de aprovisionamiento sin entregar:
-		List<SupplyOrderDTO> undeliveredsupplyOrders = supplyOrderService.findByDelivered(false);
-		
-		//Obtenemos los pedidos de aprovisionamiento entregados:
-		List<SupplyOrderDTO> deliveredsupplyOrders = supplyOrderService.findByDelivered(true);
-		
-		//Agregamos la información a la vista:
-		modelAndView.addObject("undeliveredSupplyOrders", undeliveredsupplyOrders);
-		modelAndView.addObject("deliveredSupplyOrders", deliveredsupplyOrders);
-		
-		return modelAndView; //Retornamos la vista con la información adjunta.
-	}
-	*/
-	
 	//Respondemos a las petición de registrar como entregado un pedido de aprovisionamiento:
 	@GetMapping("/registerDelivered/{supplyOrderId}")
 	public RedirectView registerDelivered(@PathVariable("supplyOrderId")int supplyOrderId) 
