@@ -44,6 +44,13 @@ public class ProductService implements IProductService
 		return productRepository.findByProductId(productId);
 	}
 	
+	//Encontramos el DTO del producto con determinado id:
+	@Override
+	public ProductDTO findDTOByProductId(int productId) 
+	{
+		return modelMapper.map(productRepository.findByProductId(productId), ProductDTO.class);
+	}
+	
 	//Encontramos el producto con determinado código:
 	@Override
 	public ProductDTO findByCode(String code) 
@@ -833,5 +840,14 @@ public class ProductService implements IProductService
 		products = applyFilterTypeSalePrice(products, salePrice, fromSalePrice, untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice); 
 		
 		return products; //Retornamos los productos filtrados.
+	}
+	
+	//Mapear:
+	
+	//Mapeamos un ProductDTO a Entity Product:
+	@Override
+	public Product mapDTOToEntity(ProductDTO productDTO) 
+	{
+		return modelMapper.map(productDTO, Product.class); //Retornamos el mapeo del DTO a entity.
 	}
 }

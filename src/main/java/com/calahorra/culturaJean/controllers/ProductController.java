@@ -15,7 +15,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.ProductDTO;
-import com.calahorra.culturaJean.dtos.PurchaseItemDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
 import com.calahorra.culturaJean.services.IProductService;
@@ -239,18 +238,14 @@ public class ProductController
 	
 	//Respondemos a la solicitud de un visitante de ver más detalles de un producto determinado: 
 	@GetMapping("/moreDetails/{role}/{productId}")
-	public ModelAndView moreDetailsVisitor(@PathVariable("role")String role, @PathVariable("productId")int productId) 
+	public ModelAndView moreDetails(@PathVariable("role")String role, @PathVariable("productId")int productId) 
 	{
 		ModelAndView modelAndView = new ModelAndView();
 		
 		//Según el rol del usuario que peticionó:
 		switch(role) 
 		{
-			case "customer":
-			{
-				modelAndView.setViewName(ViewRouteHelper.MORE_DETAILS_PRODUCT_CUSTOMER);  //Al cliente le mostramos su vista.
-				modelAndView.addObject("purchaseItem", new PurchaseItemDTO()); //Adjuntamos a la vista un objeto ítem de compra para cargarlo.
-			} break;
+			case "customer": modelAndView.setViewName(ViewRouteHelper.MORE_DETAILS_PRODUCT_CUSTOMER); break; //Al cliente le mostramos su vista.
 			case "visitor": modelAndView.setViewName(ViewRouteHelper.MORE_DETAILS_PRODUCT_VISITOR); break; //Al administrador le mostramos su vista.
 		}
 		
