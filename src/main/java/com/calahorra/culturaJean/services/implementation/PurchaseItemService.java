@@ -102,8 +102,9 @@ public class PurchaseItemService implements IPurchaseItemService
 	
 	//Agregamos un ítem de compra a la base de datos:
 	@Override
-	public PurchaseItem insert(PurchaseItem purchaseItem) 
+	public PurchaseItemDTO insert(PurchaseItem purchaseItem) 
 	{
-		return purchaseItemRepository.save(purchaseItem); //Insertamos el ítem de la compra en la base de datos.
+		//Insertamos el ítem de la compra en la base de datos:
+		return modelMapper.map(purchaseItemRepository.save(purchaseItem), PurchaseItemDTO.class); //Retornamos el DTO del ítem insertado.
 	}
 }

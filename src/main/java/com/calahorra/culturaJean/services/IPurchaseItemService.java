@@ -42,5 +42,5 @@ public interface IPurchaseItemService
 	//Agregar:
 	
 	//Agregamos un ítem de compra a la base de datos:
-	public PurchaseItem insert(PurchaseItem purchaseItem);
+	public PurchaseItemDTO insert(PurchaseItem purchaseItem);
 }
