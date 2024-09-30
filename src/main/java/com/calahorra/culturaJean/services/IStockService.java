@@ -157,6 +157,9 @@ public interface IStockService
 	//Agregamos o modificamos un stock en la base de datos:
 	public StockDTO insertOrUpdate(StockDTO stock);
 	
+	//Agregamos un pedido de aprovisionamiento de un producto de forma automática:
+	public void generateAutomaticSupplyOrder(int productId); 
+	
 	//Calcular:
 	
 	//Calculamos la cantidad actual de stock:

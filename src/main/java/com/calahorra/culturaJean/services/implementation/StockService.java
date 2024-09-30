@@ -494,6 +494,40 @@ public class StockService implements IStockService
 																			     //retornamos como DTO.
 	}
 	
+	//Agregamos un pedido de aprovisionamiento de un producto de forma automática:
+	@Override
+	public void generateAutomaticSupplyOrder(int productId) 
+	{
+		StockDTO stockDTO = findByProduct(productId); //Obtenemos el stock relacionado con el producto.
+		
+		//Si el stock actual alcanzó o perforó la cantidad mínima que se quiere tener:
+		if(stockDTO.getActualAmount() <= stockDTO.getMinimumAmount()) 
+		{
+			//Vamos a generar un pedido de aprovisionamiento automático que lleve la cantidad actual al nivel de la deseable al dar de alta
+			//el lote que se puede generar con este pedido:
+			int supplyOrderAmount = stockDTO.getDesirableAmount() - stockDTO.getActualAmount(); //Calculamos la cantidad que tendrá el pedido de aprovisionamiento.
+			Product product = modelMapper.map(stockDTO.getProduct(), Product.class); //Obtenemos el producto del que se hará el pedido de aprovisionamiento.
+			Member member = memberService.findByUsernameAndFetchUserRolesEagerly("culti_bot"); //El pedido de aprovisionamiento es realizado por el bot administrador.
+				
+			//Definimos el proveedor del pedido de aprovisionamiento:
+			Supplier supplier = null; 
+			//Para esto tenemos en cuenta la categoría del producto:
+			switch(product.getCategory()) 
+			{
+				case "Short Sleeve T-Shirts": supplier = supplierService.findByName("Short Sleeve T-Shirts"); break;
+				case "Long Sleeve T-Shirts": supplier = supplierService.findByName("Long Sleeve T-Shirts"); break;
+				case "Jumpers": supplier = supplierService.findByName("Jumpers"); break;
+				case "Jackets": supplier = supplierService.findByName("Jackets"); break;
+				case "Jeans": supplier = supplierService.findByName("Jeans"); break;
+				case "Pants": supplier = supplierService.findByName("Pants"); break;
+			}
+				
+			//Instanciamos un nuevo pedido de aprovisionamiento con la información correspondiente y lo insertamos en la base de datos:
+			SupplyOrder supplyOrder = new SupplyOrder(product, member, supplier, supplyOrderAmount, false);
+			supplyOrderService.insert(modelMapper.map(supplyOrder, SupplyOrderDTO.class)); 
+		}
+	}
+	
 	//Calcular:
 	
 	//Calculamos la cnatidad actual de stock:
@@ -521,7 +555,8 @@ public class StockService implements IStockService
 		//Si el stock del producto no alcanza para satisfacer la demanda:
 		if(amount > totalStock) 
 		{
-			throw new Exception("Error! The product stock is insufficient.");
+			throw new Exception("The stock of product " + stock.getProduct().getName() + " of size " + stock.getProduct().getSize() + " is insufficient."
+							  + "There are " + stock.getActualAmount() + " units and you want " + amount + ". Sorry!");
 		}
 		
 		//Por el contrario, el stock es suficiente y realizamos el proceso de baja de stock en los lotes que correspondan y en el stock:
@@ -561,6 +596,7 @@ public class StockService implements IStockService
 		stock.setActualAmount(totalStock); //Actualizamos la cantidad actual del stock.
 		insertOrUpdate(stock); //Actualizamos el stock en la base de datos con la baja producida.
 		
+		/*
 		//Si el stock actual alcanzó o perforó la cantidad mínima que se quiere tener, generamos un pedido de aprovisionamiento automático
 		//que lleva la cantidad actual al nivel de la deseable:
 		if(stock.getActualAmount() <= stock.getMinimumAmount()) 
@@ -586,5 +622,6 @@ public class StockService implements IStockService
 			SupplyOrder supplyOrder = new SupplyOrder(product, member, supplier, supplyOrderAmount, false);
 			supplyOrderService.insert(modelMapper.map(supplyOrder, SupplyOrderDTO.class)); 
 		}
+		*/
 	}
 }
