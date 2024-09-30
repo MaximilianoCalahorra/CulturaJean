@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cultura Jean | My Account</title>
+	</head>
+	<body>
+		<div th:insert="~{navBar/customer.html::div-header}"></div>
+		<main>
+			<div>
+				<h1>Welcome to your account, customer!</h1>
+			</div>
+			<section>
+				<h2>My Profile</h2>
+				<div>
+					<p>Username: <span th:text="${member.username}"></span></p>
+					<p>Name: <span th:text="${member.name}"></span></p>
+					<p>Last Name: <span th:text="${member.lastName}"></span></p>
+					<p>Email: <span th:text="${member.email}"></span></p>
+					<a th:href="@{/modifyProfileForm/customer/}+${member.username}">Modify My Profile</a>
+				</div>
+			</section>
+			<section>
+				<h2>My Purchases</h2>
+				<form action="/myAccount/customer" method="get">
+					<input type="hidden" name="date" th:value="${date}">
+					<input type="hidden" name="fromDate" th:value="${fromDate}">
+					<input type="hidden" name="untilDate" th:value="${untilDate}">
+					<input type="hidden" name="rangeFromDate" th:value="${rangeFromDate}">
+					<input type="hidden" name="rangeUntilDate" th:value="${rangeUntilDate}">
+					<input type="hidden" name="time" th:value="${time}">
+					<input type="hidden" name="fromTime" th:value="${fromTime}">
+					<input type="hidden" name="untilTime" th:value="${untilTime}">
+					<input type="hidden" name="rangeFromTime" th:value="${rangeFromTime}">
+					<input type="hidden" name="rangeUntilTime" th:value="${rangeUntilTime}">
+					<input type="hidden" name="methodOfPay" th:value="${methodOfPay}">
+					<input type="hidden" name="fromPurchasePrice" th:value="${fromPurchasePrice}">
+					<input type="hidden" name="untilPurchasePrice" th:value="${untilPurchasePrice}">
+					<input type="hidden" name="rangeFromPurchasePrice" th:value="${rangeFromPurchasePrice}">
+					<input type="hidden" name="rangeUntilPurchasePrice" th:value="${rangeUntilPurchasePrice}">
+					<label>Choose The Order:
+						<select name="order" required>
+							<option value="orderAscByDateTime" th:selected="${order == 'orderAscByDateTime'}">Ascendent By Date Time</option>
+							<option value="orderDescByDateTime" th:selected="${order == 'orderDescByDateTime'}">Descendent By Date Time</option>
+							<option value="orderAscByMethodOfPay" th:selected="${order == 'orderAscByMethodOfPay'}">Ascendent By Method Of Pay</option>
+							<option value="orderDescByMethodOfPay" th:selected="${order == 'orderDescByMethodOfPay'}">Descendent By Method Of Pay</option>
+							<option value="orderAscByPurchasePrice" th:selected="${order == 'orderAscByPurchasePrice'}">Ascendent By Purchase Price</option>
+							<option value="orderDescByPurchasePrice" th:selected="${order == 'orderDescByPurchasePrice'}">Descendent By Purchase Price</option>
+						</select>
+					</label>
+					<button type="submit">Apply</button>
+				</form>
+				<form action="/myAccount/customer" method="get">
+					<input type="hidden" name="order" th:value="${order}">
+					<label>Choose Filters:
+						<details>
+							<summary>Date</summary>
+							<details>
+								<summary>Specific Date</summary>
+								<input type="date" name="date" th:value="${date}">
+							</details>
+							<details>
+								<summary>After Or Equal To Date</summary>
+								<input type="date" name="fromDate" th:value="${fromDate}">
+							</details>
+							<details>
+								<summary>Before or Equal To Date</summary>
+								<input type="date" name="untilDate" th:value="${untilDate}">
+							</details>
+							<details>
+								<summary>Date To Date</summary>
+								<input type="date" name="rangeFromDate" th:value="${rangeFromDate}">
+								<input type="date" name="rangeUntilDate" th:value="${rangeUntilDate}">
+							</details>
+						</details>
+						<details>
+							<summary>Time</summary>
+							<details>
+								<summary>After Or Equal To Time</summary>
+								<input type="time" name="fromTime" th:value="${fromTime}">
+							</details>
+							<details>
+								<summary>Before or Equal To Time</summary>
+								<input type="time" name="untilTime" th:value="${untilTime}">
+							</details>
+							<details>
+								<summary>Time To Time</summary>
+								<input type="time" name="rangeFromTime" th:value="${rangeFromTime}">
+								<input type="time" name="rangeUntilTime" th:value="${rangeUntilTime}">
+							</details>
+						</details>
+						<details>
+							<summary>Method Of Pay</summary>
+							<select name="methodOfPay">
+								<option value="All" th:selected="${methodOfPay == 'All'}">All</option>
+								<option value="Debit" th:selected="${methodOfPay == 'Debit'}">Debit</option>
+								<option value="Credit" th:selected="${methodOfPay == 'Credit'}">Credit</option>
+							</select>
+						</details>
+						<details>
+							<summary>Purchase Price</summary>
+							<details>
+								<summary>Greater Or Equal To Price</summary>
+								<input type="number" min="1" name="fromPurchasePrice" th:value="${fromPurchasePrice}">
+							</details>
+							<details>
+								<summary>Less or Equal To Price</summary>
+								<input type="number" min="1" name="untilPurchasePrice" th:value="${untilPurchasePrice}">
+							</details>
+							<details>
+								<summary>Price To Price</summary>
+								<input type="number" min="1" name="rangeFromPurchasePrice" th:value="${rangeFromPurchasePrice}">
+								<input type="number" min="1" name="rangeUntilPurchasePrice" th:value="${rangeUntilPurchasePrice}">
+							</details>
+						</details>
+					</label>
+					<button type="submit">Apply</button>
+				</form>
+				<form action="/myAccount/customer" method="get">
+					<input type="hidden" name="order" th:value="${order}">
+					<button type="submit">Reset All</button>
+				</form>
+				<table border="3">
+					<thead>
+						<tr>
+							<th>Purchase Id</th>
+						    <th>Username</th>
+						    <th>Method Of Pay</th>
+						    <th>Date Time</th>
+						    <th>Total Purchase</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="purchase: ${purchases}">
+						    <td>
+						        <details>
+						             <summary th:text="${purchase.purchaseId}"></summary>
+						             <summary>Details Of The Purchase</summary>
+						             <table border="3">
+						                 <thead>
+						                     <tr>
+						                         <th>Purchase Item Id</th>
+						                         <th>Product Code</th>
+						                         <th>Amount</th>
+						                         <th>Subtotal Purchase</th>
+						                     </tr>
+						                 </thead>
+						                 <tbody>
+						                     <tr th:each="purchaseItem: ${purchase.purchaseItems}">
+						                         <td th:text="${purchaseItem.purchaseItemId}"></td>
+						                         <td th:text="${purchaseItem.product.code}"></td>
+						                         <td th:text="${purchaseItem.amount}"></td>
+						                         <td th:text="${purchaseItem.calculateSubtotalSale()}"></td>
+						                     </tr>
+						                  </tbody>
+						               </table>
+						            </details>
+						            </td>
+						            <td th:text="${purchase.member.username}"></td>
+						            <td th:text="${purchase.methodOfPay}"></td>
+						            <td th:text="${purchase.dateTime}"></td>
+						            <td th:text="${purchase.calculateTotalSale()}"></td>
+						        </tr>
+						   </tbody>
+					</table>
+			</section>
+		</main>
+		<div th:insert="~{footer/footer.html::footer}"></div>
+	</body>
+</html>

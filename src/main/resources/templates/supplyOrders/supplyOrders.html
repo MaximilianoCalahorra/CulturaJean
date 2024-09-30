@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cultura Jean | Supply Orders</title>
+	</head>
+	<body>
+		<div th:insert="~{navBar/admin.html::div-header}"></div>
+		<main>
+			<div>
+				<h1>Welcome to the supply orders, admin!</h1>
+			</div>
+			<section>
+				<h2>Undelivered Supply Orders</h2>
+				<form action="/supplyOrder/supplyOrders" method="get">
+					<input type="hidden" name="pCodeU" th:value="${pCodeU}">
+					<input type="hidden" name="sNameU" th:value="${sNameU}">
+					<input type="hidden" name="usernameU" th:value="${usernameU}">
+					<input type="hidden" name="amountU" th:value="${amountU}">
+					<input type="hidden" name="fAmountU" th:value="${fAmountU}">
+					<input type="hidden" name="uAmountU" th:value="${uAmountU}">
+					<input type="hidden" name="rFAmountU" th:value="${rFAmountU}">
+					<input type="hidden" name="rUAmountU" th:value="${rUAmountU}">
+					<input type="hidden" name="pCodeD" th:value="${pCodeD}">
+					<input type="hidden" name="sNameD" th:value="${sNameD}">
+					<input type="hidden" name="usernameD" th:value="${usernameD}">
+					<input type="hidden" name="amountD" th:value="${amountD}">
+					<input type="hidden" name="fAmountD" th:value="${fAmountD}">
+					<input type="hidden" name="uAmountD" th:value="${uAmountD}">
+					<input type="hidden" name="rFAmountD" th:value="${rFAmountD}">
+					<input type="hidden" name="rUAmountD" th:value="${rUAmountD}">
+					<input type="hidden" name="orderD" th:value="${orderD}">
+					<label>Choose The Order:
+						<select name="orderU" required>
+							<option value="orderAscByProductCode" th:selected="${orderU == 'orderAscByProductCode'}">Ascendent By Product Code</option>
+							<option value="orderDescByProductCode" th:selected="${orderU == 'orderDescByProductCode'}">Descendent By Product Code</option>
+							<option value="orderAscBySupplierName" th:selected="${orderU == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
+							<option value="orderDescBySupplierName" th:selected="${orderU == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
+							<option value="orderAscByAdminUsername" th:selected="${orderU == 'orderAscByAdminUsername'}">Ascendent By Admin Username</option>
+							<option value="orderDescByAdminUsername" th:selected="${orderU == 'orderDescByAdminUsername'}">Descendent By Admin Username</option>
+							<option value="orderAscByAmount" th:selected="${orderU == 'orderAscByAmount'}">Ascendent By Amount</option>
+							<option value="orderDescByAmount" th:selected="${orderU == 'orderDescByAmount'}">Descendent By Amount</option>
+						</select>
+					</label>
+					<button type="submit">Apply</button>
+				</form>
+				<form action="/supplyOrder/supplyOrders" method="get">
+					<input type="hidden" name="orderU" th:value="${orderU}">
+					<input type="hidden" name="pCodeD" th:value="${pCodeD}">
+					<input type="hidden" name="sNameD" th:value="${sNameD}">
+					<input type="hidden" name="usernameD" th:value="${usernameD}">
+					<input type="hidden" name="amountD" th:value="${amountD}">
+					<input type="hidden" name="fAmountD" th:value="${fAmountD}">
+					<input type="hidden" name="uAmountD" th:value="${uAmountD}">
+					<input type="hidden" name="rFAmountD" th:value="${rFAmountD}">
+					<input type="hidden" name="rUAmountD" th:value="${rUAmountD}">
+					<input type="hidden" name="orderD" th:value="${orderD}">
+					<label>Choose Filters:
+						<details>
+							<summary>Product Code</summary>
+							<select name="pCodeU">
+								<option value="all" th:selected="${pCodeU == 'all'}">All</option>
+								<option th:each="code: ${productCodesU}" th:value="${code}" th:text="${code}" th:selected="@{${code == pCodeU}}"></option>
+							</select>	
+						</details>
+						<details>
+							<summary>Supplier Name</summary>
+							<select name="sNameU">
+								<option value="all" th:selected="${sNameU == 'all'}">All</option>
+								<option th:each="name: ${supplierNamesU}" th:value="${name}" th:text="${name}" th:selected="@{${name == sNameU}}"></option>
+							</select>
+						</details>
+						<details>
+							<summary>Admin Username</summary>
+							<select name="usernameU">
+								<option value="all" th:selected="${usernameU == 'all'}">All</option>
+								<option th:each="username: ${adminUsernamesU}" th:value="${username}" th:text="${username}" th:selected="@{${username == usernameU}}"></option>
+							</select>
+						</details>
+						<details>
+							<summary>Amount</summary>
+							<details>
+								<summary>Specific Amount</summary>
+								<input type="number" min="1" name="amountU" th:value="${amountU}">
+							</details>
+							<details>
+								<summary>Greater or Equal To Amount</summary>
+								<input type="number" min="1" name="fAmountU" th:value="${fAmountU}">
+							</details>
+							<details>
+								<summary>Less or Equal To Amount</summary>
+								<input type="number" min="1" name="uAmountU" th:value="${uAmountU}">
+							</details>
+							<details>
+								<summary>Amount To Amount</summary>
+								<input type="number" min="1" name="rFAmountU" th:value="${rFAmountU}">
+								<input type="number" min="1" name="rUAmountU" th:value="${rUAmountU}">
+							</details>
+						</details>
+					</label>
+					<button type="submit">Apply</button>
+				</form>
+				<form action="/supplyOrder/supplyOrders" method="get">
+					<input type="hidden" name="orderU" th:value="${orderU}">
+					<input type="hidden" name="pCodeD" th:value="${pCodeD}">
+					<input type="hidden" name="sNameD" th:value="${sNameD}">
+					<input type="hidden" name="usernameD" th:value="${usernameD}">
+					<input type="hidden" name="amountD" th:value="${amountD}">
+					<input type="hidden" name="fAmountD" th:value="${fAmountD}">
+					<input type="hidden" name="uAmountD" th:value="${uAmountD}">
+					<input type="hidden" name="rFAmountD" th:value="${rFAmountD}">
+					<input type="hidden" name="rUAmountD" th:value="${rUAmountD}">
+					<input type="hidden" name="orderD" th:value="${orderD}">
+					<button type="submit">Reset All</button>
+				</form>
+				<table border="3">
+					<thead>
+						<tr>
+							<th>Supply Order Id</th>
+							<th>Product Code</th>
+							<th>Username</th>				
+							<th>Supplier Name</th>
+							<th>Amount</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="supplyOrder: ${undeliveredSupplyOrders}">
+							<td th:text="${supplyOrder.supplyOrderId}"></td>
+							<td th:text="${supplyOrder.product.code}"></td>
+							<td th:text="${supplyOrder.member.username}"></td>
+							<td th:text="${supplyOrder.supplier.name}"></td>
+							<td th:text="${supplyOrder.amount}"></td>
+							<td>
+								<a th:href="@{/supplyOrder/registerDelivered/}+${supplyOrder.supplyOrderId}">Register Delivered</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+			<section>
+				<h2>Delivered Supply Orders</h2>
+				<form action="/supplyOrder/supplyOrders" method="get">
+					<input type="hidden" name="pCodeU" th:value="${pCodeU}">
+					<input type="hidden" name="sNameU" th:value="${sNameU}">
+					<input type="hidden" name="usernameU" th:value="${usernameU}">
+					<input type="hidden" name="amountU" th:value="${amountU}">
+					<input type="hidden" name="fAmountU" th:value="${fAmountU}">
+					<input type="hidden" name="uAmountU" th:value="${uAmountU}">
+					<input type="hidden" name="rFAmountU" th:value="${rFAmountU}">
+					<input type="hidden" name="rUAmountU" th:value="${rUAmountU}">
+					<input type="hidden" name="orderU" th:value="${orderU}">
+					<input type="hidden" name="pCodeD" th:value="${pCodeD}">
+					<input type="hidden" name="sNameD" th:value="${sNameD}">
+					<input type="hidden" name="usernameD" th:value="${usernameD}">
+					<input type="hidden" name="amountD" th:value="${amountD}">
+					<input type="hidden" name="fAmountD" th:value="${fAmountD}">
+					<input type="hidden" name="uAmountD" th:value="${uAmountD}">
+					<input type="hidden" name="rFAmountD" th:value="${rFAmountD}">
+					<input type="hidden" name="rUAmountD" th:value="${rUAmountD}">
+					<label>Choose The Order:
+						<select name="orderD" required>
+							<option value="orderAscByProductCode" th:selected="${orderD == 'orderAscByProductCode'}">Ascendent By Product Code</option>
+							<option value="orderDescByProductCode" th:selected="${orderD == 'orderDescByProductCode'}">Descendent By Product Code</option>
+							<option value="orderAscBySupplierName" th:selected="${orderD == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
+							<option value="orderDescBySupplierName" th:selected="${orderD == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
+							<option value="orderAscByAdminUsername" th:selected="${orderD == 'orderAscByAdminUsername'}">Ascendent By Admin Username</option>
+							<option value="orderDescByAdminUsername" th:selected="${orderD == 'orderDescByAdminUsername'}">Descendent By Admin Username</option>
+							<option value="orderAscByAmount" th:selected="${orderD == 'orderAscByAmount'}">Ascendent By Amount</option>
+							<option value="orderDescByAmount" th:selected="${orderD == 'orderDescByAmount'}">Descendent By Amount</option>
+						</select>
+					</label>
+					<button type="submit">Apply</button>
+				</form>
+					<form action="/supplyOrder/supplyOrders" method="get">
+						<input type="hidden" name="orderD" th:value="${orderD}">
+						<input type="hidden" name="pCodeU" th:value="${pCodeU}">
+						<input type="hidden" name="sNameU" th:value="${sNameU}">
+						<input type="hidden" name="usernameU" th:value="${usernameU}">
+						<input type="hidden" name="amountU" th:value="${amountU}">
+						<input type="hidden" name="fAmountU" th:value="${fAmountU}">
+						<input type="hidden" name="uAmountU" th:value="${uAmountU}">
+						<input type="hidden" name="rFAmountU" th:value="${rFAmountU}">
+						<input type="hidden" name="rUAmountU" th:value="${rUAmountU}">
+						<input type="hidden" name="orderU" th:value="${orderU}">
+						<label>Choose Filters:
+							<details>
+								<summary>Product Code</summary>
+								<select name="pCodeD">
+									<option value="all" th:selected="${pCodeD == 'all'}">All</option>
+									<option th:each="code: ${productCodesD}" th:value="${code}" th:text="${code}" th:selected="@{${code == pCodeD}}"></option>
+								</select>	
+							</details>
+							<details>
+								<summary>Supplier Name</summary>
+								<select name="sNameD">
+									<option value="all" th:selected="${sNameD == 'all'}">All</option>
+									<option th:each="name: ${supplierNamesD}" th:value="${name}" th:text="${name}" th:selected="@{${name == sNameD}}"></option>
+								</select>
+							</details>
+							<details>
+								<summary>Admin Username</summary>
+								<select name="usernameD">
+									<option value="all" th:selected="${usernameD == 'all'}">All</option>
+									<option th:each="username: ${adminUsernamesD}" th:value="${username}" th:text="${username}" th:selected="@{${username == usernameD}}"></option>
+								</select>
+							</details>
+							<details>
+								<summary>Amount</summary>
+								<details>
+									<summary>Specific Amount</summary>
+									<input type="number" min="1" name="amountD" th:value="${amountD}">
+								</details>
+								<details>
+									<summary>Greater or Equal To Amount</summary>
+									<input type="number" min="1" name="fAmountD" th:value="${fAmountD}">
+								</details>
+							<details>
+								<summary>Less or Equal To Amount</summary>
+								<input type="number" min="1" name="uAmountD" th:value="${uAmountD}">
+							</details>
+							<details>
+								<summary>Amount To Amount</summary>
+								<input type="number" min="1" name="rFAmountD" th:value="${rFAmountD}">
+								<input type="number" min="1" name="rUAmountD" th:value="${rUAmountD}">
+							</details>
+						</details>
+					</label>
+					<button type="submit">Apply</button>
+				</form>
+				<form action="/supplyOrder/supplyOrders" method="get">
+					<input type="hidden" name="orderD" th:value="${orderD}">
+					<input type="hidden" name="pCodeU" th:value="${pCodeU}">
+					<input type="hidden" name="sNameU" th:value="${sNameU}">
+					<input type="hidden" name="usernameU" th:value="${usernameU}">
+					<input type="hidden" name="amountU" th:value="${amountU}">
+					<input type="hidden" name="fAmountU" th:value="${fAmountU}">
+					<input type="hidden" name="uAmountU" th:value="${uAmountU}">
+					<input type="hidden" name="rFAmountU" th:value="${rFAmountU}">
+					<input type="hidden" name="rUAmountU" th:value="${rUAmountU}">
+					<input type="hidden" name="orderU" th:value="${orderU}">
+					<button type="submit">Reset All</button>
+				</form>
+				<table border="3">
+					<thead>
+						<tr>
+							<th>Supply Order Id</th>
+							<th>Product Code</th>
+							<th>Username</th>				
+							<th>Supplier Name</th>
+							<th>Amount</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="supplyOrder: ${deliveredSupplyOrders}">
+							<td th:text="${supplyOrder.supplyOrderId}"></td>
+							<td th:text="${supplyOrder.product.code}"></td>
+							<td th:text="${supplyOrder.member.username}"></td>
+							<td th:text="${supplyOrder.supplier.name}"></td>
+							<td th:text="${supplyOrder.amount}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+		</main>
+		<div th:insert="~{footer/footer.html::footer}"></div>
+	</body>
+</html>
