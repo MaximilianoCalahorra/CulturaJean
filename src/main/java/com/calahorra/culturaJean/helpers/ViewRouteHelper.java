@@ -120,6 +120,17 @@ public class ViewRouteHelper
 	//Cargamos la vista que permite visualizar el nuevo pedido de aprovisionamiento al administrador:
 	public final static String POST_ADD_SUPPLY_ORDER = "supplyOrders/add/post";
 	
+	//PURCHASE
+	
+	//Cargamos la vista con los ítems de la compra para el cliente:
+	public final static String PURCHASE_ITEMS = "shop/purchase/purchaseItems";
+	
+	//Cargamos la vista con el formulario para completar la compara de un cliente:
+	public final static String PURCHASE_FORM = "shop/purchase/form";
+	
+	//Cargamos la vista posterior a la compra de un cliente:
+	public final static String POST_PURCHASE = "shop/purchase/post";
+	
 	/**** Redirects ****/
 	
 	//Responde HomeController --> index():
@@ -133,4 +144,7 @@ public class ViewRouteHelper
 	
 	//Responde CustomerController --> customers():
 	public final static String REDIRECT_CUSTOMERS = "/customer/customers";
+	
+	//Responde PurchaseController --> showPurchaseItems():
+	public final static String REDIRECT_PURCHASE_ITEMS = "/purchase/purchaseItems";
 }
