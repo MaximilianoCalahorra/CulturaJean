@@ -45,9 +45,11 @@ public class Purchase
 	private String methodOfPay;
 	
 	@CreationTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime dateTime;
 	
 	@UpdateTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime updatedAt;
 	
 	//Constructor:

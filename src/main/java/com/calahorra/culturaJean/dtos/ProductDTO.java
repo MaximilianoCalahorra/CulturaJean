@@ -1,13 +1,17 @@
 package com.calahorra.culturaJean.dtos;
 
+import java.io.Serializable;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 ///Clase ProductDTO:
 @Getter @Setter @NoArgsConstructor
-public class ProductDTO
+public class ProductDTO implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+	
 	//Atributos:
 	private int productId;
 	private String code;

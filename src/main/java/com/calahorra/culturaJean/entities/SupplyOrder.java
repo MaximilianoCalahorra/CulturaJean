@@ -51,9 +51,11 @@ public class SupplyOrder
 	private boolean delivered;
 	
 	@CreationTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime createdAt;
 
 	@UpdateTimestamp
+	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime updatedAt;
 	
 	//Constructor:

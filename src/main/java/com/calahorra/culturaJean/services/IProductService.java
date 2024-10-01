@@ -16,6 +16,9 @@ public interface IProductService
 	//Encontramos el producto con determinado id:
 	public Product findByProductId(int productId);
 	
+	//Encontramos el DTO del producto con determinado id:
+	public ProductDTO findDTOByProductId(int productId);
+	
 	//Encontramos el producto con determinado código:
 	public ProductDTO findByCode(String code);
 	
@@ -182,4 +185,9 @@ public interface IProductService
 	//Aplicamos los filtros seleccionados de las secciones categoría, género, talle, color y precio de venta del producto:
 	public List<ProductDTO> applyFilters(List<ProductDTO> products, String category, String gender, String size, String color, String salePrice,
 			String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice);
+	
+	//Mapear:
+	
+	//Mapeamos un ProductDTO a Entity Product:
+	public Product mapDTOToEntity(ProductDTO productDTO);
 }
