@@ -13,22 +13,27 @@
 			<section>
 				<img th:src="@{${'/assets/img/products/' + stocks[0].product.gender + '/' + stocks[0].product.category + '/' + stocks[0].product.imageName + '.jpeg'}}">
 				<p>Name: <span th:text="${stocks[0].product.name}"></span></p>
-				<p>Sale Price: $<span th:text="${stocks[0].product.salePrice}"></span></p>
+				<p>Sale Price: USD<span th:text="${stocks[0].product.salePrice}"></span></p>
 				<p>Gender: <span th:text="${stocks[0].product.gender}"></span></p>
 				<p>Category: <span th:text="${stocks[0].product.category}"></span></p>
 				<p>Color: <span th:style="'background-color:' + ${stocks[0].product.color} + '; color: ' + ${stocks[0].product.color} + ';'">Color</span></p>
 				<p>Description: <span th:text="${stocks[0].product.description}"></span></p>
 				<div>
-					<label>Size: 
-						<select required>
-							<option th:each="stock: ${stocks}" th:text="${stock.product.size}"></option>
+					<label>Size:
+						<select id="size-select" name="productId" required>
+							<option th:each="stock: ${stocks}" th:value="${stock.product.productId}" th:data-amount="${stock.actualAmount}" th:text="${stock.product.size}"></option>
 						</select>
 					</label>
-					<label>Amount: <input type="number" min="1" name="amount" required></label>
-					<a href="/register">Add To Shooping Car</a>
+					<label>Amount: 
+							<input type="number" id="amount-input" name="amount" th:attr="max=${stocks[0].actualAmount}, disabled=${stocks[0].actualAmount == 0} ? true : false" min="1">
+					</label>
+					<span id="stock-message"></span>
+					<!--<a id="link-to-register-go" th:if="${stocks[0].actualAmount > 0}" href="/register">Add To Shoping Car</a><a id="link-to-register-stay" th:if="${stocks[0].actualAmount == 0}" href="">Add To Shoping Car</a>-->
+					<button type="submit" id="add-shopping-car-button" th:disabled="${stocks[0].actualAmount == 0}"><a id="link-to-register">Add To Shopping Car</a></button>
 				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
+	<script src="/js/script.js"></script>
 </html>

@@ -13,7 +13,7 @@
 			<section>
 			    <img th:src="@{${'/assets/img/products/' + stocks[0].product.gender + '/' + stocks[0].product.category + '/' + stocks[0].product.imageName + '.jpeg'}}">
 			    <p>Name: <span th:text="${stocks[0].product.name}"></span></p>
-			    <p>Sale Price: $<span th:text="${stocks[0].product.salePrice}"></span></p>
+			    <p>Sale Price: USD<span th:text="${stocks[0].product.salePrice}"></span></p>
 			    <p>Gender: <span th:text="${stocks[0].product.gender}"></span></p>
 			    <p>Category: <span th:text="${stocks[0].product.category}"></span></p>
 			    <p>Color: <span th:style="'background-color:' + ${stocks[0].product.color} + '; color: ' + ${stocks[0].product.color} + ';'">Color</span></p>
@@ -25,7 +25,7 @@
 			            </select>
 			        </label>
 			        <label>Amount: 
-			            <input type="number" id="amount-input" name="amount" th:attr="max=${stocks[0].actualAmount}, disabled=${stocks[0].actualAmount == 0} ? true : false" min="1">
+			            <input type="number" id="amount-input" name="amount" th:attr="max=${stocks[0].actualAmount}, disabled=${stocks[0].actualAmount == 0} ? true : false" min="1" required>
 			        </label>
 					<span id="stock-message"></span>
 					<button type="submit" id="add-shopping-car-button" th:disabled="${stocks[0].actualAmount == 0}">Add To Shoping Car</button>
