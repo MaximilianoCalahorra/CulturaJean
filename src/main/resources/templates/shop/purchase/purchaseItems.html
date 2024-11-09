@@ -23,7 +23,7 @@
 							<th>Action</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody class="tbody">
 					    <tr th:each="purchaseItem, stat : ${purchaseItems.values()}">
 					        <td>
 					            <img th:src="@{${'/assets/img/products/' + purchaseItem.product.gender + '/' + purchaseItem.product.category + '/' + purchaseItem.product.imageName + '.jpeg'}}"/>
@@ -32,14 +32,18 @@
 					        <td th:text="${purchaseItem.product.size}"></td>
 					        <td th:style="'background-color:' + ${purchaseItem.product.color} + '; color: ' + ${purchaseItem.product.color} + ';'">Color</td>
 					        <td th:text="${purchaseItem.product.salePrice}"></td>
-					        <td th:text="${purchaseItem.amount}"></td>
-					        <td th:text="${purchaseItem.calculateSubtotalSale()}"></td>
+							<td>
+					            <button class="substract-amount-button" th:data-product-id="${purchaseItem.product.productId}" th:disabled="${purchaseItem.amount == 1}">-</button>
+					            <span class="amount-item" th:data-product-id="${purchaseItem.product.productId}" th:text="${purchaseItem.amount}"></span>
+					            <button class="add-amount-button" th:data-product-id="${purchaseItem.product.productId}" th:disabled="${purchaseItem.amount == actualAmounts[stat.index]}">+</button>
+					        </td>
+					        <td class="subtotal-item" th:data-product-id="${purchaseItem.product.productId}" th:text="${purchaseItem.calculateSubtotalSale()}"></td>
 					        <td>
 					            <a th:href="@{${'/purchase/removePurchaseItem/' + purchaseItem.product.productId}}">Remove</a>
 					        </td>
 					    </tr>
 					    <tr>
-					        <td th:text="'Total = USD' + ${purchaseTotal}"></td>
+					        <td class="purchase-total" th:text="'Total = USD' + ${purchaseTotal}"></td>
 					    </tr>
 					</tbody>
 				</table>
@@ -49,4 +53,5 @@
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
+	<script src="/js/changeAmountItem.js"></script>
 </html>
