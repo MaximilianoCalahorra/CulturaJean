@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
@@ -106,7 +108,14 @@ public class PurchaseController
 		if(purchaseItems.containsKey(productId))
 		{
 			PurchaseItemDTO purchaseItem = purchaseItems.get(productId); //Obtenemos el ítem que tiene ese producto.
-			purchaseItem.setAmount(purchaseItem.getAmount() + amount); //Actualizamos la cantidad acumulando a la actual la que se pidió sumar.
+			
+			int amountStock = stockService.findByProduct(productId).getActualAmount();
+			
+			if((purchaseItem.getAmount() + amount) <= amountStock) 
+			{
+				//Actualizamos la cantidad acumulando a la actual la que se pidió sumar.
+				purchaseItem.setAmount(purchaseItem.getAmount() + amount); 
+			}
 		}
 		else
 		{
@@ -238,5 +247,52 @@ public class PurchaseController
 		}
 			
 		return modelAndView; //Retornamos la vista con la información adjunta.
+	}
+	
+	//Método para aumentar/decrementar la cantidad de un ítem:
+	@PostMapping("/updatePurchaseItem")
+	@ResponseBody
+	public Map<String, Object> updatePurchaseItem(@RequestBody Map<String, Object> data, 
+												  @ModelAttribute("purchaseItems") Map<Integer, PurchaseItemDTO> purchaseItems)
+	{
+	    int productId = Integer.parseInt((String) data.get("productId")); //Obtenemos el id del producto del ítem.
+	    int change = (int) data.get("change"); //Obtenemos la cantidad a aumentar/decrementar.
+
+	    //Obtenemos el ítem del carrito que tiene ese producto:
+	    PurchaseItemDTO purchaseItem = purchaseItems.get(productId);
+	    
+	    //Obtenemos la cantidad de stock del producto:
+	    int actualAmount = stockService.findByProduct(productId).getActualAmount();
+	    
+	    int newAmount = purchaseItem.getAmount() + change; //Calculamos lo que sería la nueva cantidad.
+	    
+	    //Verificamos si podemos aumentar/disminuir la cantidad indicada según el stock actual:
+	    if(newAmount >= 1 && newAmount <= actualAmount) 
+	    {
+	        purchaseItem.setAmount(newAmount); //Actualizamos la cantidad del ítem.
+	    }
+
+	    //Calculamos el subtotal y el total de la compra según cómo haya quedado conformado el ítem:
+	    float subtotal = purchaseItem.calculateSubtotalSale();
+	    float purchaseTotal = (float)purchaseItems.values().stream().mapToDouble(PurchaseItemDTO::calculateSubtotalSale).sum();
+	    
+	    //Banderas para detectar si la cantidad alcanzó el mínimo o el máximo que se puede comprar:
+	    //En principio, suponemos que no:
+	    boolean maximumStock = false; 
+	    boolean minimumStock = false;
+	    
+	    if(newAmount == actualAmount) maximumStock = true; //Si alcanzó el máximo, levantamos la bandera correspondiente.
+	    if(newAmount == 1) minimumStock = true; //Si alcanzó el mínimo, levantamos la bandera correspondiente.
+
+	    //Preparamos la respuesta en formato JSON:
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("productId", productId);
+	    response.put("amount", purchaseItem.getAmount());
+	    response.put("subtotal", subtotal);
+	    response.put("purchaseTotal", purchaseTotal);
+	    response.put("maximumStock", maximumStock);
+	    response.put("minimumStock", minimumStock);
+
+	    return response; //Enviamos la respuesta JSON al frontend.
 	}
 }

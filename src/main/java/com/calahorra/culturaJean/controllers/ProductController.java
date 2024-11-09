@@ -2,6 +2,7 @@ package com.calahorra.culturaJean.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +16,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.ProductDTO;
+import com.calahorra.culturaJean.dtos.PurchaseItemDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
 import com.calahorra.culturaJean.services.IProductService;
 import com.calahorra.culturaJean.services.IStockService;
+
+import jakarta.servlet.http.HttpSession;
 
 ///Clase ProductController:
 @Controller
@@ -238,7 +242,7 @@ public class ProductController
 	
 	//Respondemos a la solicitud de un visitante de ver más detalles de un producto determinado: 
 	@GetMapping("/moreDetails/{role}/{productId}")
-	public ModelAndView moreDetails(@PathVariable("role")String role, @PathVariable("productId")int productId) 
+	public ModelAndView moreDetails(@PathVariable("role")String role, @PathVariable("productId")int productId, HttpSession session) 
 	{
 		ModelAndView modelAndView = new ModelAndView();
 		
@@ -252,11 +256,32 @@ public class ProductController
 		String imageName = productService.findByProductId(productId).getImageName(); //Obtenemos el nombre de imagen de los productos a mostrar.
 		List<ProductDTO> products = productService.findByImageNameAndEnabled(imageName, true); //Obtenemos todos los productos con ese nombre de imagen que estén activos.
 		
+		//Obtenemos el listado de ítems del carrito del cliente:
+		@SuppressWarnings("unchecked")
+		Map<Integer, PurchaseItemDTO> purchaseItems = (Map<Integer, PurchaseItemDTO>) session.getAttribute("purchaseItems");
+		
 		//Recorremos el listado de productos:
 		List<StockDTO> stocks = new ArrayList<StockDTO>();
 		for(ProductDTO product: products) 
 		{
-			stocks.add(stockService.findByProduct(product.getProductId())); //Obtenemos el stock de cada uno de esos productos.
+			StockDTO stock = stockService.findByProduct(product.getProductId()); //Obtenemos el stock de cada uno de esos productos.
+			
+			//Si existe un carrito para el cliente:
+			if(purchaseItems != null) 
+			{
+				//Obtenemos el ítem del carrito que tiene ese producto para comprar:
+				PurchaseItemDTO purchaseItem = purchaseItems.get(product.getProductId());
+					
+				//Si un ítem tiene ese producto:
+				if(purchaseItem != null) 
+				{
+					//La cantidad de stock que podemos ofrecer viene dada por la que tenemos realmente menos la que se está intentando comprar:
+					stock.setActualAmount(stock.getActualAmount() - purchaseItem.getAmount());
+				}
+			}
+			
+			//Agregamos el stock del producto al listado:
+			stocks.add(stock);
 		}
 		
 		modelAndView.addObject("stocks", stocks); //Adjuntamos los stocks de los productos a la vista.
