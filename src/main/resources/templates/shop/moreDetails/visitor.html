@@ -28,12 +28,11 @@
 							<input type="number" id="amount-input" name="amount" th:attr="max=${stocks[0].actualAmount}, disabled=${stocks[0].actualAmount == 0} ? true : false" min="1">
 					</label>
 					<span id="stock-message"></span>
-					<!--<a id="link-to-register-go" th:if="${stocks[0].actualAmount > 0}" href="/register">Add To Shoping Car</a><a id="link-to-register-stay" th:if="${stocks[0].actualAmount == 0}" href="">Add To Shoping Car</a>-->
 					<button type="submit" id="add-shopping-car-button" th:disabled="${stocks[0].actualAmount == 0}"><a id="link-to-register">Add To Shopping Car</a></button>
 				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
-	<script src="/js/script.js"></script>
+	<script src="/js/selectStockOfProduct.js"></script>
 </html>
