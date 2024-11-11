@@ -11,9 +11,7 @@
 				<h1>Welcome to the customers, admin!</h1>
 			</div>
 			<section>
-				
-				<form action="/customer/customers" method="get">
-					<input type="hidden" name="enabled" th:value="${enabled}">
+				<form>
 					<label>Choose The Order:
 						<select name="order" required>
 							<option value="orderAscByName" th:selected="${order == 'orderAscByName'}">Ascendent By Name</option>
@@ -24,10 +22,9 @@
 							<option value="orderDescByUsername" th:selected="${order == 'orderDescByUsername'}">Descendent By Username</option>
 						</select>
 					</label>
-					<button type="submit">Apply</button>
+					<button type="button" id="applyOrderButton">Apply</button>
 				</form>
-				<form action="/customer/customers" method="get">
-				    <input type="hidden" name="order" th:value="${order}">
+				<form>
 				    <label>Choose The Filter:
 						<details>
 							<summary>Customer's State</summary>
@@ -36,80 +33,12 @@
 					        <label>Not Enabled <input type="radio" name="enabled" value="false" th:checked="${enabled == 'false'}" required></label>
 				    	</details>
 					</label>
-				    <button type="submit">Apply</button>
+				    <button type="button" id="applyFilterButton">Apply</button>
 				</form>
-				
-				
-				<!-- EJEMPLO DE ENVÍO DE LISTA MEDIANTE FORMULARIO -->
-				<!--
-				<form th:object="${customerList}" th:action="@{/customer/filteredCustomers}" method="post">
-				    <input type="hidden" name="order" th:value="${order}">
-				    <div th:each="customer, iter : ${customerList.customers}">
-				        <input type="hidden" th:attr="name=${'customers[' + iter.index + '].memberId'}" th:value="${customer.memberId}">
-				        <input type="hidden" th:attr="name=${'customers[' + iter.index + '].username'}" th:value="${customer.username}">
-				        <input type="hidden" th:attr="name=${'customers[' + iter.index + '].enabled'}" th:value="${customer.enabled}">
-				        <input type="hidden" th:attr="name=${'customers[' + iter.index + '].name'}" th:value="${customer.name}">
-				        <input type="hidden" th:attr="name=${'customers[' + iter.index + '].lastName'}" th:value="${customer.lastName}">
-				        <input type="hidden" th:attr="name=${'customers[' + iter.index + '].email'}" th:value="${customer.email}">
-				    </div>
-				    <p>Choose The Filter:
-				        <label>Enabled <input type="radio" name="enabled" value="true" th:checked="${filter == true}" required></label>
-				        <label>Not Enabled <input type="radio" name="enabled" value="false" th:checked="${filter == false}" required></label>
-				    </p>
-				    <button type="submit">Apply Filter</button>
-				</form>
-				
-				
-				<table border="3">
-					<thead>
-						<tr>
-							<th>Member Id</th>
-							<th>Username</th>
-							<th>Enabled</th>				
-							<th>Name</th>
-							<th>Last Name</th>
-							<th>Email</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="customer: ${customerList.customers}">
-							<td th:text="${customer.memberId}"></td>
-							<td th:text="${customer.username}"></td>
-							<td th:text="${customer.enabled}"></td>
-							<td th:text="${customer.name}"></td>
-							<td th:text="${customer.lastName}"></td>
-							<td th:text="${customer.email}"></td>
-						</tr>
-					</tbody>
-				</table>
-				-->
-				
-				<table border="3">
-					<thead>
-						<tr>
-							<th>Member Id</th>
-							<th>Username</th>
-							<th>Enabled</th>				
-							<th>Name</th>
-							<th>Last Name</th>
-							<th>Email</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="customer: ${customers}">
-							<td th:text="${customer.memberId}"></td>
-							<td th:text="${customer.username}"></td>
-							<td th:text="${customer.enabled}"></td>
-							<td th:text="${customer.name}"></td>
-							<td th:text="${customer.lastName}"></td>
-							<td th:text="${customer.email}"></td>
-							<td><a th:href="@{${'/customer/changeEnabled/' + customer.memberId + '/' + customer.enabled}}">Change Enabled</a></td>
-						</tr>
-					</tbody>
-				</table>
+				<div id="customerTableContainer" th:insert="~{fragments/customerTable.html :: table}"></div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
+	<script src="/js/customers.js"></script>
 </html>
