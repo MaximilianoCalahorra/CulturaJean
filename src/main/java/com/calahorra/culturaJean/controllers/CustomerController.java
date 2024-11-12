@@ -1,15 +1,18 @@
 package com.calahorra.culturaJean.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.MemberDTO;
 import com.calahorra.culturaJean.entities.Member;
@@ -30,14 +33,34 @@ public class CustomerController
 		this.memberService = memberService;
 	}
 	
-	//Respondemos a las peticiones de información sobre los clientes ordenados/filtrados:
-	@GetMapping("/customers")
-	public ModelAndView customers(@RequestParam(value = "enabled", defaultValue = "all")String enabled,
-								  @RequestParam(value = "order", defaultValue = "orderAscByLastName")String order) 
-	{
-		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.CUSTOMERS);
-		
-		List<MemberDTO> customers = new ArrayList<MemberDTO>(); //Instanciamos una lista de miembros para cargarla con los clientes filtrados y/u ordenados.
+	//Respondemos a las peticiones para cargar todos los clientes:
+    @GetMapping("/customers")
+    public ModelAndView customers()
+    {
+    	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.CUSTOMERS);
+    	
+        //Obtenemos todos los clientes:
+        List<MemberDTO> customers = memberService.findByUserRole("ROLE_CUSTOMER");
+        
+        //Los ordenamos por apellido de forma alfabética:
+        customers = memberService.inOrderAscByLastName(customers);
+        
+        //Adjuntamos a la vista los clientes y los criterios de filtro y ordenamiento aplicados:
+        modelAndView.addObject("customers", customers);
+        modelAndView.addObject("order", "orderAscByLastName");
+        modelAndView.addObject("enabled", "all");
+        
+        return modelAndView; //Retornamos la vista con la información adjunta.
+    }
+    
+    //Respondemos a las solicitudes de filtrado/ordenamiento sobre los clientes:
+    @GetMapping("/customers/filter")
+    public ModelAndView filteredCustomers(@RequestParam("order") String order, @RequestParam("enabled") String enabled) 
+    {
+    	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.CUSTOMERS_TABLE);   	
+    	
+    	//Instanciamos una lista de miembros para cargarla con los clientes filtrados y/u ordenados:
+    	List<MemberDTO> customers = new ArrayList<MemberDTO>(); 
 		
 		//Aplicamos el filtro de clientes habilitados/inhabilitados o no:
 		switch(enabled) 
@@ -57,34 +80,40 @@ public class CustomerController
 			case "orderAscByUsername": customers = memberService.inOrderAscByUsername(customers); break; //Alfabéticamente por nombre de usuario.
 			case "orderDescByUsername": customers = memberService.inOrderDescByUsername(customers); break; //Inverso al alfabeto por nombre de usuario.
 		}
+
+		modelAndView.addObject("customers", customers); //Adjuntamos los clientes a la vista.
 		
-		//Agregamos la información a la vista:
-		modelAndView.addObject("enabled", enabled); //Indicamos si la lista está filtrada (si es habilitados o inhabilitados) o no.
-		modelAndView.addObject("order", order); //Indicamos por cuál atributo está ordenado el listado y en qué sentido.
-		modelAndView.addObject("customers", customers); //Agregamos los clientes filtrados y/u ordenados a la vista.
-		
-		return modelAndView; //Retornamos la vista con la información adjunta.
-	}
-	
-	//
-	@GetMapping("/changeEnabled/{memberId}/{enabled}")
-	public RedirectView changeEnabled(@PathVariable("memberId")int memberId, @PathVariable("enabled")boolean enabled) 
-	{
-		//Obtenemos el cliente al que se le quiere cambiar el estado:
-		Member customer = memberService.findByMemberIdWithUserRoles(memberId);
-		
-		customer.setEnabled(!enabled); //Le seteamos el estado al contrario que tiene.
-		
-		//Intentamos modificar el cliente en la base de datos con su nuevo estado:
-		try 
-		{
-			memberService.update(customer);
-		} 
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		return new RedirectView(ViewRouteHelper.REDIRECT_CUSTOMERS); //Redirigimos el flujo para cargar el listado de clientes nuevamente.
-	}
+        return modelAndView; //Retornamos el fragmento con los clientes.
+    }
+    
+    //Invertimos el estado del cliente indicado:
+  	@PostMapping("/changeEnabled/{memberId}/{enabled}")
+  	@ResponseBody
+  	public Map<String, Object> changeEnabled(@PathVariable("memberId")int memberId, @PathVariable("enabled")boolean enabled) 
+  	{
+  		//Definimos un objeto donde guardaremos el resultado de la operación:
+  		Map<String, Object> response = new HashMap<>();
+  		
+  		//Intentamos modificar el cliente en la base de datos con su nuevo estado:
+  		try 
+  		{
+  			//Obtenemos el cliente al que se le quiere cambiar el estado:
+  	  		Member customer = memberService.findByMemberIdWithUserRoles(memberId);
+  	  		
+  	  		customer.setEnabled(!enabled); //Le seteamos el estado al contrario que tiene.
+  	  		
+  			memberService.update(customer); //Intentamos persistir el cambio.
+  			
+  			//Adjuntamos la información al JSON:
+  			response.put("success", true);
+  	        response.put("newStatus", !enabled);
+  		} 
+  		catch(Exception e)
+  		{
+  			response.put("success", false);
+  	        response.put("error", e.getMessage());
+  		}
+  		
+  		return response; //Retornamos el JSON para modificar el frontend.
+  	}
 }
