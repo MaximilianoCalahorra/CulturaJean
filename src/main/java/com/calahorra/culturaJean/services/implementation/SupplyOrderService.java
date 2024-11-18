@@ -3,8 +3,10 @@ package com.calahorra.culturaJean.services.implementation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -364,60 +366,61 @@ public class SupplyOrderService implements ISupplyOrderService
 																									//retornamos como DTO.
 	}
 	
-	//Filtrar:
-	
 	//Filtramos los pedidos de aprovisionamiento por el código del producto asociado:
 	@Override
-	public List<SupplyOrderDTO> filterByProductCode(List<SupplyOrderDTO> supplyOrders, String productCode)
+	public List<SupplyOrderDTO> filterByProductCodes(List<SupplyOrderDTO> supplyOrders, List<String> productCodes) 
 	{
-		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya un pedido de aprovisionamiento por analizar:
-		while(iterator.hasNext())
-		{
-			SupplyOrderDTO supplyOrder = iterator.next(); //Obtenemos ese pedido de aprovisionamiento.
-			if (!supplyOrder.getProduct().getCode().equals(productCode)) 
-			{
-				iterator.remove(); //En caso de que no tenga un código de producto como el del filtro, lo removemos.
-	        }
+	    //Convertimos la lista de códigos de producto a un Set para optimizar la búsqueda:
+	    Set<String> productCodeSet = new HashSet<>(productCodes);
+	    
+	    //Si se eligió alguna opción de filtro:
+	    if(!productCodeSet.contains("all")) 
+	    {
+	    	//Filtramos los pedidos cuyo código de producto esté en el conjunto:
+		    supplyOrders = supplyOrders.stream()
+				            .filter(supplyOrder -> productCodeSet.contains(supplyOrder.getProduct().getCode()))
+				            .collect(Collectors.toList());
 	    }
-		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
+	    
+	    return supplyOrders; //Retornamos los pedidos.
 	}
 		
 	//Filtramos los pedidos de aprovisionamiento por el nombre del proveedor asociado:
 	@Override
-	public List<SupplyOrderDTO> filterBySupplierName(List<SupplyOrderDTO> supplyOrders, String supplierName)
+	public List<SupplyOrderDTO> filterBySupplierNames(List<SupplyOrderDTO> supplyOrders, List<String> supplierNames) 
 	{
-		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya un pedido de aprovisionamiento por analizar:
-		while(iterator.hasNext())
-		{
-			SupplyOrderDTO supplyOrder = iterator.next(); //Obtenemos ese pedido de aprovisionamiento.
-			if (!supplyOrder.getSupplier().getName().equals(supplierName)) 
-			{
-				iterator.remove(); //En caso de que no tenga un nombre de proveedor como el del filtro, lo removemos.
-	        }
+	    //Convertimos la lista de nombres de proveedores a un Set para optimizar la búsqueda:
+	    Set<String> supplierNameSet = new HashSet<>(supplierNames);
+	    
+	    //Si se eligió alguna opción de filtro:
+	    if(!supplierNames.contains("all")) 
+	    {
+	    	//Filtramos los pedidos cuyo nombre de proveedor esté en el conjunto:
+		    supplyOrders = supplyOrders.stream()
+				            .filter(supplyOrder -> supplierNameSet.contains(supplyOrder.getSupplier().getName()))
+				            .collect(Collectors.toList());
 	    }
-		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
+
+	    return supplyOrders; //Retornamos los pedidos.
 	}
 	
 	//Filtramos los pedidos de aprovisionamiento por el nombre de usuario del administrador que lo generó:
 	@Override
-	public List<SupplyOrderDTO> filterByAdminUsername(List<SupplyOrderDTO> supplyOrders, String adminUsername)
+	public List<SupplyOrderDTO> filterByAdminUsernames(List<SupplyOrderDTO> supplyOrders, List<String> adminUsernames) 
 	{
-		Iterator<SupplyOrderDTO> iterator = supplyOrders.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya un pedido de aprovisionamiento por analizar:
-		while(iterator.hasNext())
-		{
-			SupplyOrderDTO supplyOrder = iterator.next(); //Obtenemos ese pedido de aprovisionamiento.
-			if (!supplyOrder.getMember().getUsername().equals(adminUsername)) 
-			{
-				iterator.remove(); //En caso de que no tenga un nombre de usuario como el del filtro, lo removemos.
-			}
-		}
-		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
+	    //Convertimos la lista de usernames de administradores a un Set para optimizar la búsqueda:
+	    Set<String> adminUsernameSet = new HashSet<>(adminUsernames);
+
+	    //Si se eligió alguna opción de filtro:
+	    if(!adminUsernames.contains("all")) 
+	    {
+	    	//Filtramos los pedidos cuyo username de administrador esté en el conjunto:
+		    supplyOrders = supplyOrders.stream()
+				            .filter(supplyOrder -> adminUsernameSet.contains(supplyOrder.getMember().getUsername()))
+				            .collect(Collectors.toList());
+	    }
+	    
+	    return supplyOrders; //Retornamos los pedidos.
 	}
 		
 	//Filtramos los pedidos de aprovisionamiento por la cantidad del mismo:
@@ -430,7 +433,7 @@ public class SupplyOrderService implements ISupplyOrderService
 		while(iterator.hasNext())
 		{
 			SupplyOrderDTO supplyOrder = iterator.next(); //Obtenemos ese pedido de aprovisionamiento.
-			if (supplyOrder.getAmount() != amount) 
+			if(supplyOrder.getAmount() != amount) 
 			{
 				iterator.remove(); //En caso de que no tenga una cantidad como la del filtro, lo removemos.
 	        }
@@ -494,31 +497,27 @@ public class SupplyOrderService implements ISupplyOrderService
 		
 	//Aplicamos el filtro seleccionado de la sección cantidad:
 	@Override
-	public List<SupplyOrderDTO> applyFilterTypeAmount(List<SupplyOrderDTO> supplyOrders, String amount, String fromAmount, String untilAmount,
-														  String rangeFromAmount, String rangeUntilAmount)
+	public List<SupplyOrderDTO> applyFilterTypeAmount(List<SupplyOrderDTO> supplyOrders, int amount, int fromAmount, int untilAmount,
+													  int rangeFromAmount, int rangeUntilAmount)
 	{
 		//Aplicamos el filtro que corresponda de la sección cantidad al listado:
-		if(!amount.equals("") && fromAmount.equals("") && untilAmount.equals("") && rangeFromAmount.equals("") && rangeUntilAmount.equals("")) //Filtro por cantidad específica.
+		if(amount >= 1 && fromAmount == -1 && untilAmount == -1 && rangeFromAmount == -1 && rangeUntilAmount == -1) //Filtro por cantidad específica.
 		{
-			int amountNumber = Integer.parseInt(amount); //Convertimos la cadena a número.
-			supplyOrders = filterByAmount(supplyOrders, amountNumber); //Nos quedamos solo con los que cumplen el filtro.
+			supplyOrders = filterByAmount(supplyOrders, amount); //Nos quedamos solo con los que cumplen el filtro.
 		}
-		else if(!fromAmount.equals("") && amount.equals("") && untilAmount.equals("") && rangeFromAmount.equals("") && rangeUntilAmount.equals("")) //Filtro por cantidad mayor o igual a una específica.
+		else if(amount == -1 && fromAmount >= 1 && untilAmount == -1 && rangeFromAmount == -1 && rangeUntilAmount == -1) //Filtro por cantidad mayor o igual a una específica.
 		{
-			int fromAmountNumber = Integer.parseInt(fromAmount); //Convertimos la cadena a número.
-			supplyOrders = filterByFromAmount(supplyOrders, fromAmountNumber); //Nos quedamos solo con los que cumplen el filtro.
+			supplyOrders = filterByFromAmount(supplyOrders, fromAmount); //Nos quedamos solo con los que cumplen el filtro.
 		}
-		else if(!untilAmount.equals("") && amount.equals("") && fromAmount.equals("") && rangeFromAmount.equals("") && rangeUntilAmount.equals("")) //Filtro por cantidad menor o igual a una específica.
+		else if(amount == -1 && fromAmount == -1 && untilAmount >= 1 && rangeFromAmount == -1 && rangeUntilAmount == -1) //Filtro por cantidad menor o igual a una específica.
 		{
-			int untilAmountNumber = Integer.parseInt(untilAmount); //Convertimos la cadena a número.
-			supplyOrders = filterByUntilAmount(supplyOrders, untilAmountNumber); //Nos quedamos solo con los que cumplen el filtro.
+			supplyOrders = filterByUntilAmount(supplyOrders, untilAmount); //Nos quedamos solo con los que cumplen el filtro.
 		}
-		else if(!rangeFromAmount.equals("") && !rangeUntilAmount.equals("") && amount.equals("") && fromAmount.equals("") && untilAmount.equals("")) //Filtro por una cantidad entre un rango específico.
+		else if(amount == -1 && fromAmount == -1 && untilAmount == -1 && rangeFromAmount >= 1 && rangeUntilAmount >= 1) //Filtro por una cantidad entre un rango específico.
 		{
-			int rangeFromAmountNumber = Integer.parseInt(rangeFromAmount); //Convertimos la cadena a número.
-			int rangeUntilAmountNumber = Integer.parseInt(rangeUntilAmount); //Convertimos la cadena a número.
-			supplyOrders = filterByAmountRange(supplyOrders, rangeFromAmountNumber, rangeUntilAmountNumber); //Nos quedamos solo con los que cumplen el filtro.
+			supplyOrders = filterByAmountRange(supplyOrders, rangeFromAmount, rangeUntilAmount); //Nos quedamos solo con los que cumplen el filtro.
 		}
+		
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento filtrados.
 	}
 	
@@ -542,22 +541,28 @@ public class SupplyOrderService implements ISupplyOrderService
 	
 	//Aplicamos todos los filtros seleccionados:
 	@Override
-	public List<SupplyOrderDTO> applyFilters(List<SupplyOrderDTO> supplyOrders, String productCode, String supplierName, String amount,
-											 String fromAmount, String untilAmount, String rangeFromAmount, String rangeUntilAmount)
+	public List<SupplyOrderDTO> applyFilters(List<SupplyOrderDTO> supplyOrders, List<String> productCodes, List<String> supplierNames, 
+			 								 List<String> adminUsernames, int amount, int fromAmount, int untilAmount, 
+			 								 int rangeFromAmount, int rangeUntilAmount)
 	{
-		//Si el filtro por código de producto está seleccionado por alguno en específico:
-		if(!productCode.equals("all")) 
+		//Si se eligió por lo menos una opción para el filtro de códigos de producto:
+		if(productCodes.size() > 0) 
 		{
+			supplyOrders = filterByProductCodes(supplyOrders, productCodes); //Aplicamos el filtro por códigos de producto.
+		}
+		
+		//Si se eligió por lo menos una opción para el filtro de nombres de proveedor:
+		if(supplierNames.size() > 0) 
+		{
+			supplyOrders = filterBySupplierNames(supplyOrders, supplierNames); //Aplicamos el filtro por nombres de proveedor.
+		}
+		
+		//Si se eligió por lo menos una opción para el filtro de usernames de administrador:
+		if(adminUsernames.size() > 0) 
+		{
+			supplyOrders = filterByAdminUsernames(supplyOrders, adminUsernames); //Aplicamos el filtro por usernames de administrador.
+		}
 
-			supplyOrders = filterByProductCode(supplyOrders, productCode); //Aplicamos el filtro por código de producto.
-		}
-		
-		//Si el filtro por nombre de proveedor está seleccionado por alguno en específico:
-		if(!supplierName.equals("all"))
-		{
-			supplyOrders = filterBySupplierName(supplyOrders, supplierName); //Aplicamos el filtro por nombre de proveedor.
-		}
-		
 		//Aplicamos el filtro elegido de la sección cantidad:
 		supplyOrders = applyFilterTypeAmount(supplyOrders, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount); 
 		
