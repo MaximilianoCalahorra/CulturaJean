@@ -27,15 +27,32 @@ public class SupplierController
 		this.supplierService = supplierService;
 	}
 	
-	//Respondemos a las peticiones de información sobre los proveedores para el administrador:
+	//Respondemos a las peticiones para cargar todos los proveedores:
 	@GetMapping("/suppliers")
-	public ModelAndView suppliers(@RequestParam(value = "order", defaultValue = "orderAscByName")String order) 
+	public ModelAndView suppliers() 
 	{
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SUPPLIERS);
 		
-		List<SupplierDTO> suppliers = new ArrayList<SupplierDTO>(); //Instanciamos una lista de proveedores vacía para cargarla.
+		//Obtenemos todos los proveedores ordenados alfabéticamente por nombre:
+		List<SupplierDTO> suppliers = supplierService.getAllInOrderAscByName();
 		
-		//En base al tipo de ordenamiento elegido, ordenamos la lista de proveedores:
+		//Agregamos la información a la vista:
+		modelAndView.addObject("order", "orderAscByName"); //Indicamos por cuál atributo está ordenado el listado y en qué sentido.
+		modelAndView.addObject("suppliers", suppliers); //Agregamos los proveedores ordenados.
+		
+		return modelAndView; //Retornamos la vista con la información adjunta.
+	}
+	
+	//Respondemos a las solicitudes de filtrado/ordenamiento sobre los proveedores:
+    @GetMapping("/suppliers/filter")
+    public ModelAndView filteredSuppliers(@RequestParam("order") String order) 
+    {
+    	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SUPPLIERS_TABLE);   	
+    	
+    	//Instanciamos una lista de proveedores para cargarla con los proveedores ordenados:
+    	List<SupplierDTO> suppliers = new ArrayList<>(); 
+		
+    	//En base al tipo de ordenamiento elegido, ordenamos la lista de proveedores:
 		switch(order) 
 		{
 			case "orderAscByName": suppliers = supplierService.getAllInOrderAscByName(); break; //Alfabéticamente por nombre.
@@ -43,11 +60,9 @@ public class SupplierController
 			case "orderAscBySupplierId": suppliers = supplierService.getAllInOrderAscBySupplierId(); break; //Menor a mayor por id.
 			case "orderDescBySupplierId": suppliers = supplierService.getAllInOrderDescBySupplierId(); break; //Mayor a menor por id.
 		}
+
+		modelAndView.addObject("suppliers", suppliers); //Adjuntamos los proveedores a la vista.
 		
-		//Agregamos la información a la vista:
-		modelAndView.addObject("order", order); //Indicamos por cuál atributo está ordenado el listado y en qué sentido.
-		modelAndView.addObject("suppliers", suppliers); //Agregamos los proveedores ordenados.
-		
-		return modelAndView; //Retornamos la vista con la información adjunta.
-	}
+        return modelAndView; //Retornamos el fragmento con los proveedores.
+    }
 }

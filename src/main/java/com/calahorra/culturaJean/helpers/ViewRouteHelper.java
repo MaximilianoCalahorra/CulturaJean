@@ -107,6 +107,9 @@ public class ViewRouteHelper
 	//Cargamos la vista de los proveedores para el administrador:
 	public final static String SUPPLIERS = "suppliers/suppliers";
 	
+	//Cargamos los proveedores para el administrador:
+	public final static String SUPPLIERS_TABLE = "fragments/supplierTable:: table";
+	
 	//LOT
 	
 	//Cargamos la vista de los lotes para el administrador:

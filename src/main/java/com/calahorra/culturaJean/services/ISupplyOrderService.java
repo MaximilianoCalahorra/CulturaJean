@@ -109,13 +109,13 @@ public interface ISupplyOrderService
 	//Filtrar:
 	
 	//Filtramos los pedidos de aprovisionamiento por el código del producto asociado:
-	public List<SupplyOrderDTO> filterByProductCode(List<SupplyOrderDTO> supplyOrders, String productCode);
+	public List<SupplyOrderDTO> filterByProductCodes(List<SupplyOrderDTO> supplyOrders, List<String> productCodes);
 	
 	//Filtramos los pedidos de aprovisionamiento por el nombre del proveedor asociado:
-	public List<SupplyOrderDTO> filterBySupplierName(List<SupplyOrderDTO> supplyOrders, String supplierName);
+	public List<SupplyOrderDTO> filterBySupplierNames(List<SupplyOrderDTO> supplyOrders, List<String> supplierNames);
 	
 	//Filtramos los pedidos de aprovisionamiento por el nombre de usuario del administrador que lo generó:
-	public List<SupplyOrderDTO> filterByAdminUsername(List<SupplyOrderDTO> supplyOrders, String adminUsername);
+	public List<SupplyOrderDTO> filterByAdminUsernames(List<SupplyOrderDTO> supplyOrders, List<String> adminUsernames);
 	
 	//Filtramos los pedidos de aprovisionamiento por la cantidad del mismo:
 	public List<SupplyOrderDTO> filterByAmount(List<SupplyOrderDTO> supplyOrders, int amount);
@@ -130,13 +130,14 @@ public interface ISupplyOrderService
 	public List<SupplyOrderDTO> filterByAmountRange(List<SupplyOrderDTO> supplyOrders, int rangeFromAmount, int rangeUntilAmount);
 	
 	//Aplicamos el filtro seleccionado de la sección cantidad:
-	public List<SupplyOrderDTO> applyFilterTypeAmount(List<SupplyOrderDTO> supplyOrders, String amount, String fromAmount, String untilAmount,
-													  String rangeFromAmount, String rangeUntilAmount);
+	public List<SupplyOrderDTO> applyFilterTypeAmount(List<SupplyOrderDTO> supplyOrders, int amount, int fromAmount, int untilAmount,
+													  int rangeFromAmount, int rangeUntilAmount);
 	
 	//Filtramos los pedidos de aprovisionamiento por el estado de la entrega:
 	public List<SupplyOrderDTO> filterByDelivered(List<SupplyOrderDTO> supplyOrders, boolean delivered); 
 	
 	//Aplicamos todos los filtros seleccionados:
-	public List<SupplyOrderDTO> applyFilters(List<SupplyOrderDTO> supplyOrders, String productCode, String supplierName, String amount,
-											 String fromAmount, String untilAmount, String rangeFromAmount, String rangeUntilAmount);
+	public List<SupplyOrderDTO> applyFilters(List<SupplyOrderDTO> supplyOrders, List<String> productCodes, List<String> supplierNames, 
+											 List<String> adminUsernames, int amount, int fromAmount, int untilAmount, 
+											 int rangeFromAmount, int rangeUntilAmount);
 }

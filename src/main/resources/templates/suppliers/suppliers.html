@@ -11,7 +11,7 @@
 				<h1>Welcome to the suppliers, admin!</h1>
 			</div>
 			<section>
-				<form action="/supplier/suppliers" method="get">
+				<form>
 				    <label>Choose The Order:
 				        <select name="order" required>
 				            <option value="orderAscByName" th:selected="${order == 'orderAscByName'}">Ascendent By Name</option>
@@ -20,30 +20,12 @@
 				            <option value="orderDescBySupplierId" th:selected="${order == 'orderDescBySupplierId'}">Descendent By Supplier Id</option>
 				        </select>
 				    </label>
-				    <button type="submit">Apply</button>
+				    <button type="button" id="applyOrderButton">Apply</button>
 				</form>
-				<table border="3">
-					<thead>
-						<tr>
-							<th>Supplier Id</th>
-							<th>Name</th>
-							<th>Address</th>				
-							<th>Email</th>
-							<th>Phone Number</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr th:each="supplier: ${suppliers}">
-							<td th:text="${supplier.supplierId}"></td>
-							<td th:text="${supplier.name}"></td>
-							<td th:text="${supplier.address}"></td>
-							<td th:text="${supplier.email}"></td>
-							<td th:text="${supplier.phoneNumber}"></td>
-						</tr>
-					</tbody>
-				</table>
+				<div id="supplierTableContainer" th:insert="~{fragments/supplierTable.html :: table}"></div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
+	<script src="/js/suppliers.js"></script>
 </html>
