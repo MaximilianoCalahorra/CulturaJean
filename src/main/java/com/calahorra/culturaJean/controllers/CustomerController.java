@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class CustomerController
     @GetMapping("/customers")
     public ModelAndView customers()
     {
+    	//Definimos la vista a cargar:
     	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.CUSTOMERS);
     	
         //Obtenemos todos los clientes:
@@ -55,10 +57,8 @@ public class CustomerController
     
     //Respondemos a las solicitudes de filtrado/ordenamiento sobre los clientes:
     @GetMapping("/customers/filter")
-    public ModelAndView filteredCustomers(@RequestParam("order") String order, @RequestParam("enabled") String enabled) 
+    public ResponseEntity<List<MemberDTO>> filteredCustomers(@RequestParam("order") String order, @RequestParam("enabled") String enabled) 
     {
-    	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.CUSTOMERS_TABLE);   	
-    	
     	//Instanciamos una lista de miembros para cargarla con los clientes filtrados y/u ordenados:
     	List<MemberDTO> customers = new ArrayList<MemberDTO>(); 
 		
@@ -81,9 +81,7 @@ public class CustomerController
 			case "orderDescByUsername": customers = memberService.inOrderDescByUsername(customers); break; //Inverso al alfabeto por nombre de usuario.
 		}
 
-		modelAndView.addObject("customers", customers); //Adjuntamos los clientes a la vista.
-		
-        return modelAndView; //Retornamos el fragmento con los clientes.
+        return ResponseEntity.ok(customers); //Retornamos los clientes como JSON.
     }
     
     //Invertimos el estado del cliente indicado:

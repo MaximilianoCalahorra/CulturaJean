@@ -26,7 +26,7 @@
 				</form>
 				<form>
 				    <label>Choose The Filter:
-						<details>
+						<details id="enabledFilterContainer">
 							<summary>Customer's State</summary>
 							<label>All <input type="radio" name="enabled" value="all" th:checked="${enabled == 'all'}" required></label>
 					        <label>Enabled <input type="radio" name="enabled" value="true" th:checked="${enabled == 'true'}" required></label>
@@ -35,7 +35,37 @@
 					</label>
 				    <button type="button" id="applyFilterButton">Apply</button>
 				</form>
-				<div id="customerTableContainer" th:insert="~{fragments/customerTable.html :: table}"></div>
+				<table border="3" id="customerTable">
+					<thead>
+						<tr>
+							<th>Member Id</th>
+							<th>Username</th>
+							<th>Enabled</th>				
+							<th>Name</th>
+							<th>Last Name</th>
+							<th>Email</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody id="tBodyCustomerTable">
+						<tr th:each="customer: ${customers}" th:id="'row-' + ${customer.memberId}">
+							<td th:text="${customer.memberId}"></td>
+							<td th:text="${customer.username}"></td>
+							<td th:text="${customer.enabled}" class="enabled-status"></td>
+							<td th:text="${customer.name}"></td>
+							<td th:text="${customer.lastName}"></td>
+							<td th:text="${customer.email}"></td>
+							<td>
+								<button
+									class="change-status-btn" 
+									th:data-member-id="${customer.memberId}" 
+									th:data-current-status="${customer.enabled}">
+									Change Enabled
+							 	</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
