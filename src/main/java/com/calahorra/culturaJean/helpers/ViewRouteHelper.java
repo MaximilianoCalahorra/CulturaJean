@@ -94,9 +94,6 @@ public class ViewRouteHelper
 	//Cargamos la vista de los clientes para el administrador:
 	public final static String CUSTOMERS = "customers/customers";
 	
-	//Cargamos los clientes para el administrador:
-	public final static String CUSTOMERS_TABLE = "fragments/customerTable:: table";
-	
 	//SALE
 	
 	//Cargamos la vista de las ventas para el administrador:
