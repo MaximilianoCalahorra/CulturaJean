@@ -45,32 +45,6 @@ public class SupplierController
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
-	/* VERSIÓN ANTERIOR
-	//Respondemos a las solicitudes de filtrado/ordenamiento sobre los proveedores:
-    @GetMapping("/suppliers/filter")
-    public ModelAndView filteredSuppliers(@RequestParam("order") String order) 
-    {
-    	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SUPPLIERS_TABLE);   	
-    	
-    	//Instanciamos una lista de proveedores para cargarla con los proveedores ordenados:
-    	List<SupplierDTO> suppliers = new ArrayList<>(); 
-		
-    	//En base al tipo de ordenamiento elegido, ordenamos la lista de proveedores:
-		switch(order) 
-		{
-			case "orderAscByName": suppliers = supplierService.getAllInOrderAscByName(); break; //Alfabéticamente por nombre.
-			case "orderDescByName": suppliers = supplierService.getAllInOrderDescByName(); break; //Inverso al alfabeto por nombre.
-			case "orderAscBySupplierId": suppliers = supplierService.getAllInOrderAscBySupplierId(); break; //Menor a mayor por id.
-			case "orderDescBySupplierId": suppliers = supplierService.getAllInOrderDescBySupplierId(); break; //Mayor a menor por id.
-		}
-
-		modelAndView.addObject("suppliers", suppliers); //Adjuntamos los proveedores a la vista.
-		
-        return modelAndView; //Retornamos el fragmento con los proveedores.
-    }
-    */
-	
-	/* NUEVA VERSIÓN */
 	//Respondemos a las solicitudes de filtrado/ordenamiento sobre los proveedores:
 	@GetMapping("/suppliers/{order}")
 	public ResponseEntity<List<SupplierDTO>> orderSuppliers(@PathVariable("order") String order) 
