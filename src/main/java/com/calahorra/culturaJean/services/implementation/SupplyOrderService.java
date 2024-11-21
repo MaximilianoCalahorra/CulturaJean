@@ -203,9 +203,12 @@ public class SupplyOrderService implements ISupplyOrderService
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:
 	@Override
-	public List<SupplyOrder> getAll()
+	public List<SupplyOrderDTO> getAll()
 	{
-		return supplyOrderRepository.findAll();
+		return supplyOrderRepository.findAll()
+				.stream()
+				.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)) //Convertimos cada entidad en un DTO.
+				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.;
 	}
 	
 	//Ordenar:
