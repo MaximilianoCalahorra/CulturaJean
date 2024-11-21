@@ -63,12 +63,12 @@ async function updateAmount(productId, change)
         }
         else
         {
-            console.error('Error al actualizar el ítem');
+            console.error('Error updating the item');
         }
     } 
     catch(error)
     {
-        console.error('Error de red:', error);
+        console.error('Network error:', error);
     }
 }
 

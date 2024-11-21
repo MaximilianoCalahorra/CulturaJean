@@ -1,7 +1,9 @@
 package com.calahorra.culturaJean.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import com.calahorra.culturaJean.dtos.MemberDTO;
 import com.calahorra.culturaJean.dtos.PurchaseDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
+import com.calahorra.culturaJean.dtos.SupplyOrderFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.entities.UserRole;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
@@ -218,6 +222,7 @@ public class MemberController
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
+	/* VERSIÓN ANTERIOR
 	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:
 	@GetMapping("/myAccount/admin")
 	public ModelAndView myAccountAdmin(@RequestParam(value = "order", defaultValue = "orderAscByProductCode")String order,
@@ -270,6 +275,83 @@ public class MemberController
 		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrders)); //Adjuntamos los nombres de los proveedores.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
+	}
+	*/
+	
+	/* VERSIÓN NUEVA */
+	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:
+	@GetMapping("/myAccount/admin")
+	public ModelAndView myAccountAdmin() 
+	{
+		//Definimos la vista a cargar:
+		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MY_ACCOUNT_ADMIN);
+		
+		//Obtenemos el administrador que inició sesión:
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	
+		//Obtenemos el DTO del administrador:
+		MemberDTO member = memberService.findByUsername(user.getUsername());
+		
+		//Obtenemos los pedidos de aprovisionamiento del administrador:
+		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByMember(member.getUsername());
+		
+		//Definimos el tipo de ordenamiento por defecto:
+		String order = "orderAscByProductCode";
+		
+		//Aplicamos el ordenamiento:
+		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
+		
+		//Agregamos la información a la vista:
+		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento.
+		modelAndView.addObject("pCode", "all"); //Adjuntamos el código del producto del filtro.
+		modelAndView.addObject("sName", "all"); //Adjuntamos el nombre del proveedor del filtro.
+		modelAndView.addObject("delivered", "all"); //Adjuntamos el filtro de estado de entrega.
+		modelAndView.addObject("member", member); //Adjuntamos el administrador.
+		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
+		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode(supplyOrders)); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrders)); //Adjuntamos los nombres de los proveedores.
+		
+		return modelAndView; //Retornamos la vista con la información adjunta.
+	}
+	
+	//Respondemos a las peticiones de filtrado y/u ordenamiento de los pedidos generados por el administrador:
+	@PostMapping("/myAccount/admin/filter")
+	public ResponseEntity<List<SupplyOrderDTO>> filteredSupplyOrders(@RequestBody SupplyOrderFiltersDataDTO filtersData) 
+	{	
+		//Obtenemos los criterios para filtrar y ordenar:
+		String order = filtersData.getOrder();
+		List<String> productCodes = filtersData.getProductCodes();
+		List<String> supplierNames = filtersData.getSupplierNames();
+		List<String> adminUsernames = filtersData.getAdminUsernames(); //Va a ser solo uno, el administrador que está en su cuenta.
+		int amount = Integer.parseInt(filtersData.getAmount());
+    	int fromAmount = Integer.parseInt(filtersData.getFromAmount());
+    	int untilAmount = Integer.parseInt(filtersData.getUntilAmount());
+    	int rangeFromAmount = Integer.parseInt(filtersData.getRangeFromAmount());
+    	int rangeUntilAmount = Integer.parseInt(filtersData.getRangeUntilAmount());
+    	String delivered = filtersData.getDelivered();
+		
+    	//Definimos un listado donde cargaremos los pedidos:
+    	List<SupplyOrderDTO> supplyOrders = new ArrayList<>();
+    	
+    	//Si se pidió solamente los entregados/no entregados:
+    	if(!delivered.equals("all")) 
+    	{
+    		boolean deliveredBoolean = Boolean.parseBoolean(delivered); //Obtenemos el valor booleano para saber cuáles pedidos se piden.
+    		supplyOrders = supplyOrderService.findByDelivered(deliveredBoolean); //Obtenemos los pedidos en ese estado.
+    	}
+    	else //Por el contrario, si se solicitaron todos los pedidos:
+    	{
+    		supplyOrders = supplyOrderService.getAll(); //Obtenemos todos.
+    	}
+    	
+    	//Aplicamos los filtros seleccionados:
+    	supplyOrders = supplyOrderService.applyFilters(supplyOrders, productCodes, supplierNames, adminUsernames, amount, fromAmount, 
+    												   untilAmount, rangeFromAmount, rangeUntilAmount);
+		
+		//Aplicamos el ordenamiento seleccionado:
+		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
+		
+		return ResponseEntity.ok(supplyOrders); //Retornamos los pedidos.
 	}
 	
 	//Respondemos a la solicitud de modificación del perfil con una vista que tiene un formulario para ello:

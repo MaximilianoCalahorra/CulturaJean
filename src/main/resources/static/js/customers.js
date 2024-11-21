@@ -10,7 +10,7 @@ async function filteredCustomers(order, enabled)
 		//Si hubo algún error:
         if(!response.ok) 
         {
-            throw new Error("Error en la respuesta del servidor");
+            throw new Error("Error in the response of server");
         }
         
         return response.json(); //Retornamos el JSON con los clientes.
@@ -18,7 +18,7 @@ async function filteredCustomers(order, enabled)
     .then(customers => customers)
     .catch(error => 
     {
-        console.error("Error en la solicitud Fetch:", error);
+        console.error("Error in the Fetch request:", error);
         throw error;
     });
 }
@@ -56,7 +56,7 @@ function generateHTMLForEmptyCustomers()
 {
 	return html = `<tr>
 				       <td colspan="7" style="text-align: center; font-style: italic; color: gray;">
-				            No se encontraron resultados.
+				            No results found.
 				       </td>
 			       </tr>`;	
 }
@@ -107,7 +107,7 @@ function applyFilter()
 	})
 	.catch(error => 
     {
-        console.error("Ocurrió un error al filtrar y ordenar los clientes:", error);
+        console.error("There was an error applying the filters and order:", error);
     });
 }
 
@@ -178,9 +178,9 @@ document.getElementById("tBodyCustomerTable").addEventListener("click", (event) 
             }
             else
             {
-                console.error("Error al cambiar el estado:", data.error);
+                console.error("Error changing state:", data.error);
             }
         })
-        .catch(error => console.error("Error en la solicitud Fetch:", error));
+        .catch(error => console.error("Error in the Fetch request:", error));
     }
 });

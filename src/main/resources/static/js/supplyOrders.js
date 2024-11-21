@@ -143,14 +143,14 @@ async function applyFilterSupplyOrders(filtersData)
 		//Si hubo algún error:
         if(!response.ok) 
         {
-            throw new Error("Error en la respuesta del servidor");
+            throw new Error("Error in the response of server");
         }
         return response.json(); //Retornamos el JSON con los pedidos.
     })
     .then(data => data)
     .catch(error => 
     {
-        console.error("Error en la solicitud Fetch:", error);
+        console.error("Error in the Fetch request:", error);
         throw error; //Re-lanza el error para que pueda ser manejado en la función que llame a filterSupplyOrders.
     });
 }
@@ -319,7 +319,7 @@ function generateHTMLForEmptyResults(delivered)
 	tbody.innerHTML = 
 	`<tr>
         <td colspan="${colspan}" style="text-align: center; font-style: italic; color: gray;">
-            No se encontraron resultados para los filtros aplicados.
+            No results found.
         </td>
     </tr>`;	
     
@@ -375,7 +375,7 @@ function filterSupplyOrders(delivered)
     })
     .catch(error => 
     {
-        console.error("Ocurrió un error al filtrar los pedidos no entregados:", error);
+        console.error("There was an error applying the filters:", error);
     });
 }
 
@@ -498,6 +498,13 @@ function validateRangeWithMessage(delivered)
             errorMessage.style.display = "none"; //Ocultamos el mensaje.
         }
     } 
+    //Si se completó uno de los valores:
+    else if(!isNaN(fromValue) || !isNaN(untilValue))
+    {
+		errorMessage.textContent = "Both fields must be completed to apply filters."; //Definimos el mensaje.
+        errorMessage.style.display = "block"; //Lo hacemos visible.
+        applyFiltersButton.disabled = true; //Desactivamos el botón de aplicar filtros.
+	}
     else 
     {
         errorMessage.style.display = "none"; //Ocultamos el mensaje si alguno de los inputs está vacío.
@@ -594,7 +601,7 @@ function resetFilters(delivered)
     })
     .catch(error => 
     {
-        console.error("Ocurrió un error al filtrar los pedidos no entregados:", error);
+        console.error("There was an error applying the filters:", error);
     });
 };
 
@@ -679,7 +686,7 @@ document.getElementById("undeliveredSupplyOrderTBodyTable").addEventListener("cl
 				})
             	.catch(error => 
 			    {
-			        console.error("Ocurrió un error al filtrar los pedidos no entregados:", error);
+			        console.error("There was an error applying the filters:", error);
 			    });
             	
             	//Aplicamos los filtros y ordenamientos de los pedidos entregados y actualizamos la vista con los que apliquen:
@@ -687,10 +694,10 @@ document.getElementById("undeliveredSupplyOrderTBodyTable").addEventListener("cl
             }
             else
             {
-                console.error("Error al cambiar el estado:", data.error);
+                console.error("Error changing state:", data.error);
             }
         })
-        .catch(error => console.error("Error en la solicitud Fetch:", error));
+        .catch(error => console.error("Error in the Fetch request:", error));
     }
 });
 

@@ -52,7 +52,7 @@ public interface ISupplyOrderService
 	//Obtener:
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:
-	public List<SupplyOrder> getAll();
+	public List<SupplyOrderDTO> getAll();
 	
 	//Ordernar:
 	

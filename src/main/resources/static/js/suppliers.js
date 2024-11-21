@@ -9,7 +9,7 @@ async function orderSuppliers(order)
 		//Si hubo algún error:
         if(!response.ok) 
         {
-            throw new Error("Error en la respuesta del servidor");
+            throw new Error("Error in the response of server");
         }
         
         return response.json(); //Retornamos el JSON con los pedidos.
@@ -17,7 +17,7 @@ async function orderSuppliers(order)
     .then(data => data)
     .catch(error => 
     {
-        console.error("Error en la solicitud Fetch:", error);
+        console.error("Error in the Fetch request:", error);
         throw error;
     });
 }
@@ -49,7 +49,7 @@ function generateHTMLForEmptySuppliers()
 	tbody.innerHTML = 
 	`<tr>
         <td colspan="5" style="text-align: center; font-style: italic; color: gray;">
-            No se encontraron resultados.
+            No results found.
         </td>
     </tr>`;	
 }
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () =>
 		})
 	    .catch(error => 
 	    {
-	        console.error("Ocurrió un error al ordenar los proveedores:", error);
+	        console.error("There was an error ordering the suppliers", error);
 	    });
     });
 });
