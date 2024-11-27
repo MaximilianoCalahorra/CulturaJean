@@ -747,31 +747,31 @@ public class ProductService implements IProductService
 	public List<ProductDTO> applyFilterTypeSalePrice(List<ProductDTO> products, String salePrice, String fromSalePrice, String untilSalePrice,
 													 String rangeFromSalePrice, String rangeUntilSalePrice)
 	{
-		if(!salePrice.equals("") && fromSalePrice.equals("") && untilSalePrice.equals("") && rangeFromSalePrice.equals("") && 
-				 rangeUntilSalePrice.equals("")) //Filtro por precio de venta:
+		if(!salePrice.equals("")) //Filtro por precio de venta:
 		{
 			float salePriceNumber = Float.parseFloat(salePrice); //Convertimos la cadena a número.
 			products = filterBySalePrice(products, salePriceNumber); //Nos quedamos con los productos que cumplan el filtro.
 		}
-		else if(!fromSalePrice.equals("") && salePrice.equals("") && untilSalePrice.equals("") && rangeFromSalePrice.equals("") && 
-				rangeUntilSalePrice.equals("")) //Filtro por precio de venta mayor o igual a uno determinado:
+		
+		if(!fromSalePrice.equals("")) //Filtro por precio de venta mayor o igual a uno determinado:
 		{
 			float fromSalePriceNumber = Float.parseFloat(fromSalePrice); //Convertimos la cadena a número.
 			products = filterByFromSalePrice(products, fromSalePriceNumber); //Nos quedamos con los productos que cumplan el filtro.
 		}
-		else if(!untilSalePrice.equals("") && salePrice.equals("") && fromSalePrice.equals("") && rangeFromSalePrice.equals("") && 
-				rangeUntilSalePrice.equals("")) //Filtro por precio de venta menor o igual a uno determinado:
+		
+		if(!untilSalePrice.equals("")) //Filtro por precio de venta menor o igual a uno determinado:
 		{
 			float untilSalePriceNumber = Float.parseFloat(untilSalePrice); //Convertimos la cadena a número.
 			products = filterByUntilSalePrice(products, untilSalePriceNumber); //Nos quedamos con los productos que cumplan el filtro.
 		}
-		else if(!rangeFromSalePrice.equals("") && !rangeUntilSalePrice.equals("") && salePrice.equals("") && fromSalePrice.equals("") && 
-				untilSalePrice.equals("")) //Filtro por precio de venta dentro de un rango determinado:
+		
+		if(!rangeFromSalePrice.equals("") && !rangeUntilSalePrice.equals("")) //Filtro por precio de venta dentro de un rango determinado:
 		{
 			float rangeFromSalePriceNumber = Float.parseFloat(rangeFromSalePrice); //Convertimos la cadena a número.
 			float rangeUntilSalePriceNumber = Float.parseFloat(rangeUntilSalePrice); //Convertimos la cadena a número.
 			products = filterBySalePriceRange(products, rangeFromSalePriceNumber, rangeUntilSalePriceNumber); //Nos quedamos con los productos que cumplan el filtro.
 		}
+		
 		return products; //Retornamos los productos filtrados.
 	}
 			
