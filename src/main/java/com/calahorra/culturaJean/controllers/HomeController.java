@@ -22,7 +22,7 @@ import com.calahorra.culturaJean.services.IStockService;
 @RequestMapping("/")
 public class HomeController
 {
-	//Atributo:
+	//Atributos:
 	private IStockService stockService;
 	private IProductService productService;
 	

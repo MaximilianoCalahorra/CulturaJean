@@ -14,7 +14,7 @@ public class StoresController
 {
 	//Respondemos a las peticiones de información sobre las tiendas para el cliente/visitante:
 	@GetMapping("/{role}")
-	public String visitor(@PathVariable("role")String role) 
+	public String loadView(@PathVariable("role")String role) 
 	{
 		String view = "";
 			
