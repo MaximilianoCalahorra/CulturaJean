@@ -22,82 +22,6 @@
 			</section>
 			<section>
 				<h2>My Supply Orders</h2>
-				
-				<!-- ANTES 
-				<form action="/myAccount/admin" method="get">
-					<input type="hidden" name="productCode" th:value="${productCode}">
-					<input type="hidden" name="supplierName" th:value="${supplierName}">
-					<input type="hidden" name="amount" th:value="${amount}">
-					<input type="hidden" name="fromAmount" th:value="${fromAmount}">
-					<input type="hidden" name="untilAmount" th:value="${untilAmount}">
-					<input type="hidden" name="rangeFromAmount" th:value="${rangeFromAmount}">
-					<input type="hidden" name="rangeUntilAmount" th:value="${rangeUntilAmount}">
-					<input type="hidden" name="delivered" th:value="${delivered}">
-					<label>Choose The Order:
-						<select name="order" required>
-							<option value="orderAscByProductCode" th:selected="${order == 'orderAscByProductCode'}">Ascendent By Product Code</option>
-							<option value="orderDescByProductCode" th:selected="${order == 'orderDescByProductCode'}">Descendent By Product Code</option>
-							<option value="orderAscBySupplierName" th:selected="${order == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
-							<option value="orderDescBySupplierName" th:selected="${order == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
-							<option value="orderAscByAmount" th:selected="${order == 'orderAscByAmount'}">Ascendent By Amount</option>
-							<option value="orderDescByAmount" th:selected="${order == 'orderDescByAmount'}">Descendent By Amount</option>
-						</select>
-					</label>
-					<button type="submit">Apply</button>
-				</form>
-				<form action="/myAccount/admin" method="get">
-					<input type="hidden" name="order" th:value="${order}">
-					<label>Choose Filters:
-						<details>
-							<summary>Product Code</summary>
-							<select name="productCode">
-								<option value="all" th:selected="${productCode == 'all'}">All</option>
-								<option th:each="code: ${productCodes}" th:value="${code}" th:text="${code}" th:selected="@{${code == productCode}}"></option>
-							</select>	
-						</details>
-						<details>
-							<summary>Supplier Name</summary>
-							<select name="supplierName">
-								<option value="all" th:selected="${supplierName == 'all'}">All</option>
-								<option th:each="name: ${supplierNames}" th:value="${name}" th:text="${name}" th:selected="@{${name == supplierName}}"></option>
-							</select>
-						</details>
-						<details>
-							<summary>Amount</summary>
-							<details>
-								<summary>Specific Amount</summary>
-								<input type="number" min="1" name="amount" th:value="${amount}">
-							</details>
-							<details>
-								<summary>Greater or Equal To Amount</summary>
-								<input type="number" min="1" name="fromAmount" th:value="${fromAmount}">
-							</details>
-							<details>
-								<summary>Less or Equal To Amount</summary>
-								<input type="number" min="1" name="untilAmount" th:value="${untilAmount}">
-							</details>
-							<details>
-								<summary>Amount To Amount</summary>
-								<input type="number" min="1" name="rangeFromAmount" th:value="${rangeFromAmount}">
-								<input type="number" min="1" name="rangeUntilAmount" th:value="${rangeUntilAmount}">
-							</details>
-						</details>
-						<details>
-							<summary>State Of The Supply Orders</summary>
-							<label>All <input type="radio" name="delivered" value="all" th:checked="${delivered == 'all'}"></label>
-							<label>Delivered <input type="radio" name="delivered" value="true" th:checked="${delivered == 'true'}"></label>
-							<label>Undelivered <input type="radio" name="delivered" value="false" th:checked="${delivered == 'false'}"></label>
-						</details>
-					</label>
-					<button type="submit">Apply</button>
-				</form>
-				<form action="/myAccount/admin" method="get">
-					<input type="hidden" name="order" th:value="${order}">
-					<button type="submit">Reset All</button>
-				</form>
-				-->
-				
-				<!-- AHORA -->
 				<form>
 					<label>Choose The Order:
 						<select name="order" required>
@@ -109,7 +33,7 @@
 							<option value="orderDescByAmount" th:selected="${order == 'orderDescByAmount'}">Descendent By Amount</option>
 						</select>
 					</label>
-					<button type="button" id="applyOrderButton">Apply</button>
+					<button id="applyOrderButton">Apply</button>
 				</form>
 				<form>
 					<label>Choose Filters:
@@ -161,9 +85,9 @@
 							<label>Undelivered <input type="radio" name="delivered" value="false" th:checked="${delivered == 'false'}" id="delivered-false"></label>
 						</details>
 					</label>
-					<button type="button" id="applyFilterButton">Apply</button>
+					<button id="applyFilterButton">Apply</button>
 				</form>
-				<button type="button" id="resetAllButton">Reset All</button>
+				<button id="resetAllButton">Reset All</button>
 				<table border="3" id="supplyOrdersTable">
 					<thead>
 						<tr>
@@ -195,5 +119,6 @@
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
-	<script src="/js/adminAccount.js"></script>
+	<script type="module" src="/js/adminAccount.js"></script>
+	<script type="module" src="/js/amountValidations.js"></script>
 </html>

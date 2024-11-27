@@ -222,63 +222,6 @@ public class MemberController
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
-	/* VERSIÓN ANTERIOR
-	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:
-	@GetMapping("/myAccount/admin")
-	public ModelAndView myAccountAdmin(@RequestParam(value = "order", defaultValue = "orderAscByProductCode")String order,
-									   @RequestParam(value = "productCode", defaultValue = "all")String productCode,
-									   @RequestParam(value = "supplierName", defaultValue = "all")String supplierName,
-									   @RequestParam(value = "amount", defaultValue = "")String amount,
-									   @RequestParam(value = "fromAmount", defaultValue = "")String fromAmount,
-									   @RequestParam(value = "untilAmount", defaultValue = "")String untilAmount,
-									   @RequestParam(value = "rangeFromAmount", defaultValue = "")String rangeFromAmount,
-									   @RequestParam(value = "rangeUntilAmount", defaultValue = "")String rangeUntilAmount,
-									   @RequestParam(value = "delivered", defaultValue = "all")String delivered) 
-	{
-		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MY_ACCOUNT_ADMIN);
-		
-		//Obtenemos el administrador que inició sesión:
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-	
-		//Obtenemos el DTO del administrador:
-		MemberDTO member = memberService.findByUsername(user.getUsername());
-		
-		//Obtenemos los pedidos de aprovisionamiento del administrador:
-		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByMember(member.getUsername());
-		
-		//Aplicamos los filtros seleccionados de las secciones código de producto, nombre de proveedor y cantidad:
-		supplyOrders = supplyOrderService.applyFilters(supplyOrders, productCode, supplierName, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
-		
-		//Aplicamos el filtro de estado de la entrega que corresponda:
-		if(!delivered.equals("all")) 
-		{
-			boolean deliveredBoolean = Boolean.parseBoolean(delivered); //Convertimos la cadena a un valor booleano.
-			supplyOrders = supplyOrderService.filterByDelivered(supplyOrders, deliveredBoolean); //Nos quedamos con los pedidos de aprovisionamiento en ese estado.
-		}
-		
-		//Aplicamos el ordenamiento seleccionado:
-		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
-		
-		//Agregamos la información a la vista:
-		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento.
-		modelAndView.addObject("productCode", productCode); //Adjuntamos el código del producto del filtro.
-		modelAndView.addObject("supplierName", supplierName); //Adjuntamos el nombre del proveedor del filtro.
-		modelAndView.addObject("amount", amount); //Adjuntamos la cantidad del filtro de una cantidad específica.
-		modelAndView.addObject("fromAmount", fromAmount); //Adjuntamos el filtro de la cantidad mayor o igual a una cantidad específica.
-		modelAndView.addObject("untilAmount", untilAmount); //Adjuntamos el filtro de la cantidad menor o igual a una cantidad específica.
-		modelAndView.addObject("rangeFromAmount", rangeFromAmount); //Adjuntamos el filtro de una cantidad mayor o igual en un rango de cantidades.
-		modelAndView.addObject("rangeUntilAmount", rangeUntilAmount); //Adjuntamos el filtro de una cantidad menor o igual en un rango de cantidades.
-		modelAndView.addObject("delivered", delivered); //Adjuntamos el filtro de estado de entrega.
-		modelAndView.addObject("member", member); //Adjuntamos el administrador.
-		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
-		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode(supplyOrders)); //Adjuntamos los códigos de los productos.
-		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrders)); //Adjuntamos los nombres de los proveedores.
-		
-		return modelAndView; //Retornamos la vista con la información adjunta.
-	}
-	*/
-	
-	/* VERSIÓN NUEVA */
 	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:
 	@GetMapping("/myAccount/admin")
 	public ModelAndView myAccountAdmin() 

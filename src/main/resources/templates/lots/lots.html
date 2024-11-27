@@ -12,26 +12,7 @@
 			</div>
 			<section>
 				<h2>Lots To Register</h2>
-				<form action="/lot/lots" method="get">
-					<input type="hidden" name="pCode" th:value="${pCode}">
-					<input type="hidden" name="sName" th:value="${sName}">
-					<input type="hidden" name="amount" th:value="${amount}">
-					<input type="hidden" name="fAmount" th:value="${fAmount}">
-					<input type="hidden" name="uAmount" th:value="${uAmount}">
-					<input type="hidden" name="rFAmount" th:value="${rFAmount}">
-					<input type="hidden" name="rUAmount" th:value="${rUAmount}">
-					<input type="hidden" name="orderL" th:value="${orderL}">
-					<input type="hidden" name="stockId" th:value="${stockId}">
-					<input type="hidden" name="rDate" th:value="${rDate}">
-					<input type="hidden" name="fRDate" th:value="${fRDate}">
-					<input type="hidden" name="uRDate" th:value="${uRDate}">
-					<input type="hidden" name="rFRDate" th:value="${rFRDate}">
-					<input type="hidden" name="rURDate" th:value="${rURDate}">
-					<input type="hidden" name="eAmount" th:value="${eAmount}">
-					<input type="hidden" name="fEAmount" th:value="${fEAmount}">
-					<input type="hidden" name="uEAmount" th:value="${uEAmount}">
-					<input type="hidden" name="rFEAmount" th:value="${rFEAmount}">
-					<input type="hidden" name="rUEAmount" th:value="${rUEAmount}">
+				<form>
 					<label>Choose The Order:
 						<select name="orderSO" required>
 							<option value="orderAscByProductCode" th:selected="${orderSO == 'orderAscByProductCode'}">Ascendent By Product Code</option>
@@ -42,77 +23,55 @@
 							<option value="orderDescByAmount" th:selected="${orderSO == 'orderDescByAmount'}">Descendent By Amount</option>
 						</select>
 					</label>
-					<button type="submit">Apply</button>
+					<button id="applyOrderSOButton">Apply</button>
 				</form>
-				<form action="/lot/lots" method="get">
-					<input type="hidden" name="orderSO" th:value="${orderSO}">
-					<input type="hidden" name="orderL" th:value="${orderL}">
-					<input type="hidden" name="stockId" th:value="${stockId}">
-					<input type="hidden" name="rDate" th:value="${rDate}">
-					<input type="hidden" name="fRDate" th:value="${fRDate}">
-					<input type="hidden" name="uRDate" th:value="${uRDate}">
-					<input type="hidden" name="rFRDate" th:value="${rFRDate}">
-					<input type="hidden" name="rURDate" th:value="${rURDate}">
-					<input type="hidden" name="eAmount" th:value="${eAmount}">
-					<input type="hidden" name="fEAmount" th:value="${fEAmount}">
-					<input type="hidden" name="uEAmount" th:value="${uEAmount}">
-					<input type="hidden" name="rFEAmount" th:value="${rFEAmount}">
-					<input type="hidden" name="rUEAmount" th:value="${rUEAmount}">
+				<form>
 					<label>Choose Filters:
-						<details>
+						<details id="pCodeContainer">
+							<span id="pCodeMaxValues" th:data-max-values="${productCodes.size()}" hidden></span>
 							<summary>Product Code</summary>
-							<select name="pCode">
-								<option value="all" th:selected="${pCode == 'all'}">All</option>
-								<option th:each="code: ${productCodes}" th:value="${code}" th:text="${code}" th:selected="@{${code == pCode}}"></option>
-							</select>	
+							<input type="checkbox" name="pCode" value="all" id="pCode-all" th:checked="${pCode == 'all'}">
+							<label for="pCode-all">All</label>
+							<div th:each="code, iterStat : ${productCodes}">
+						        <input type="checkbox" name="pCode" th:value="${code}" th:id="'pCode-' + ${iterStat.index}" disabled>
+						        <label th:for="'pCode-' + ${iterStat.index}" th:text="${code}"></label>
+						    </div>		
 						</details>
-						<details>
+						<details id="sNameContainer">
+							<span id="sNameMaxValues" th:data-max-values="${supplierNames.size()}" hidden></span>
 							<summary>Supplier Name</summary>
-							<select name="sName">
-								<option value="all" th:selected="${sName == 'all'}">All</option>
-								<option th:each="name: ${supplierNames}" th:value="${name}" th:text="${name}" th:selected="@{${name == sName}}"></option>
-							</select>
+							<input type="checkbox" name="sName" value="all" id="sName-all" th:checked="${sName == 'all'}">
+							<label for="sName-all">All</label>
+							<div th:each="name, iterStat : ${supplierNames}">
+						        <input type="checkbox" name="sName" th:value="${name}" th:id="'sName-' + ${iterStat.index}" disabled>
+						        <label th:for="'sName-' + ${iterStat.index}" th:text="${name}"></label>
+						    </div>
 						</details>
-						<details>
+						<details id="amountsContainer">
 							<summary>Amount</summary>
-							<details>
+							<details id="amountContainer">
 								<summary>Specific Amount</summary>
-								<input type="number" min="1" name="amount" th:value="${amount}">
+								<input type="number" min="1" name="amount" th:value="${amount}" id="amount">
 							</details>
-							<details>
+							<details id="fromAmountContainer">
 								<summary>Greater or Equal To Amount</summary>
-								<input type="number" min="1" name="fAmount" th:value="${fAmount}">
+								<input type="number" min="1" name="fAmount" th:value="${fAmount}" id="fAmount">
 							</details>
-							<details>
+							<details id="untilAmountContainer">
 								<summary>Less or Equal To Amount</summary>
-								<input type="number" min="1" name="uAmount" th:value="${uAmount}">
+								<input type="number" min="1" name="uAmount" th:value="${uAmount}" id="uAmount">
 							</details>
-							<details>
+							<details id="rangeAmountContainer">
 								<summary>Amount To Amount</summary>
-								<input type="number" min="1" name="rFAmount" th:value="${rFAmount}">
-								<input type="number" min="1" name="rUAmount" th:value="${rUAmount}">
+								<input type="number" min="1" name="rFAmount" th:value="${rFAmount}" id="rFAmount">
+								<input type="number" min="1" name="rUAmount" th:value="${rUAmount}" id="rUAmount">
 							</details>
 						</details>
 					</label>
-					<button type="submit">Apply</button>
+					<button id="applyFiltersSOButton">Apply</button>
 				</form>
-				<form action="/lot/lots" method="get">
-					<input type="hidden" name="orderSO" th:value="${orderSO}">
-					<input type="hidden" name="orderL" th:value="${orderL}">
-					<input type="hidden" name="stockId" th:value="${stockId}">
-					<input type="hidden" name="rDate" th:value="${rDate}">
-					<input type="hidden" name="fRDate" th:value="${fRDate}">
-					<input type="hidden" name="uRDate" th:value="${uRDate}">
-					<input type="hidden" name="rFRDate" th:value="${rFRDate}">
-					<input type="hidden" name="rURDate" th:value="${rURDate}">
-					<input type="hidden" name="eAmount" th:value="${eAmount}">
-					<input type="hidden" name="fEAmount" th:value="${fEAmount}">
-					<input type="hidden" name="uEAmount" th:value="${uEAmount}">
-					<input type="hidden" name="rFEAmount" th:value="${rFEAmount}">
-					<input type="hidden" name="rUEAmount" th:value="${rUEAmount}">
-					<button type="submit">Reset All</button>
-				</form>
-				<table border="3">
+				<button id="resetAllSOButton">Reset All</button>
+				<table border="3" id="supplyOrdersTable">
 					<thead>
 						<tr>
 							<th>Supply Order Id</th>
@@ -123,42 +82,32 @@
 							<th>Action</th>
 						</tr>
 					</thead>
-					<tbody>
-						<tr th:each="supplyOrder: ${supplyOrdersToLots}">
+					<tbody id="tbodySupplyOrdersTable">
+						<tr th:each="supplyOrder: ${supplyOrdersToLots}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
 							<td th:text="${supplyOrder.supplyOrderId}"></td>
 							<td th:text="${supplyOrder.product.code}"></td>
 							<td th:text="${supplyOrder.member.username}"></td>
 							<td th:text="${supplyOrder.supplier.name}"></td>
 							<td th:text="${supplyOrder.amount}"></td>
 							<td>
-								<a th:href="@{/lot/registerLot/}+${supplyOrder.supplyOrderId}">Register Lot</a>
+								<button type="button" 
+										class="register-lot-btn" 
+										th:data-supply-order-id="${supplyOrder.supplyOrderId}">
+										Register Lot
+								</button>
 							</td>
 						</tr>
+						<tr th:if="${supplyOrdersToLots.size() == 0}">
+					        <td colspan="6" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
 					</tbody>
 				</table>
 			</section>
 			<section>
 				<h2>Registered Lots</h2>
-				<form action="/lot/lots" method="get">
-					<input type="hidden" name="orderSO" th:value="${orderSO}">
-					<input type="hidden" name="pCode" th:value="${pCode}">
-					<input type="hidden" name="sName" th:value="${sName}">
-					<input type="hidden" name="amount" th:value="${amount}">
-					<input type="hidden" name="fAmount" th:value="${fAmount}">
-					<input type="hidden" name="uAmount" th:value="${uAmount}">
-					<input type="hidden" name="rFAmount" th:value="${rFAmount}">
-					<input type="hidden" name="rUAmount" th:value="${rUAmount}">
-					<input type="hidden" name="stockId" th:value="${stockId}">
-					<input type="hidden" name="rDate" th:value="${rDate}">
-					<input type="hidden" name="fRDate" th:value="${fRDate}">
-					<input type="hidden" name="uRDate" th:value="${uRDate}">
-					<input type="hidden" name="rFRDate" th:value="${rFRDate}">
-					<input type="hidden" name="rURDate" th:value="${rURDate}">
-					<input type="hidden" name="eAmount" th:value="${eAmount}">
-					<input type="hidden" name="fEAmount" th:value="${fEAmount}">
-					<input type="hidden" name="uEAmount" th:value="${uEAmount}">
-					<input type="hidden" name="rFEAmount" th:value="${rFEAmount}">
-					<input type="hidden" name="rUEAmount" th:value="${rUEAmount}">
+				<form>
 					<label>Choose The Order:
 						<select name="orderL" required>
 							<option value="orderAscByStockId" th:selected="${orderL == 'orderAscByStockId'}">Ascendent By Stock Id</option>
@@ -169,82 +118,65 @@
 							<option value="orderDescByExistingAmount" th:selected="${orderL == 'orderDescByExistingAmount'}">Descendent By Existing Amount</option>
 						</select>
 					</label>
-					<button type="submit">Apply</button>
+					<button id="applyOrderLButton">Apply</button>
 				</form>
-				<form action="/lot/lots" method="get">
-					<input type="hidden" name="orderL" th:value="${orderL}">
-					<input type="hidden" name="orderSO" th:value="${orderSO}">
-					<input type="hidden" name="pCode" th:value="${pCode}">
-					<input type="hidden" name="sName" th:value="${sName}">
-					<input type="hidden" name="amount" th:value="${amount}">
-					<input type="hidden" name="fAmount" th:value="${fAmount}">
-					<input type="hidden" name="uAmount" th:value="${uAmount}">
-					<input type="hidden" name="rFAmount" th:value="${rFAmount}">
-					<input type="hidden" name="rUAmount" th:value="${rUAmount}">
+				<form>
 					<label>Choose Filters:
-						<details>
+						<details id="stockIdContainer">
+							<span id="stockIdMaxValues" th:data-max-values="${stockIds.size()}" hidden></span>
 							<summary>Stock Id</summary>
-							<select name="stockId">
-								<option value="all" th:selected="${stockId == 'all'}">All</option>
-								<option th:each="sId: ${stockIds}" th:value="${sId}" th:text="${sId}" th:selected="@{${sId == stockId}}"></option>
-							</select>	
+							<input type="checkbox" name="stockId" value="all" id="stockId-all" th:checked="${stockId == 'all'}">
+							<label for="stockId-all">All</label>
+							<div th:each="stockId, iterStat : ${stockIds}">
+						        <input type="checkbox" name="stockId" th:value="${stockId}" th:id="'stockId-' + ${iterStat.index}" disabled>
+						        <label th:for="'stockId-' + ${iterStat.index}" th:text="${stockId}"></label>
+						    </div>		
 						</details>
-						<details>
-							<summary>Reception Date</summary>
-							<details>
-								<summary>Specific Reception Date</summary>
-								<input type="date" name="rDate" th:value="${rDate}">
-							</details>
-							<details>
-								<summary>After or Equal To Reception Date</summary>
-								<input type="date" name="fRDate" th:value="${fRDate}">
-							</details>
-							<details>
-								<summary>Before or Equal To Reception Date</summary>
-								<input type="date" name="uRDate" th:value="${uRDate}">
-							</details>
-							<details>
-								<summary>Reception Date To Reception Date</summary>
-								<input type="date" name="rFRDate" th:value="${rFRDate}">
-								<input type="date" name="rURDate" th:value="${rURDate}">
-							</details>
+						<details id="datesContainer">
+						    <summary>Reception Date</summary>
+						    <details id="receptionDateContainer">
+						        <summary>Specific Reception Date</summary>
+						        <input type="date" name="rDate" id="rDate" onkeydown="return false;">
+						    </details>
+						    <details id="fromReceptionDateContainer">
+						        <summary>After or Equal To Reception Date</summary>
+						        <input type="date" name="fRDate" id="fRDate" onkeydown="return false;">
+						    </details>
+						    <details id="untilReceptionDateContainer">
+						        <summary>Before or Equal To Reception Date</summary>
+						        <input type="date" name="uRDate" id="uRDate" onkeydown="return false;">
+						    </details>
+						    <details id="rangeReceptionDateContainer">
+						        <summary>Reception Date To Reception Date</summary>
+						        <input type="date" name="rFRDate" id="rFRDate" onkeydown="return false;">
+						        <input type="date" name="rURDate" id="rURDate" onkeydown="return false;">
+						    </details>
 						</details>
-						<details>
+						<details id="existingAmountsContainer">
 							<summary>Existing Amount</summary>
-							<details>
+							<details id="eAmountContainer">
 								<summary>Specific Existing Amount</summary>
-								<input type="number" min="1" name="eAmount" th:value="${eAmount}">
+								<input type="number" min="0" name="eAmount" th:value="${eAmount}" id="eAmount">
 							</details>
-							<details>
+							<details id="fromEAmountContainer">
 								<summary>Greater or Equal To Existing Amount</summary>
-								<input type="number" min="1" name="fEAmount" th:value="${fEAmount}">
+								<input type="number" min="0" name="fEAmount" th:value="${fEAmount}" id="fEAmount">
 							</details>
-							<details>
+							<details id="untilEAmountContainer">
 								<summary>Less or Equal To Existing Amount</summary>
-								<input type="number" min="1" name="uEAmount" th:value="${uEAmount}">
+								<input type="number" min="0" name="uEAmount" th:value="${uEAmount}" id="uEAmount">
 							</details>
-							<details>
+							<details id="rangeEAmountContainer">
 								<summary>Existing Amount To Existing Amount</summary>
-								<input type="number" min="1" name="rFEAmount" th:value="${rFEAmount}">
-								<input type="number" min="1" name="rUEAmount" th:value="${rUEAmount}">
+								<input type="number" min="0" name="rFEAmount" th:value="${rFEAmount}" id="rFEAmount">
+								<input type="number" min="0" name="rUEAmount" th:value="${rUEAmount}" id="rUEAmount">
 							</details>
 						</details>
 					</label>
-					<button type="submit">Apply</button>
+					<button id="applyFiltersLButton">Apply</button>
 				</form>
-				<form action="/lot/lots" method="get">
-					<input type="hidden" name="orderL" th:value="${orderL}">
-					<input type="hidden" name="orderSO" th:value="${orderSO}">
-					<input type="hidden" name="pCode" th:value="${pCode}">
-					<input type="hidden" name="sName" th:value="${sName}">
-					<input type="hidden" name="amount" th:value="${amount}">
-					<input type="hidden" name="fAmount" th:value="${fAmount}">
-					<input type="hidden" name="uAmount" th:value="${uAmount}">
-					<input type="hidden" name="rFAmount" th:value="${rFAmount}">
-					<input type="hidden" name="rUAmount" th:value="${rUAmount}">
-					<button type="submit">Reset All</button>
-				</form>
-				<table border="3">
+				<button id="resetAllLButton">Reset All</button>
+				<table border="3" id="lotsTable">
 					<thead>
 						<tr>
 							<th>Lot Id</th>
@@ -256,7 +188,7 @@
 							<th>Supply Order Id</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody id="tbodyLotsTable">
 						<tr th:each="lot: ${lotsRegistered}">
 							<td th:text="${lot.lotId}"></td>
 							<td th:text="${lot.stock.stockId}"></td>
@@ -266,10 +198,18 @@
 							<td th:text="${lot.purchasePrice}"></td>
 							<td th:text="${lot.supplyOrder.supplyOrderId}"></td>
 						</tr>
+						<tr th:if="${lotsRegistered.size() == 0}">
+					        <td colspan="7" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
 					</tbody>
 				</table>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
+	<script type="module" src="/js/lots.js"></script>
+	<script type="module" src="/js/amountValidations.js"></script>
+	<script type="module" src="/js/dateValidations.js"></script>
 </html>

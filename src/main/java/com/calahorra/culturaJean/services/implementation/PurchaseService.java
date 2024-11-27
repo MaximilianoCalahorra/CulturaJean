@@ -496,31 +496,38 @@ public class PurchaseService implements IPurchaseService
 		List<PurchaseDTO> purchases = new ArrayList<PurchaseDTO>(); 
 		
 		//Aplicamos el filtro de fecha que corresponda:
-		if(!date.equals("") && fromDate.equals("") && untilDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por fecha en específico.
+		if(!date.equals("") || !fromDate.equals("") || !untilDate.equals("") || !rangeFromDate.equals("") || rangeUntilDate.equals("")) 
 		{
-			LocalDate dateObject = LocalDate.parse(date); //Convertimos la cadena a un objeto LocalDate.
-			purchases = findByDate(dateObject); //Obtenemos las compras/ventas en esa fecha.
-		}
-		else if(!fromDate.equals("") && date.equals("") && untilDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por posteriores o iguales a una fecha.
-		{
-			LocalDate fromDateObject = LocalDate.parse(fromDate); //Convertimos la cadena a un objeto LocalDate.
-			purchases = findByDateAfterThanOrEqual(fromDateObject); //Obtenemos las compras/ventas posteriores o iguales a esa fecha.
-		}
-				else if(!untilDate.equals("") && date.equals("") && fromDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por anteriores o iguales a una fecha.
-		{
-			LocalDate untilDateObject = LocalDate.parse(untilDate); //Convertimos la cadena a un objeto LocalDate.
-			purchases = findByDateBeforeThanOrEqual(untilDateObject); //Obtenemos las compras/ventas anteriores o iguales a esa fecha.
-		}
-		else if(!rangeFromDate.equals("") && !rangeUntilDate.equals("") && fromDate.equals("") && untilDate.equals("") && date.equals("")) //Filtramos por un rango de fechas.
-		{
-			LocalDate rangeFromDateObject = LocalDate.parse(rangeFromDate); //Convertimos la cadena a un objeto LocalDate.
-			LocalDate rangeUntilDateObject = LocalDate.parse(rangeUntilDate); //Convertimos la cadena a un objeto LocalDate.
-			purchases = findByDateRange(rangeFromDateObject, rangeUntilDateObject); //Obtenemos las compras/ventas en ese rango de fechas.
+			if(!date.equals("")) //Filtramos por fecha en específico.
+			{
+				LocalDate dateObject = LocalDate.parse(date); //Convertimos la cadena a un objeto LocalDate.
+				purchases = findByDate(dateObject); //Obtenemos las compras/ventas en esa fecha.
+			}
+			
+			if(!fromDate.equals("")) //Filtramos por posteriores o iguales a una fecha.
+			{
+				LocalDate fromDateObject = LocalDate.parse(fromDate); //Convertimos la cadena a un objeto LocalDate.
+				purchases = findByDateAfterThanOrEqual(fromDateObject); //Obtenemos las compras/ventas posteriores o iguales a esa fecha.
+			}
+			
+			if(!untilDate.equals("")) //Filtramos por anteriores o iguales a una fecha.
+			{
+				LocalDate untilDateObject = LocalDate.parse(untilDate); //Convertimos la cadena a un objeto LocalDate.
+				purchases = findByDateBeforeThanOrEqual(untilDateObject); //Obtenemos las compras/ventas anteriores o iguales a esa fecha.
+			}
+			
+			if(!rangeFromDate.equals("") && !rangeUntilDate.equals("")) //Filtramos por un rango de fechas.
+			{
+				LocalDate rangeFromDateObject = LocalDate.parse(rangeFromDate); //Convertimos la cadena a un objeto LocalDate.
+				LocalDate rangeUntilDateObject = LocalDate.parse(rangeUntilDate); //Convertimos la cadena a un objeto LocalDate.
+				purchases = findByDateRange(rangeFromDateObject, rangeUntilDateObject); //Obtenemos las compras/ventas en ese rango de fechas.
+			}
 		}
 		else //Si no se aplicó ningún filtro de fechas:
 		{
 			purchases = getAll(); //Obtenemos todas las compras/ventas de la base de datos.
 		}
+		
 		return purchases; //Retornamos el listado de compras/ventas filtrado por el criterio de fechas elegido.
 	}
 	
@@ -529,27 +536,31 @@ public class PurchaseService implements IPurchaseService
 	public List<PurchaseDTO> applyFilterTypeDateOnList(List<PurchaseDTO> purchases, String date, String fromDate, String untilDate, String rangeFromDate, String rangeUntilDate)
 	{
 		//Aplicamos el filtro de fecha que corresponda:
-		if(!date.equals("") && fromDate.equals("") && untilDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por fecha en específico.
+		if(!date.equals("")) //Filtramos por fecha en específico.
 		{
 			LocalDate dateObject = LocalDate.parse(date); //Convertimos la cadena a un objeto LocalDate.
 			purchases = filterByDate(purchases, dateObject); //Nos quedamos con las compras/ventas en esa fecha.
 		}
-		else if(!fromDate.equals("") && date.equals("") && untilDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por posteriores o iguales a una fecha.
+		
+		if(!fromDate.equals("")) //Filtramos por posteriores o iguales a una fecha.
 		{
 			LocalDate fromDateObject = LocalDate.parse(fromDate); //Convertimos la cadena a un objeto LocalDate.
 			purchases = filterByFromDate(purchases, fromDateObject); //Nos quedamos con las compras/ventas posteriores o iguales a esa fecha.
 		}
-		else if(!untilDate.equals("") && date.equals("") && fromDate.equals("") && rangeFromDate.equals("") && rangeUntilDate.equals("")) //Filtramos por anteriores o iguales a una fecha.
+		
+		if(!untilDate.equals("")) //Filtramos por anteriores o iguales a una fecha.
 		{
 			LocalDate untilDateObject = LocalDate.parse(untilDate); //Convertimos la cadena a un objeto LocalDate.
 			purchases = filterByUntilDate(purchases, untilDateObject); //Nos quedamos con las compras/ventas anteriores o iguales a esa fecha.
 		}
-		else if(!rangeFromDate.equals("") && !rangeUntilDate.equals("") && fromDate.equals("") && untilDate.equals("") && date.equals("")) //Filtramos por un rango de fechas.
+		
+		if(!rangeFromDate.equals("") && !rangeUntilDate.equals("")) //Filtramos por un rango de fechas.
 		{
 			LocalDate rangeFromDateObject = LocalDate.parse(rangeFromDate); //Convertimos la cadena a un objeto LocalDate.
 			LocalDate rangeUntilDateObject = LocalDate.parse(rangeUntilDate); //Convertimos la cadena a un objeto LocalDate.
 			purchases = filterByDateRange(purchases, rangeFromDateObject, rangeUntilDateObject); //Nos quedamos con las compras/ventas en ese rango de fechas.
 		}
+		
 		return purchases; //Retornamos el listado de compras/ventas filtrado por el criterio de fechas elegido.
 	}
 	
@@ -630,22 +641,25 @@ public class PurchaseService implements IPurchaseService
 	public List<PurchaseDTO> applyFilterTypeTime(List<PurchaseDTO> purchases, String fromTime, String untilTime, String rangeFromTime, String rangeUntilTime)
 	{
 		//Aplicamos el filtro de hora que corresponda:
-		if(!fromTime.equals("") && untilTime.equals("") && rangeFromTime.equals("") && rangeUntilTime.equals("")) //Filtramos por posteriores o iguales a una hora.
+		if(!fromTime.equals("")) //Filtramos por posteriores o iguales a una hora.
 		{
 			LocalTime fromTimeObject = LocalTime.parse(fromTime); //Convertimos la cadena a un objeto LocalTime.
 			purchases = filterByFromTime(purchases, fromTimeObject); //Nos quedamos las compras/ventas en esa hora o posteriores.
 		}
-		else if(!untilTime.equals("") && fromTime.equals("") && rangeFromTime.equals("") && rangeUntilTime.equals("")) //Filtramos por anteriores o iguales a una hora.
+		
+		if(!untilTime.equals("")) //Filtramos por anteriores o iguales a una hora.
 		{
 			LocalTime untilTimeObject = LocalTime.parse(untilTime); //Convertimos la cadena a un objeto LocalTime.
 			purchases = filterByUntilTime(purchases, untilTimeObject); //Nos quedamos las compras/ventas en esa hora o anteriores.
 		}
-		else if(!rangeFromTime.equals("") && !rangeUntilTime.equals("") && fromTime.equals("") && untilTime.equals("")) //Filtramos por un rango de horas.
+		
+		if(!rangeFromTime.equals("") && !rangeUntilTime.equals("")) //Filtramos por un rango de horas.
 		{
 			LocalTime rangeFromTimeObject = LocalTime.parse(rangeFromTime); //Convertimos la cadena a un objeto LocalTime.
 			LocalTime rangeUntilTimeObject = LocalTime.parse(rangeUntilTime); //Convertimos la cadena a un objeto LocalTime.
 			purchases = filterByTimeRange(purchases, rangeFromTimeObject, rangeUntilTimeObject); //Nos quedamos con las compras/ventas en ese rango de horas.
 		}
+		
 		return purchases; //Retornamos el listado de compras/ventas filtrado por el criterio de horas elegido.
 	}
 	
@@ -709,22 +723,25 @@ public class PurchaseService implements IPurchaseService
 														  String rangeFromPurchasePrice, String rangeUntilPurchasePrice)
 	{
 		//Aplicamos filtros según corresponda por precio de la venta:
-		if(!fromPurchasePrice.equals("") && untilPurchasePrice.equals("") && rangeFromPurchasePrice.equals("") && rangeUntilPurchasePrice.equals("")) //Filtramos por mayores o iguales a un precio.
+		if(!fromPurchasePrice.equals("")) //Filtramos por mayores o iguales a un precio.
 		{
 			float fromPurchasePriceNumber = Float.parseFloat(fromPurchasePrice); //Convertimos la cadena a float.
 			purchases = filterByFromPurchasePrice(purchases, fromPurchasePriceNumber); //Nos quedamos con las compras/ventas con ese tipo de precio.
 		}
-		else if(!untilPurchasePrice.equals("") && fromPurchasePrice.equals("") && rangeFromPurchasePrice.equals("") && rangeUntilPurchasePrice.equals("")) //Filtramos por menores o iguales a un precio.
+		
+		if(!untilPurchasePrice.equals("")) //Filtramos por menores o iguales a un precio.
 		{
 			float untilPurchasePriceNumber = Float.parseFloat(untilPurchasePrice); //Convertimos la cadena a float.
 			purchases = filterByUntilPurchasePrice(purchases, untilPurchasePriceNumber); //Nos quedamos con las compras/ventas con ese tipo de precio.
 		}
-		else if(!rangeFromPurchasePrice.equals("") && !rangeUntilPurchasePrice.equals("") && fromPurchasePrice.equals("") && untilPurchasePrice.equals("")) //Filtramos por un rango de precios.
+		
+		if(!rangeFromPurchasePrice.equals("") && !rangeUntilPurchasePrice.equals("")) //Filtramos por un rango de precios.
 		{
 			float rangeFromPurchasePriceNumber = Float.parseFloat(rangeFromPurchasePrice); //Convertimos la cadena a float.
 			float rangeUntilPurchasePriceNumber = Float.parseFloat(rangeUntilPurchasePrice); //Convertimos la cadena a float.
 			purchases = filterByPurchasePriceRange(purchases, rangeFromPurchasePriceNumber, rangeUntilPurchasePriceNumber); //Nos quedamos con las compras/ventas con ese tipo de precio.
 		}
+		
 		return purchases; //Retornamos el listado filtrado por el criterio elegido de precio de compra/venta.
 	}
 	

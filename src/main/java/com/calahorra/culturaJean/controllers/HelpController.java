@@ -14,7 +14,7 @@ public class HelpController
 {
 	//Respondemos a las peticiones de información sobre ayuda para el cliente/visitante:
 	@GetMapping("/{role}")
-	public String visitor(@PathVariable("role")String role) 
+	public String loadView(@PathVariable("role")String role) 
 	{
 		String view = "";
 			

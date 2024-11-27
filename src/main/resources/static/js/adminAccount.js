@@ -1,3 +1,6 @@
+//Importamos la función para ocultar un mensaje de error en la vista:
+import { hideError } from "/js/errorMessage.js";
+
 /* OBTENEMOS EL CRITERIO DE ORDENAMIENTO SELECCIONADO */
 function getOrderValue()
 {
@@ -80,11 +83,33 @@ function descheckedAndDisableOtherOptions(sectionName)
 /* REESTABLECEMOS LOS INPUTS DE CANTIDAD */
 function reinicializeAmounts()
 {	
-	document.getElementById("amount").value = ""; //Cantidad específica.
-	document.getElementById("fAmount").value = ""; //Cantidad mayor o igual a.
-	document.getElementById("uAmount").value = ""; //Cantidad menor o igual a.
-	document.getElementById("rFAmount").value = ""; //Cantidad mayor o igual a dentro de un rango.
-	document.getElementById("rUAmount").value = ""; //Cantidad menor o igual a dentro de un rango.
+	//Cantidad específica:
+	const amountInput = document.getElementById("amount");
+	amountInput.value = ""; 
+	hideError(amountInput);
+	
+	//Cantidad mayor o igual a:
+	const fromAmountInput = document.getElementById("fAmount");
+	fromAmountInput.value = ""; 
+	hideError(fromAmountInput);
+	
+	//Cantidad menor o igual a:
+	const untilAmountInput = document.getElementById("uAmount");
+	untilAmountInput.value = ""; 
+	hideError(untilAmountInput);
+	
+	//Cantidad mayor o igual a dentro de un rango:
+	const rangeFromAmountInput = document.getElementById("rFAmount");
+	rangeFromAmountInput.value = ""; 
+	hideError(rangeFromAmountInput);
+	
+	//Cantidad menor o igual a dentro de un rango:
+	const rangeUntilAmountInput = document.getElementById("rUAmount");
+	rangeUntilAmountInput.value = ""; 
+	hideError(rangeUntilAmountInput);
+	
+	//Habilitamos el botón de aplicar filtros:
+	document.getElementById("applyFilterButton").disabled = false;
 }
 
 /* OBTENEMOS LOS PEDIDOS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADOS SEGÚN DETERMINADO CRITERIO */
@@ -140,7 +165,6 @@ function generateHTMLForSupplyOrders(supplyOrders)
     });
     return html;
 }
-
 
 /* ACTUALIZAMOS LOS CHECKBOXES DE UNA SECCIÓN DE FILTRO */
 function updateCheckboxes(containerId, name, values, selectedValues) 
@@ -251,7 +275,7 @@ function filterSupplyOrders()
 		const tbody = document.getElementById("tbodySupplyOrdersTable");
 		
 		//Si hay al menos un pedido después del filtro:
-		if(/*data.length > 0*/ false)
+		if(data.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
 	        const htmlContent = generateHTMLForSupplyOrders(data);
@@ -314,67 +338,6 @@ function changeStatusOtherOptions(event, sectionName)
     }
 }
 
-/* VALIDAMOS QUE LA CANTIDAD MÁXIMA DEL RANGO SEA MAYOR O IGUAL A LA MÍNIMA DEL RANGO */
-function validateRangeWithMessage() 
-{
-	//Obtenemos el elemnento padre de los inputs:
-    const container = document.getElementById("rangeAmountContainer");
-    
-    //Obtenemos la etiqueta del mensaje de error:
-    let errorMessage = container.querySelector(".error-message");
-    
-    //Solo si esa etiqueta de mensaje de error no existe, la creamos:
-    if (!errorMessage)
-	{
-        errorMessage = document.createElement("p"); //Definimos el tipo de etiqueta.
-        errorMessage.className = "error-message"; //Le damos una clase.
-        errorMessage.style.color = "red"; //Un color de texto.
-        errorMessage.style.display = "none"; //Oculto por defecto
-        container.appendChild(errorMessage); //Agregamos la etiqueta al contenedor.
-    }
-
-	//Obtenemos los inputs:
-    const rangeFromAmountInput = document.getElementById("rFAmount");
-    const rangeUntilAmountInput = document.getElementById("rUAmount");
-    
-    //Obtenemos el botón de aplicar filtros:
-    const applyFiltersButton = document.getElementById("applyFilterButton");
-    
-    //Lo activamos:
-    applyFiltersButton.disabled = false;
-
-	//Obtenemos el valor de cada uno:
-    const fromValue = parseInt(rangeFromAmountInput.value, 10);
-    const untilValue = parseInt(rangeUntilAmountInput.value, 10);
-
-	//Si ambos valores de inputs son números:
-    if(!isNaN(fromValue) && !isNaN(untilValue)) 
-    {
-		//Si el valor mínimo es mayor al máximo:
-        if(fromValue > untilValue) 
-        {
-            errorMessage.textContent = "Until value must be higher or equal than from value."; //Definimos el mensaje.
-            errorMessage.style.display = "block"; //Lo hacemos visible.
-            applyFiltersButton.disabled = true; //Desactivamos el botón de aplicar filtros.
-        } 
-        else 
-        {
-            errorMessage.style.display = "none"; //Ocultamos el mensaje.
-        }
-    } 
-    //Si se completó uno de los valores:
-    else if(!isNaN(fromValue) || !isNaN(untilValue))
-    {
-		errorMessage.textContent = "Both fields must be completed to apply filters."; //Definimos el mensaje.
-        errorMessage.style.display = "block"; //Lo hacemos visible.
-        applyFiltersButton.disabled = true; //Desactivamos el botón de aplicar filtros.
-	}
-	else
-    {
-        errorMessage.style.display = "none"; //Ocultamos el mensaje si alguno de los inputs está vacío.
-    }
-}
-
 /* RESETEAMOS LOS FILTROS DE LOS PEDIDOS Y OBTENEMOS LOS PEDIDOS QUE APLIQUEN A ESA CONFIGURACIÓN */
 function resetFilters()
 {
@@ -401,6 +364,9 @@ function resetFilters()
 	applyFilterSupplyOrders(filtersData)
 	.then(data => 
 	{
+		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
+	    updateFilterOptions(data, filters);
+		
 		//Si hubo resultados luego del filtrado:
 		if(data.length > 0)
 		{	
@@ -412,9 +378,6 @@ function resetFilters()
 		        
 			//Actualizamos los pedidos en la vista:
 		    tbody.innerHTML = htmlContent;
-		    
-		    //Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-		    updateFilterOptions(data, filters);
 		    
 		    //Tildamos la opción "all" para el filtro de códigos de producto:
 		    const allOptionProductCodes = document.getElementById("pCode-all");
@@ -442,9 +405,6 @@ function resetFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyResults();
 		}
-		
-		//Reiniciamos el mensaje de error de los inputs de rangos de cantidades:
-		validateRangeWithMessage();
     })
     .catch(error => 
     {
@@ -452,9 +412,23 @@ function resetFilters()
     });
 };
 
-/* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE CANTIDADES ENTRE RANGOS */
-document.getElementById("rFAmount").addEventListener("input", () => validateRangeWithMessage());
-document.getElementById("rUAmount").addEventListener("input", () => validateRangeWithMessage());
+/* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE CANTIDADES */
+//Definimos la configuración para los inputs de los pedidos de aprovisionamiento:
+const amountsSupplyOrdersConfig =
+{
+    inputs: 
+    [
+        { id: "amount", min: 1 },
+        { id: "fAmount", min: 1 },
+        { id: "uAmount", min: 1 },
+        { range: ["rFAmount", "rUAmount"], min: 1 }
+    ],
+    button: "applyFilterButton"
+}
+
+//Cuando carga el DOM asignamos la configuración a los inputs para poder hacer las validaciones:
+import { configAmountValidationsGroup } from "/js/amountValidations.js";
+document.addEventListener("DOMContentLoaded", () => configAmountValidationsGroup(amountsSupplyOrdersConfig));
 
 /* ORDENAMOS LOS PEDIDOS */ 
 document.getElementById("applyOrderButton").addEventListener("click", () => filterSupplyOrders());
@@ -483,7 +457,7 @@ document.getElementById("sName-all").addEventListener("click", (event) => change
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkFiltersState(true); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+            checkFiltersState(); //Habilitamos o deshabilitamos el botón según el estado del filtro.
         }
     });
 });

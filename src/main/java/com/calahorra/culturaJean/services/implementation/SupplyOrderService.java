@@ -297,7 +297,7 @@ public class SupplyOrderService implements ISupplyOrderService
 		return supplyOrders; //Retornamos los pedidos de aprovisionamiento ordenados.
 	}
 		
-	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del) proveedor de forma inversa al alfabeto:
+	//Ordenamos el listado de pedidos de aprovisionamiento por el nombre del proveedor de forma inversa al alfabeto:
 	@Override
 	public List<SupplyOrderDTO> inOrderDescBySupplierName(List<SupplyOrderDTO> supplyOrders)
 	{
@@ -504,19 +504,22 @@ public class SupplyOrderService implements ISupplyOrderService
 													  int rangeFromAmount, int rangeUntilAmount)
 	{
 		//Aplicamos el filtro que corresponda de la sección cantidad al listado:
-		if(amount >= 1 && fromAmount == -1 && untilAmount == -1 && rangeFromAmount == -1 && rangeUntilAmount == -1) //Filtro por cantidad específica.
+		if(amount >= 1) //Filtro por cantidad específica.
 		{
 			supplyOrders = filterByAmount(supplyOrders, amount); //Nos quedamos solo con los que cumplen el filtro.
 		}
-		else if(amount == -1 && fromAmount >= 1 && untilAmount == -1 && rangeFromAmount == -1 && rangeUntilAmount == -1) //Filtro por cantidad mayor o igual a una específica.
+		
+		if(fromAmount >= 1) //Filtro por cantidad mayor o igual a una específica.
 		{
 			supplyOrders = filterByFromAmount(supplyOrders, fromAmount); //Nos quedamos solo con los que cumplen el filtro.
 		}
-		else if(amount == -1 && fromAmount == -1 && untilAmount >= 1 && rangeFromAmount == -1 && rangeUntilAmount == -1) //Filtro por cantidad menor o igual a una específica.
+		
+		if(untilAmount >= 1) //Filtro por cantidad menor o igual a una específica.
 		{
 			supplyOrders = filterByUntilAmount(supplyOrders, untilAmount); //Nos quedamos solo con los que cumplen el filtro.
 		}
-		else if(amount == -1 && fromAmount == -1 && untilAmount == -1 && rangeFromAmount >= 1 && rangeUntilAmount >= 1) //Filtro por una cantidad entre un rango específico.
+		
+		if(rangeFromAmount >= 1 && rangeUntilAmount >= 1) //Filtro por una cantidad entre un rango específico.
 		{
 			supplyOrders = filterByAmountRange(supplyOrders, rangeFromAmount, rangeUntilAmount); //Nos quedamos solo con los que cumplen el filtro.
 		}
