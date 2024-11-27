@@ -33,7 +33,7 @@
 							<option value="orderDescByAmount" th:selected="${order == 'orderDescByAmount'}">Descendent By Amount</option>
 						</select>
 					</label>
-					<button type="button" id="applyOrderButton">Apply</button>
+					<button id="applyOrderButton">Apply</button>
 				</form>
 				<form>
 					<label>Choose Filters:
@@ -85,9 +85,9 @@
 							<label>Undelivered <input type="radio" name="delivered" value="false" th:checked="${delivered == 'false'}" id="delivered-false"></label>
 						</details>
 					</label>
-					<button type="button" id="applyFilterButton">Apply</button>
+					<button id="applyFilterButton">Apply</button>
 				</form>
-				<button type="button" id="resetAllButton">Reset All</button>
+				<button id="resetAllButton">Reset All</button>
 				<table border="3" id="supplyOrdersTable">
 					<thead>
 						<tr>
@@ -119,5 +119,6 @@
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
-	<script src="/js/adminAccount.js"></script>
+	<script type="module" src="/js/adminAccount.js"></script>
+	<script type="module" src="/js/amountValidations.js"></script>
 </html>
