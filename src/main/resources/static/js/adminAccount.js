@@ -51,8 +51,7 @@ function getAdminUsernameValue()
 /* OBTENEMOS LOS VALORES DE CADA FILTRO */
 function getFiltersValues()
 {
-	return filters =
-	{
+	return {
 		productCodes: getSelectedValues("pCode"), //Códigos de producto.
 		supplierNames: getSelectedValues("sName"), //Nombre de proveedor.
 		adminUsernames: getAdminUsernameValue(), //Username del administrador.

@@ -14,7 +14,7 @@
 				<h2>Lots To Register</h2>
 				<form>
 					<label>Choose The Order:
-						<select name="orderSO" required>
+						<select name="orderSO">
 							<option value="orderAscByProductCode" th:selected="${orderSO == 'orderAscByProductCode'}">Ascendent By Product Code</option>
 							<option value="orderDescByProductCode" th:selected="${orderSO == 'orderDescByProductCode'}">Descendent By Product Code</option>
 							<option value="orderAscBySupplierName" th:selected="${orderSO == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
@@ -23,7 +23,7 @@
 							<option value="orderDescByAmount" th:selected="${orderSO == 'orderDescByAmount'}">Descendent By Amount</option>
 						</select>
 					</label>
-					<button id="applyOrderSOButton">Apply</button>
+					<button type="button" id="applyOrderSOButton">Apply</button>
 				</form>
 				<form>
 					<label>Choose Filters:
@@ -68,9 +68,9 @@
 							</details>
 						</details>
 					</label>
-					<button id="applyFiltersSOButton">Apply</button>
+					<button type="button" id="applyFiltersSOButton">Apply</button>
 				</form>
-				<button id="resetAllSOButton">Reset All</button>
+				<button type="button" id="resetAllSOButton">Reset All</button>
 				<table border="3" id="supplyOrdersTable">
 					<thead>
 						<tr>
@@ -109,7 +109,7 @@
 				<h2>Registered Lots</h2>
 				<form>
 					<label>Choose The Order:
-						<select name="orderL" required>
+						<select name="orderL">
 							<option value="orderAscByStockId" th:selected="${orderL == 'orderAscByStockId'}">Ascendent By Stock Id</option>
 							<option value="orderDescByStockId" th:selected="${orderL == 'orderDescByStockId'}">Descendent By Stock Id</option>
 							<option value="orderAscByReceptionDate" th:selected="${orderL == 'orderAscByReceptionDate'}">Ascendent By Reception Date</option>
@@ -118,7 +118,7 @@
 							<option value="orderDescByExistingAmount" th:selected="${orderL == 'orderDescByExistingAmount'}">Descendent By Existing Amount</option>
 						</select>
 					</label>
-					<button id="applyOrderLButton">Apply</button>
+					<button type="button" id="applyOrderLButton">Apply</button>
 				</form>
 				<form>
 					<label>Choose Filters:
@@ -173,9 +173,9 @@
 							</details>
 						</details>
 					</label>
-					<button id="applyFiltersLButton">Apply</button>
+					<button type="button" id="applyFiltersLButton">Apply</button>
 				</form>
-				<button id="resetAllLButton">Reset All</button>
+				<button type="button" id="resetAllLButton">Reset All</button>
 				<table border="3" id="lotsTable">
 					<thead>
 						<tr>
