@@ -13,7 +13,7 @@
 			<section>
 				<form>
 					<label>Choose The Order:
-						<select name="order" required>
+						<select name="order">
 							<option value="orderAscByName" th:selected="${order == 'orderAscByName'}">Ascendent By Name</option>
 							<option value="orderDescByName" th:selected="${order == 'orderDescByName'}">Descendent By Name</option>
 							<option value="orderAscByLastName" th:selected="${order == 'orderAscByLastName'}">Ascendent By Last Name</option>
@@ -28,9 +28,9 @@
 				    <label>Choose The Filter:
 						<details id="enabledFilterContainer">
 							<summary>Customer's State</summary>
-							<label>All <input type="radio" name="enabled" value="all" th:checked="${enabled == 'all'}" required></label>
-					        <label>Enabled <input type="radio" name="enabled" value="true" th:checked="${enabled == 'true'}" required></label>
-					        <label>Not Enabled <input type="radio" name="enabled" value="false" th:checked="${enabled == 'false'}" required></label>
+							<label>All <input type="radio" name="enabled" value="all" th:checked="${enabled == 'all'}"></label>
+					        <label>Enabled <input type="radio" name="enabled" value="true" th:checked="${enabled == 'true'}"></label>
+					        <label>Not Enabled <input type="radio" name="enabled" value="false" th:checked="${enabled == 'false'}"></label>
 				    	</details>
 					</label>
 				    <button type="button" id="applyFilterButton">Apply</button>
