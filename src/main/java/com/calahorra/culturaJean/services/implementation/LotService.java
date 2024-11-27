@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -479,20 +481,28 @@ public class LotService implements ILotService
 	
 	//Filtramos los lotes por id del stock asociado:
 	@Override
-	public List<LotDTO> filterByStockId(List<LotDTO> lots, int stockId)
+	public List<LotDTO> filterByStockIds(List<LotDTO> lots, List<String> stockIds)
 	{
-		Iterator<LotDTO> iterator = lots.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya un lote por analizar:
-		while(iterator.hasNext())
-		{
-			LotDTO lot = iterator.next(); //Obtenemos ese lote.
-			if (lot.getStock().getStockId() != stockId) 
-			{
-				iterator.remove(); //En caso de que no tenga un id de stock igual al del filtro, lo removemos.
-	        }
+		//Convertimos la lista de ids de stock a un Set para optimizar la búsqueda:
+	    Set<String> stockIdsString = new HashSet<>(stockIds);
+	    
+	    //Si se eligió alguna opción de filtro:
+	    if(!stockIdsString.contains("all")) 
+	    {
+	    	//Obtenemos los ids en formato de Integer:
+	    	Set<Integer> stockIdsInteger = new HashSet<>();
+	    	for(String stockIdString: stockIdsString) 
+	    	{
+	    		stockIdsInteger.add(Integer.parseInt(stockIdString));
+	    	}
+	    	
+	    	//Filtramos los lotes cuyo id de stock esté en el conjunto:
+		    lots = lots.stream()
+				        .filter(lot -> stockIdsInteger.contains(lot.getStock().getStockId()))
+				        .collect(Collectors.toList());
 	    }
-		return lots; //Retornamos el listado de lotes filtrado.
+	    
+	    return lots; //Retornamos los lotes.
 	}
 		
 	//Filtramos los lotes por determinada fecha de recepción:
@@ -569,35 +579,35 @@ public class LotService implements ILotService
 		
 	//Filtramos los lotes por id del stock asociado:
 	@Override
-	public List<LotDTO> applyFilterTypeReceptionDate(List<LotDTO> lots, String receptionDate, String fromReceptionDate, String untilReceptionDate,
-												  		 String rangeFromReceptionDate, String rangeUntilReceptionDate)
+	public List<LotDTO> applyFilterTypeReceptionDate(List<LotDTO> lots, String receptionDate, String fromReceptionDate, 
+													 String untilReceptionDate, String rangeFromReceptionDate, String rangeUntilReceptionDate)
 	{
-		if(!receptionDate.equals("") && fromReceptionDate.equals("") && untilReceptionDate.equals("") && rangeFromReceptionDate.equals("") 
-		   && rangeUntilReceptionDate.equals("")) //Filtro por fecha de recepción determinada:
+		if(!receptionDate.equals("")) //Filtro por fecha de recepción determinada:
 		{
 			LocalDate receptionDateObject = LocalDate.parse(receptionDate); //Convertimos la cadena en un objeto LocalDate.
 			lots = filterByReceptionDate(lots, receptionDateObject); //Nos quedamos los lotes que cumplen el filtro.
 		}
-		else if(!fromReceptionDate.equals("") && receptionDate.equals("") && untilReceptionDate.equals("") && rangeFromReceptionDate.equals("") 
-				&& rangeUntilReceptionDate.equals("")) //Filtro por fecha de recepción posterior o igual a una determinada:
+		
+		if(!fromReceptionDate.equals("")) //Filtro por fecha de recepción posterior o igual a una determinada:
 		{
 			LocalDate fromReceptionDateObject = LocalDate.parse(fromReceptionDate); //Convertimos la cadena en un objeto LocalDate.
 			lots = filterByFromReceptionDate(lots, fromReceptionDateObject); //Nos quedamos los lotes que cumplen el filtro.
 		}
-		else if(!untilReceptionDate.equals("") && receptionDate.equals("") && fromReceptionDate.equals("") && rangeFromReceptionDate.equals("") 
-				&& rangeUntilReceptionDate.equals("")) //Filtro por fecha de recepción anterior o igual a una determinada:
+		
+		if(!untilReceptionDate.equals("")) //Filtro por fecha de recepción anterior o igual a una determinada:
 		{
 			LocalDate untilReceptionDateObject = LocalDate.parse(untilReceptionDate); //Convertimos la cadena en un objeto LocalDate.
 			lots = filterByUntilReceptionDate(lots, untilReceptionDateObject); //Nos quedamos los lotes que cumplen el filtro.
 		}
-		else if(!rangeFromReceptionDate.equals("") && !rangeUntilReceptionDate.equals("") && receptionDate.equals("") && fromReceptionDate.equals("") 
-				&& untilReceptionDate.equals("")) //Filtro por fecha de recepción en un rango determinado:
+		
+		if(!rangeFromReceptionDate.equals("") && !rangeUntilReceptionDate.equals("")) //Filtro por fecha de recepción en un rango determinado:
 		{
 			LocalDate rangeFromReceptionDateObject = LocalDate.parse(rangeFromReceptionDate); //Convertimos la cadena en un objeto LocalDate.
 			LocalDate rangeUntilReceptionDateObject = LocalDate.parse(rangeUntilReceptionDate); //Convertimos la cadena en un objeto LocalDate.
 			lots = filterByReceptionDateRange(lots, rangeFromReceptionDateObject, rangeUntilReceptionDateObject); //Nos quedamos los lotes que cumplen el filtro.
 		}
-		return lots; //Retornamos los lotes filtrados por el criterio seleccionado de fecha de recepción.
+		
+		return lots; //Retornamos los lotes filtrados por el/los criterio/s seleccionado/s de fecha de recepción.
 	}
 		
 	//Filtramos los lotes por determinada cantidad existente:
@@ -674,49 +684,43 @@ public class LotService implements ILotService
 		
 	//Filtramos los lotes por id del stock asociado:
 	@Override
-	public List<LotDTO> applyFilterTypeExistingAmount(List<LotDTO> lots, String existingAmount, String fromExistingAmount, String untilExistingAmount,
-														  String rangeFromExistingAmount, String rangeUntilExistingAmount)
+	public List<LotDTO> applyFilterTypeExistingAmount(List<LotDTO> lots, int existingAmount, int fromExistingAmount, int untilExistingAmount,
+													  int rangeFromExistingAmount, int rangeUntilExistingAmount)
 	{
-		if(!existingAmount.equals("") && fromExistingAmount.equals("") && untilExistingAmount.equals("") && rangeFromExistingAmount.equals("")
-		   && rangeUntilExistingAmount.equals("")) //Filtro por cantidad existente:
+		if(existingAmount >= 0) //Filtro por cantidad existente:
 		{
-			int existingAmountNumber = Integer.parseInt(existingAmount); //Convertimos la cadena a número.
-			lots = filterByExistingAmount(lots, existingAmountNumber); //Nos quedamos los lotes que cumplen el filtro.
+			lots = filterByExistingAmount(lots, existingAmount); //Nos quedamos los lotes que cumplen el filtro.
 		}
-		else if(!fromExistingAmount.equals("") && existingAmount.equals("") && untilExistingAmount.equals("") &&  rangeFromExistingAmount.equals("")
-				&& rangeUntilExistingAmount.equals("")) //Filtro por cantidad existente mayor o igual a una determinada:
+		
+		if(fromExistingAmount >= 0) //Filtro por cantidad existente mayor o igual a una determinada:
 		{
-			int fromExistingAmountNumber = Integer.parseInt(fromExistingAmount); //Convertimos la cadena a número.
-			lots = filterByFromExistingAmount(lots, fromExistingAmountNumber); //Nos quedamos los lotes que cumplen el filtro.
+			lots = filterByFromExistingAmount(lots, fromExistingAmount); //Nos quedamos los lotes que cumplen el filtro.
 		}
-		else if(!untilExistingAmount.equals("") && existingAmount.equals("") && fromExistingAmount.equals("") &&  rangeFromExistingAmount.equals("")
-				&& rangeUntilExistingAmount.equals("")) //Filtro por cantidad existente menor o igual a una determinada:
+		
+		if(untilExistingAmount >= 0) //Filtro por cantidad existente menor o igual a una determinada:
 		{
-			int untilExistingAmountNumber = Integer.parseInt(untilExistingAmount); //Convertimos la cadena a número.
-			lots = filterByUntilExistingAmount(lots, untilExistingAmountNumber); //Nos quedamos los lotes que cumplen el filtro.
+			lots = filterByUntilExistingAmount(lots, untilExistingAmount); //Nos quedamos los lotes que cumplen el filtro.
 		}
-		else if(!rangeFromExistingAmount.equals("") && !rangeUntilExistingAmount.equals("") && existingAmount.equals("") &&  fromExistingAmount.equals("")
-				&& untilExistingAmount.equals("")) //Filtro por cantidad existente en un rango determinado:
+		
+		if(rangeFromExistingAmount >= 0) //Filtro por cantidad existente en un rango determinado:
 		{
-			int rangeFromExistingAmountNumber = Integer.parseInt(rangeFromExistingAmount); //Convertimos la cadena a número.
-			int rangeUntilExistingAmountNumber = Integer.parseInt(rangeUntilExistingAmount); //Convertimos la cadena a número.
-			lots = filterByExistingAmountRange(lots, rangeFromExistingAmountNumber, rangeUntilExistingAmountNumber); //Nos quedamos los lotes que cumplen el filtro.
+			lots = filterByExistingAmountRange(lots, rangeFromExistingAmount, rangeUntilExistingAmount); //Nos quedamos los lotes que cumplen el filtro.
 		}
+		
 		return lots; //Retornamos los lotes filtrados por el criterio de cantidad existente seleccionado.
 	}
 		
 	//Aplicamos todos los filtros seleccionados:
 	@Override
-	public List<LotDTO> applyFilters(List<LotDTO> lots, String stockId, String receptionDate, String fromReceptionDate, 
-										 String untilReceptionDate, String rangeFromReceptionDate, String rangeUntilReceptionDate, 
-										 String existingAmount, String fromExistingAmount, String untilExistingAmount, 
-										 String rangeFromExistingAmount, String rangeUntilExistingAmount)
+	public List<LotDTO> applyFilters(List<LotDTO> lots, List<String> stockIds, String receptionDate, String fromReceptionDate, 
+									 String untilReceptionDate, String rangeFromReceptionDate, String rangeUntilReceptionDate, 
+									 int existingAmount, int fromExistingAmount, int untilExistingAmount, int rangeFromExistingAmount, 
+									 int rangeUntilExistingAmount)
 	{
 		//Si se seleccionó un filtro de la sección id de stock:
-		if(!stockId.equals("all")) 
+		if(stockIds.size() > 0) 
 		{
-			int stockIdNumber = Integer.parseInt(stockId); //Convertimos la cadena en un número.
-			lots = filterByStockId(lots, stockIdNumber); //Nos quedamos con los lotes que cumplan el filtro.
+			lots = filterByStockIds(lots, stockIds); //Nos quedamos con los lotes que cumplan el filtro.
 		}
 		
 		//Aplicamos el filtro seleccionado de fecha de recepción:
@@ -726,29 +730,5 @@ public class LotService implements ILotService
 		lots = applyFilterTypeExistingAmount(lots, existingAmount, fromExistingAmount, untilExistingAmount, rangeFromExistingAmount, rangeUntilExistingAmount);
 		
 		return lots; //Retornamos los lotes filtrados por los criterios seleccionados.
-	}
-	
-	//Verificar o corregir:
-	
-	//Verificamos o corregimos los valores que llegan de los inputs tipo date y time para evitar la presencia de ',' en ellos:
-	@Override
-	public String verifyOrCorrectValue(String value) 
-	{
-		//La clave está en saber si contiene una ',' o no:
-		if(value.contains(",")) //En caso de que haya:
-		{
-			int commaIndex = value.indexOf(","); //Obtenemos su posición en la cadena de texto.
-			
-			//Si se encuentra al principio:
-			if(commaIndex == 0) 
-			{
-				value = value.substring(1); //El valor correcto es desde el caracter que ocupa la posición 1 en adelante.
-			}
-			else //Por el contrario, si la coma se encuentra al final de la cadena:
-			{
-				value = value.substring(0, commaIndex); //El valor correcto es desde el primer caracter hasta la posición anterior a la ',' inclusive.
-			}
-		}
-		return value; //Retornamos el valor verificado/corregido.
 	}
 }

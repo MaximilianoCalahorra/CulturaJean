@@ -150,7 +150,7 @@ public interface ILotService
 	public List<SupplyOrderDTO> filterBySupplyOrderWithInexistingLot(List<SupplyOrderDTO> supplyOrders);
 	
 	//Filtramos los lotes por id del stock asociado:
-	public List<LotDTO> filterByStockId(List<LotDTO> lots, int stockId);
+	public List<LotDTO> filterByStockIds(List<LotDTO> lots, List<String> stockIds);
 	
 	//Filtramos los lotes por determinada fecha de recepción:
 	public List<LotDTO> filterByReceptionDate(List<LotDTO> lots, LocalDate receptionDate);
@@ -181,17 +181,19 @@ public interface ILotService
 	public List<LotDTO> filterByExistingAmountRange(List<LotDTO> lots, int rangeFromExistingAmount, int rangeUntilExistingAmount);
 	
 	//Filtramos los lotes por id del stock asociado:
-	public List<LotDTO> applyFilterTypeExistingAmount(List<LotDTO> lots, String existingAmount, String fromExistingAmount, String untilExistingAmount,
-													  String rangeFromExistingAmount, String rangeUntilExistingAmount);
+	public List<LotDTO> applyFilterTypeExistingAmount(List<LotDTO> lots, int existingAmount, int fromExistingAmount, int untilExistingAmount,
+													  int rangeFromExistingAmount, int rangeUntilExistingAmount);
 	
 	//Aplicamos todos los filtros seleccionados:
-	public List<LotDTO> applyFilters(List<LotDTO> lots, String stockId, String receptionDate, String fromReceptionDate, 
+	public List<LotDTO> applyFilters(List<LotDTO> lots, List<String> stockId, String receptionDate, String fromReceptionDate, 
 									 String untilReceptionDate, String rangeFromReceptionDate, String rangeUntilReceptionDate, 
-									 String existingAmount, String fromExistingAmount, String untilExistingAmount, 
-									 String rangeFromExistingAmount, String rangeUntilExistingAmount);
+									 int existingAmount, int fromExistingAmount, int untilExistingAmount, int rangeFromExistingAmount, 
+									 int rangeUntilExistingAmount);
 	
+	/* ANTES
 	//Verificar o corregir:
 	
 	//Verificamos o corregimos los valores que llegan de los inputs tipo date y time para evitar la presencia de ',' en ellos:
 	public String verifyOrCorrectValue(String value);
+	*/
 }
