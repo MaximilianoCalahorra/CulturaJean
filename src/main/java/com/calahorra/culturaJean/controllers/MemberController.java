@@ -20,6 +20,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.MemberDTO;
 import com.calahorra.culturaJean.dtos.PurchaseDTO;
+import com.calahorra.culturaJean.dtos.PurchaseFiltersDataDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Member;
@@ -133,23 +134,10 @@ public class MemberController
 	
 	//Respondemos a las peticiones de acceso al perfil del cliente presentando la vista:
 	@GetMapping("/myAccount/customer")
-	public ModelAndView myAccountCustomer(@RequestParam(value = "order", defaultValue = "orderDescByDateTime")String order,
-										  @RequestParam(value = "date", defaultValue = "")String date,
-										  @RequestParam(value = "fromDate", defaultValue = "")String fromDate,
-										  @RequestParam(value = "untilDate", defaultValue = "")String untilDate,
-										  @RequestParam(value = "rangeFromDate", defaultValue = "")String rangeFromDate,
-										  @RequestParam(value = "rangeUntilDate", defaultValue = "")String rangeUntilDate,
-										  @RequestParam(value = "fromTime", defaultValue = "")String fromTime,
-										  @RequestParam(value = "untilTime", defaultValue = "")String untilTime,
-										  @RequestParam(value = "rangeFromTime", defaultValue = "")String rangeFromTime,
-										  @RequestParam(value = "rangeUntilTime", defaultValue = "")String rangeUntilTime,
-										  @RequestParam(value = "methodOfPay", defaultValue = "All")String methodOfPay,
-										  @RequestParam(value = "fromPurchasePrice", defaultValue = "")String fromPurchasePrice,
-										  @RequestParam(value = "untilPurchasePrice", defaultValue = "")String untilPurchasePrice,
-										  @RequestParam(value = "rangeFromPurchasePrice", defaultValue = "")String rangeFromPurchasePrice,
-										  @RequestParam(value = "rangeUntilPurchasePrice", defaultValue = "")String rangeUntilPurchasePrice)
+	public ModelAndView myAccountCustomer()
 											
 	{
+		//Definimos la vista a cargar:
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.MY_ACCOUNT_CUSTOMER);
 		
 		//Obtenemos el cliente que inició sesión:
@@ -158,68 +146,69 @@ public class MemberController
 		//Obtenemos el DTO del cliente:
 		MemberDTO member = memberService.findByUsername(user.getUsername());
 		
-		List<PurchaseDTO> purchases = purchaseService.findByMember(member.getUsername()); //Obtenemos todas las compras del cliente.
+		//Obtenemos todas las compras del cliente:
+		List<PurchaseDTO> purchases = purchaseService.findByMember(member.getUsername()); 
 		
-		//Manejo de posibles envíos de ',' en inputs de tipo date o time vacíos:
-		if(date.equals(",")) date = "";
-		if(fromDate.equals(",")) fromDate = "";
-		if(untilDate.equals(",")) untilDate = "";
-		if(rangeFromDate.equals(",")) rangeFromDate = "";
-		if(rangeUntilDate.equals(",")) rangeUntilDate = "";
-		if(fromTime.equals(",")) fromTime = "";
-		if(untilTime.equals(",")) untilTime = "";
-		if(rangeFromTime.equals(",")) rangeFromTime = "";
-		if(rangeUntilTime.equals(",")) rangeUntilTime = "";
-				
-		//Manejo de posibles envíos de ',' de inputs de tipo date o time al enviar una fecha u hora, respectivamente:
-		date = purchaseService.verifyOrCorrectValue(date);
-		fromDate = purchaseService.verifyOrCorrectValue(fromDate);
-		untilDate = purchaseService.verifyOrCorrectValue(untilDate);
-		rangeFromDate = purchaseService.verifyOrCorrectValue(rangeFromDate);
-		rangeUntilDate = purchaseService.verifyOrCorrectValue(rangeUntilDate);
-		fromTime = purchaseService.verifyOrCorrectValue(fromTime);
-		untilTime = purchaseService.verifyOrCorrectValue(untilTime);
-		rangeFromTime = purchaseService.verifyOrCorrectValue(rangeFromTime);
-		rangeUntilTime = purchaseService.verifyOrCorrectValue(rangeUntilTime);
-		
-		//Aplicamos el filtro de fecha que corresponda:
-		purchases = purchaseService.applyFilterTypeDateOnList(purchases, date, fromDate, untilDate, rangeFromDate, rangeUntilDate);
-		
-		//Aplicamos el filtro de hora que corresponda:
-		purchases = purchaseService.applyFilterTypeTime(purchases, fromTime, untilTime, rangeFromTime, rangeUntilTime);
-		
-		//Aplicamos filtros según corresponda por método de pago:
-		if(!methodOfPay.equals("All")) 
-		{
-			purchases = purchaseService.filterByMethodOfPay(purchases, methodOfPay);
-		}
-		
-		//Aplicamos filtros según corresponda por precio de la compra:
-		purchases = purchaseService.applyFilterTypePurchasePrice(purchases, fromPurchasePrice, untilPurchasePrice, rangeFromPurchasePrice, rangeUntilPurchasePrice);
-		
-		//Ordenamos el listado de ventas resultante de los procesos anteriores en base al tipo de ordenamiento elegido:
+		//Ordenamos las compras por el criterio por defecto:
+		String order = "orderDescByDateTime";
 		purchases = purchaseService.applyOrder(purchases, order);
 		
 		//Agregamos la información a la vista:
 		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento elegido.
-		modelAndView.addObject("date", date); //Adjuntamos el filtro por fecha específica elegido.
-		modelAndView.addObject("fromDate", fromDate); //Adjuntamos el filtro por posteriores o iguales a una fecha elegido.
-		modelAndView.addObject("untilDate", untilDate); //Adjuntamos el filtro por anteriores o iguales a una fecha elegido.
-		modelAndView.addObject("rangeFromDate", rangeFromDate); //Adjuntamos el filtro de posteriores o iguales a una fecha dentro de un rango elegido.
-		modelAndView.addObject("rangeUntilDate", rangeUntilDate); //Adjuntamos el filtro de anteriores o iguales a una fecha dentro de un rango elegido.
-		modelAndView.addObject("fromTime", fromTime); //Adjuntamos el filtro por posteriores o iguales a una hora elegido.
-		modelAndView.addObject("untilTime", untilTime); //Adjuntamos el filtro por anteriores o iguales a una hora elegido.
-		modelAndView.addObject("rangeFromTime", rangeFromTime); //Adjuntamos el filtro de posteriores o iguales a una hora dentro de un rango elegido.
-		modelAndView.addObject("rangeUntilTime", rangeUntilTime); //Adjuntamos el filtro de anteriores o iguales a una hora dentro de un rango elegido.
-		modelAndView.addObject("methodOfPay", methodOfPay); //Adjuntamos el método de pago aplicado como filtro.
-		modelAndView.addObject("fromPurchasePrice", fromPurchasePrice); //Adjuntamos el filtro por mayores o iguales a un precio.
-		modelAndView.addObject("untilPurchasePrice", untilPurchasePrice); //Adjuntamos el filtro por menores o iguales a un precio.
-		modelAndView.addObject("rangeFromPurchasePrice", rangeFromPurchasePrice); //Adjuntamos el filtro por mayores o iguales a un precio dentro de un rango elegido.
-		modelAndView.addObject("rangeUntilPurchasePrice", rangeUntilPurchasePrice); //Adjuntamos el filtro por menores o iguales a un precio dentro de un rango elegido.
+		modelAndView.addObject("methodOfPay", "all"); //Adjuntamos el método de pago aplicado como filtro.
+		modelAndView.addObject("fromPurchasePrice", ""); //Adjuntamos el filtro por mayores o iguales a un precio.
+		modelAndView.addObject("untilPurchasePrice", ""); //Adjuntamos el filtro por menores o iguales a un precio.
+		modelAndView.addObject("rangeFromPurchasePrice", ""); //Adjuntamos el filtro por mayores o iguales a un precio dentro de un rango elegido.
+		modelAndView.addObject("rangeUntilPurchasePrice", ""); //Adjuntamos el filtro por menores o iguales a un precio dentro de un rango elegido.
 		modelAndView.addObject("member", member); //Adjuntamos el cliente.
 		modelAndView.addObject("purchases", purchases); //Adjuntamos su listado de compras.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
+	}
+	
+	//Respondemos a las peticiones de filtrado/ordenamiento de las compras:
+	@PostMapping("/myAccount/customer/filter")
+	public ResponseEntity<List<PurchaseDTO>> filteredPurchases(@RequestBody PurchaseFiltersDataDTO filtersData) 
+	{
+		//Obtenemos los valores seleccionados para hacer el filtrado y ordenamiento:
+    	String order = filtersData.getOrder();
+    	String date = filtersData.getDate();
+    	String fromDate = filtersData.getFromDate();
+    	String untilDate = filtersData.getUntilDate();
+    	String rangeFromDate = filtersData.getRangeFromDate();
+    	String rangeUntilDate = filtersData.getRangeUntilDate();
+    	String fromTime = filtersData.getFromTime();
+    	String untilTime = filtersData.getUntilTime();
+    	String rangeFromTime = filtersData.getRangeFromTime();
+    	String rangeUntilTime = filtersData.getRangeUntilTime();
+    	List<String> methodsOfPay = filtersData.getMethodsOfPay();
+    	float fromPrice = Float.parseFloat(filtersData.getFromPrice());
+    	float untilPrice = Float.parseFloat(filtersData.getUntilPrice());
+    	float rangeFromPrice = Float.parseFloat(filtersData.getRangeFromPrice());
+    	float rangeUntilPrice = Float.parseFloat(filtersData.getRangeUntilPrice());
+    	
+    	//Obtenemos el cliente que inició sesión:
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		//Obtenemos todas las compras del cliente:
+		List<PurchaseDTO> purchases = purchaseService.findByMember(user.getUsername());
+    	
+    	//Aplicamos los filtros seleccionados de fechas:
+		purchases = purchaseService.applyFilterTypeDateOnList(purchases, date, fromDate, untilDate, rangeFromDate, rangeUntilDate);
+		
+		//Aplicamos los filtros seleccionados de horas:	
+		purchases = purchaseService.applyFilterTypeTime(purchases, fromTime, untilTime, rangeFromTime, rangeUntilTime);
+		
+		//Aplicamos los filtros seleccionados de métodos de pago:
+		purchases = purchaseService.filterByMethodOfPay(purchases, methodsOfPay);
+	
+		//Aplicamos los filtros seleccionados de precios:
+		purchases = purchaseService.applyFilterTypePurchasePrice(purchases, fromPrice, untilPrice, rangeFromPrice, rangeUntilPrice);
+		
+		//Aplicamos el ordenamiento seleccionado:
+		purchases = purchaseService.applyOrder(purchases, order);
+		
+        return ResponseEntity.ok(purchases); //Retornamos las compras filtradas y ordenadas como JSON.
 	}
 	
 	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:

@@ -6,8 +6,10 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -351,6 +353,7 @@ public class PurchaseService implements IPurchaseService
 	}
 	
 	//Aplicamos el ordenamiento elegido:
+	@Override
 	public List<PurchaseDTO> applyOrder(List<PurchaseDTO> purchases, String order)
 	{
 		//Ordenamos el listado de compras/ventas resultante de los procesos anteriores en base al tipo de ordenamiento elegido:
@@ -382,38 +385,40 @@ public class PurchaseService implements IPurchaseService
 	
 	//Filtramos las compras por nombre de usuario:
 	@Override
-	public List<PurchaseDTO> filterByUsername(List<PurchaseDTO> purchases, String username)
+	public List<PurchaseDTO> filterByUsername(List<PurchaseDTO> purchases, List<String> usernames)
 	{
-		Iterator<PurchaseDTO> iterator = purchases.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya una compra por analizar:
-		while(iterator.hasNext())
-		{
-			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
-			if (!purchase.getMember().getUsername().equals(username)) 
-			{
-				iterator.remove(); //En caso de que el miembro asociado no tenga el mismo nombre de usuario del filtro, la removemos del listado.
-	        }
+	    //Convertimos la lista de usernames de clientes a un Set para optimizar la búsqueda:
+	    Set<String> usernamesSet = new HashSet<>(usernames);
+	    
+	    //Si se eligió alguna opción de filtro:
+	    if(!usernames.contains("all")) 
+	    {
+	    	//Filtramos las compras cuyo username de cliente esté en el conjunto:
+		    purchases = purchases.stream()
+				          .filter(purchase -> usernamesSet.contains(purchase.getMember().getUsername()))
+				          .collect(Collectors.toList());
 	    }
-		return purchases; //Retornamos el listado de compras filtrado.
+	    
+	    return purchases; //Retornamos las compras.
 	}
 		
 	//Filtramos las compras por método de pago:
 	@Override
-	public List<PurchaseDTO> filterByMethodOfPay(List<PurchaseDTO> purchases, String methodOfPay)
+	public List<PurchaseDTO> filterByMethodOfPay(List<PurchaseDTO> purchases, List<String> methodsOfPay)
 	{
-		Iterator<PurchaseDTO> iterator = purchases.iterator(); //Definimos un objeto Iterator para el listado.
-		
-		//Mientras haya una compra por analizar:
-		while(iterator.hasNext())
-		{
-			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
-			if (!purchase.getMethodOfPay().equals(methodOfPay)) 
-			{
-				iterator.remove(); //En caso de que no tenga el mismo medio de pago del filtro, la removemos del listado.
-	        }
+		//Convertimos la lista de métodos de pago a un Set para optimizar la búsqueda:
+	    Set<String> methodsOfPaySet = new HashSet<>(methodsOfPay);
+	    
+	    //Si se eligió alguna opción de filtro:
+	    if(!methodsOfPay.contains("all")) 
+	    {
+	    	//Filtramos las compras cuyo username de cliente esté en el conjunto:
+		    purchases = purchases.stream()
+				         .filter(purchase -> methodsOfPaySet.contains(purchase.getMethodOfPay()))
+				         .collect(Collectors.toList());
 	    }
-		return purchases; //Retornamos el listado de compras filtrado.
+	    
+	    return purchases; //Retornamos las compras.
 	}
 	
 	//Filtramos las compras por fecha:
@@ -496,7 +501,7 @@ public class PurchaseService implements IPurchaseService
 		List<PurchaseDTO> purchases = new ArrayList<PurchaseDTO>(); 
 		
 		//Aplicamos el filtro de fecha que corresponda:
-		if(!date.equals("") || !fromDate.equals("") || !untilDate.equals("") || !rangeFromDate.equals("") || rangeUntilDate.equals("")) 
+		if(!date.equals("") || !fromDate.equals("") || !untilDate.equals("") || !rangeFromDate.equals("") || !rangeUntilDate.equals("")) 
 		{
 			if(!date.equals("")) //Filtramos por fecha en específico.
 			{
@@ -719,54 +724,26 @@ public class PurchaseService implements IPurchaseService
 	
 	//Aplicamos el filtro elegido de la sección precio de la compra/venta:
 	@Override
-	public List<PurchaseDTO> applyFilterTypePurchasePrice(List<PurchaseDTO> purchases, String fromPurchasePrice, String untilPurchasePrice,
-														  String rangeFromPurchasePrice, String rangeUntilPurchasePrice)
+	public List<PurchaseDTO> applyFilterTypePurchasePrice(List<PurchaseDTO> purchases, float fromPurchasePrice, float untilPurchasePrice,
+														  float rangeFromPurchasePrice, float rangeUntilPurchasePrice)
 	{
 		//Aplicamos filtros según corresponda por precio de la venta:
-		if(!fromPurchasePrice.equals("")) //Filtramos por mayores o iguales a un precio.
+		if(fromPurchasePrice > 0) //Filtro por precio mayor o igual a.
 		{
-			float fromPurchasePriceNumber = Float.parseFloat(fromPurchasePrice); //Convertimos la cadena a float.
-			purchases = filterByFromPurchasePrice(purchases, fromPurchasePriceNumber); //Nos quedamos con las compras/ventas con ese tipo de precio.
+			purchases = filterByFromPurchasePrice(purchases, fromPurchasePrice); //Nos quedamos con las compras/ventas con ese tipo de precio.
 		}
 		
-		if(!untilPurchasePrice.equals("")) //Filtramos por menores o iguales a un precio.
+		if(untilPurchasePrice > 0) //Filtro por precio menor o igual a.
 		{
-			float untilPurchasePriceNumber = Float.parseFloat(untilPurchasePrice); //Convertimos la cadena a float.
-			purchases = filterByUntilPurchasePrice(purchases, untilPurchasePriceNumber); //Nos quedamos con las compras/ventas con ese tipo de precio.
+			purchases = filterByUntilPurchasePrice(purchases, untilPurchasePrice); //Nos quedamos con las compras/ventas con ese tipo de precio.
 		}
 		
-		if(!rangeFromPurchasePrice.equals("") && !rangeUntilPurchasePrice.equals("")) //Filtramos por un rango de precios.
+		if(rangeFromPurchasePrice > 0 && rangeUntilPurchasePrice > 0) //Filtro por precio entre un rango.
 		{
-			float rangeFromPurchasePriceNumber = Float.parseFloat(rangeFromPurchasePrice); //Convertimos la cadena a float.
-			float rangeUntilPurchasePriceNumber = Float.parseFloat(rangeUntilPurchasePrice); //Convertimos la cadena a float.
-			purchases = filterByPurchasePriceRange(purchases, rangeFromPurchasePriceNumber, rangeUntilPurchasePriceNumber); //Nos quedamos con las compras/ventas con ese tipo de precio.
+			purchases = filterByPurchasePriceRange(purchases, rangeFromPurchasePrice, rangeUntilPurchasePrice); //Nos quedamos con las compras/ventas con ese tipo de precio.
 		}
 		
 		return purchases; //Retornamos el listado filtrado por el criterio elegido de precio de compra/venta.
-	}
-	
-	//Verificar o corregir:
-	
-	//Verificamos o corregimos los valores que llegan de los inputs tipo date y time para evitar la presencia de ',' en ellos:
-	@Override
-	public String verifyOrCorrectValue(String value) 
-	{
-		//La clave está en saber si contiene una ',' o no:
-		if(value.contains(",")) //En caso de que haya:
-		{
-			int commaIndex = value.indexOf(","); //Obtenemos su posición en la cadena de texto.
-			
-			//Si se encuentra al principio:
-			if(commaIndex == 0) 
-			{
-				value = value.substring(1); //El valor correcto es desde el caracter que ocupa la posición 1 en adelante.
-			}
-			else //Por el contrario, si la coma se encuentra al final de la cadena:
-			{
-				value = value.substring(0, commaIndex); //El valor correcto es desde el primer caracter hasta la posición anterior a la ',' inclusive.
-			}
-		}
-		return value; //Retornamos el valor verificado/corregido.
 	}
 	
 	//Mapear:
