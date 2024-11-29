@@ -754,6 +754,23 @@ const amountsDeliveredSupplyOrdersConfig =
 //Unificamos ambas configuraciones:
 const amountsConfig = [amountsUndeliveredSupplyOrdersConfig, amountsDeliveredSupplyOrdersConfig];
 
+//Definimos los nombres de las secciones:
+let filtersDeliveredSupplyOrdersSections = ["pCodeD", "sNameD", "usernameD"];
+let filtersUndeliveredSupplyOrdersSections = ["pCodeU", "sNameU", "usernameU"];
+
+//Definimos la configuración de los filtros a chequear para habilitar o no el botón:
+const sections = 
+[
+	{
+		names: filtersDeliveredSupplyOrdersSections,
+		buttonId: "applyFilterDeliveredButton",
+	},
+	{
+		names: filtersUndeliveredSupplyOrdersSections,
+		buttonId: "applyFilterUndeliveredButton",
+	}
+];
+
 //Cuando carga el DOM asignamos la configuración a los inputs para poder hacer las validaciones:
 import { configAmountValidations } from "/js/amountValidations.js";
-document.addEventListener("DOMContentLoaded", () => configAmountValidations(amountsConfig));
+document.addEventListener("DOMContentLoaded", () => configAmountValidations(amountsConfig, sections));

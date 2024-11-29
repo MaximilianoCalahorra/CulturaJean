@@ -425,9 +425,12 @@ const amountsSupplyOrdersConfig =
     button: "applyFilterButton"
 }
 
+//Definimos la configuración de los filtros a chequear para habilitar o no el botón:
+const sectionsFilters = ["pCode", "sName", "delivered"];
+
 //Cuando carga el DOM asignamos la configuración a los inputs para poder hacer las validaciones:
 import { configAmountValidationsGroup } from "/js/amountValidations.js";
-document.addEventListener("DOMContentLoaded", () => configAmountValidationsGroup(amountsSupplyOrdersConfig));
+document.addEventListener("DOMContentLoaded", () => configAmountValidationsGroup(amountsSupplyOrdersConfig, sectionsFilters, "applyFilterButton"));
 
 /* ORDENAMOS LOS PEDIDOS */ 
 document.getElementById("applyOrderButton").addEventListener("click", () => filterSupplyOrders());

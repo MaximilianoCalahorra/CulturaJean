@@ -172,7 +172,6 @@ const validateGroup = (group, sectionsFilters, buttonId) =>
 //Si se ingresa algún caracter que no sea un número, se convierte a "":
 const enforceNumericInput = (input) => 
 {
-    //ANTES input.addEventListener("input", () => input.value = input.value.replace(/[^0-9]/g, ""));
     input.addEventListener("input", () => 
     {
 		//Obtenemos el valor ingresado:
