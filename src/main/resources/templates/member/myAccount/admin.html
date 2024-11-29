@@ -62,20 +62,20 @@
 							<summary>Amount</summary>
 							<details id="amountContainer">
 								<summary>Specific Amount</summary>
-								<input type="number" min="1" name="amount" th:value="${amount}" id="amount">
+								<input type="text" inputmode="decimal" name="amount" th:value="${amount}" id="amount">
 							</details>
 							<details id="fromAmountContainer">
 								<summary>Greater or Equal To Amount</summary>
-								<input type="number" min="1" name="fAmount" th:value="${fAmount}" id="fAmount">
+								<input type="text" inputmode="decimal" name="fAmount" th:value="${fAmount}" id="fAmount">
 							</details>
 							<details id="untilAmountContainer">
 								<summary>Less or Equal To Amount</summary>
-								<input type="number" min="1" name="uAmount" th:value="${uAmount}" id="uAmount">
+								<input type="text" inputmode="decimal" name="uAmount" th:value="${uAmount}" id="uAmount">
 							</details>
 							<details id="rangeAmountContainer">
 								<summary>Amount To Amount</summary>
-								<input type="number" min="1" name="rFAmount" th:value="${rFAmount}" id="rFAmount">
-								<input type="number" min="1" name="rUAmount" th:value="${rUAmount}" id="rUAmount">
+								<input type="text" inputmode="decimal" name="rFAmount" th:value="${rFAmount}" id="rFAmount">
+								<input type="text" inputmode="decimal" name="rUAmount" th:value="${rUAmount}" id="rUAmount">
 							</details>
 						</details>
 						<details id="deliveredContainer">
