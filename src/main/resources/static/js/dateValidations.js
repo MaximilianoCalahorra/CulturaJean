@@ -63,6 +63,14 @@ export const validateDates = (config) =>
 	//Seleccionamos el botón de aplicar filtros:
 	const button = document.getElementById(config.applyFiltersButtonId);
 	
-	//Habilitamos o deshabilitamos el botón según si la configuración de fechas es válida o no, respectivamente:
-	button.disabled = !isRangeValid;
+	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
+	if(document.querySelectorAll(".error-message").length > 0)
+	{
+		button.disabled = true; //El botón debe permanecer deshabilitado sin importar el estado de los filtros.
+	}
+	else //Por el contrario, si los filtros son válidos:
+	{
+		//Habilitamos o deshabilitamos el botón según si la configuración de fechas es válida o no, respectivamente:
+		button.disabled = !isRangeValid;	
+	}
 };

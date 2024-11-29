@@ -28,7 +28,7 @@ const validateSingleInput = (input, min) =>
     const numericValue = parseFloat(value);
 
     //Si el valor es menor al mínimo permitido:
-    if(numericValue < min) 
+    if(numericValue <= min) 
     {
         showError(input, `Value must be at least ${min}.`); //Mostramos el mensaje de error.
         return false;
@@ -84,13 +84,13 @@ const validateRangeInputs = (fromInput, untilInput, min) =>
     const untilNumeric = parseFloat(untilValue);
 
     //Validamos si los valores son menores al mínimo:
-    if(fromNumeric < min)
+    if(fromNumeric <= min)
     {
         showError(fromInput, `From value must be at least ${min}.`); //Mensaje de error.
         return false;
     }
     
-    if(untilNumeric < min) 
+    if(untilNumeric <= min) 
     {
         showError(untilInput, `Until value must be at least ${min}.`); //Mensaje de error.
         return false;
@@ -153,13 +153,14 @@ const validateGroup = (group, sectionsFilters, buttonId) =>
             if(!isValid) allValid = false; //Entonces el grupo de inputs es inválido.
         }
     });
-
-	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
+    
+    //Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
 	if(document.querySelectorAll(".error-message").length > 0)
 	{
 		applyButton.disabled = true; //El botón debe permanecer deshabilitado sin importar el estado de los filtros.
 	}
-	else //Por el contrario, si los filtros son válidos:
+	else
+	//Por el contrario, si los filtros son válidos:
 	{
 		//El botón se habilita o deshabilita según si el grupo de inputs es válido o no, respectivamente:
 		applyButton.disabled = !allValid;	
@@ -169,26 +170,31 @@ const validateGroup = (group, sectionsFilters, buttonId) =>
 	checkFiltersState(sectionsFilters, buttonId);
 };
 
-//Si se ingresa algún caracter que no sea un número, se convierte a "":
+//Validamos el formato del número ingresado:
 const enforceNumericInput = (input) => 
 {
-    //ANTES input.addEventListener("input", () => input.value = input.value.replace(/[^0-9]/g, ""));
     input.addEventListener("input", () => 
     {
 		//Obtenemos el valor ingresado:
         let value = input.value;
 
         //Permitir solo números y un único punto decimal:
-        value = value.replace(/[^0-9]/g, "");
-        
-        //Evitar ceros iniciales consecutivos:
-        if(value.startsWith("00")) 
+        value = value.replace(/[^0-9.]/g, "");
+
+        //Evitar más de un punto decimal:
+        if((value.match(/\./g) || []).length > 1) 
+        {
+            value = value.replace(/\.$/, ""); //Elimina el último punto ingresado.
+        }
+
+        //Evitar ceros iniciales consecutivos antes del punto:
+        if(value.startsWith("00") && !value.includes(".")) 
         {
             value = value.replace(/^0+/, "0");
         }
 
-        //Evitar múltiples ceros antes del primer dígito significativo:
-        if(value.startsWith("0") && value.length > 1) 
+        //Evitar múltiples ceros antes del primer dígito significativo o punto:
+        if(value.startsWith("0") && value[1] !== "." && value.length > 1) 
         {
             value = value.replace(/^0+/, ""); //Elimina ceros a la izquierda.
         }
@@ -197,25 +203,8 @@ const enforceNumericInput = (input) =>
     });
 };
 
-//Definimos el comportamiento de cada input para validar según la configuración que se indique:
-export const configAmountValidations = (config, sections) =>
-{
-	let i = 0;
-	//Recorremos los grupos de configuración:
-    config.forEach((group) => 
-    {
-		//Obtenemos las secciones a verificar si tienen por lo menos una opción marcada:
-		const sectionsFilters = sections[i].names;
-		const buttonId = sections[i].buttonId;
-		
-		//Definimos el compartamiento de cada input de ese grupo:
-		configAmountValidationsGroup(group, sectionsFilters, buttonId);
-		i++;
-    });
-};
-
 //Definimos el comportamiento de cada input para validar según la configuración que se indique de un grupo:
-export const configAmountValidationsGroup = (config, sectionsFilters, buttonId) =>
+export const configPriceValidationsGroup = (config, sectionsFilters, buttonId) =>
 {
 	//Recorremos cada input del grupo:
     config.inputs.forEach((inputConfig) => 
