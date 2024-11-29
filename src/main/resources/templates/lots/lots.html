@@ -51,20 +51,20 @@
 							<summary>Amount</summary>
 							<details id="amountContainer">
 								<summary>Specific Amount</summary>
-								<input type="number" min="1" name="amount" th:value="${amount}" id="amount">
+								<input type="text" inputmode="decimal" name="amount" th:value="${amount}" id="amount">
 							</details>
 							<details id="fromAmountContainer">
 								<summary>Greater or Equal To Amount</summary>
-								<input type="number" min="1" name="fAmount" th:value="${fAmount}" id="fAmount">
+								<input type="text" inputmode="decimal" name="fAmount" th:value="${fAmount}" id="fAmount">
 							</details>
 							<details id="untilAmountContainer">
 								<summary>Less or Equal To Amount</summary>
-								<input type="number" min="1" name="uAmount" th:value="${uAmount}" id="uAmount">
+								<input type="text" inputmode="decimal" name="uAmount" th:value="${uAmount}" id="uAmount">
 							</details>
 							<details id="rangeAmountContainer">
 								<summary>Amount To Amount</summary>
-								<input type="number" min="1" name="rFAmount" th:value="${rFAmount}" id="rFAmount">
-								<input type="number" min="1" name="rUAmount" th:value="${rUAmount}" id="rUAmount">
+								<input type="text" inputmode="decimal" name="rFAmount" th:value="${rFAmount}" id="rFAmount">
+								<input type="text" inputmode="decimal" name="rUAmount" th:value="${rUAmount}" id="rUAmount">
 							</details>
 						</details>
 					</label>
@@ -156,20 +156,20 @@
 							<summary>Existing Amount</summary>
 							<details id="eAmountContainer">
 								<summary>Specific Existing Amount</summary>
-								<input type="number" min="0" name="eAmount" th:value="${eAmount}" id="eAmount">
+								<input type="text" inputmode="decimal" name="eAmount" th:value="${eAmount}" id="eAmount">
 							</details>
 							<details id="fromEAmountContainer">
 								<summary>Greater or Equal To Existing Amount</summary>
-								<input type="number" min="0" name="fEAmount" th:value="${fEAmount}" id="fEAmount">
+								<input type="text" inputmode="decimal" name="fEAmount" th:value="${fEAmount}" id="fEAmount">
 							</details>
 							<details id="untilEAmountContainer">
 								<summary>Less or Equal To Existing Amount</summary>
-								<input type="number" min="0" name="uEAmount" th:value="${uEAmount}" id="uEAmount">
+								<input type="text" inputmode="decimal" name="uEAmount" th:value="${uEAmount}" id="uEAmount">
 							</details>
 							<details id="rangeEAmountContainer">
 								<summary>Existing Amount To Existing Amount</summary>
-								<input type="number" min="0" name="rFEAmount" th:value="${rFEAmount}" id="rFEAmount">
-								<input type="number" min="0" name="rUEAmount" th:value="${rUEAmount}" id="rUEAmount">
+								<input type="text" inputmode="decimal" name="rFEAmount" th:value="${rFEAmount}" id="rFEAmount">
+								<input type="text" inputmode="decimal" name="rUEAmount" th:value="${rUEAmount}" id="rUEAmount">
 							</details>
 						</details>
 					</label>

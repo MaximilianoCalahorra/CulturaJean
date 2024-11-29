@@ -1,6 +1,9 @@
 //Importamos la función para ocultar un mensaje de error en la vista:
 import { hideError } from "/js/errorMessage.js";
 
+//Importamos la función para chequear si todas las secciones de checkboxes tienen al menos uno marcado:
+import { checkFiltersState } from "/js/general.js";
+
 /* OBTENEMOS EL CRITERIO DE ORDENAMIENTO SELECCIONADO PARA LOS PEDIDOS DE APROVISIONAMIENTO/LOTES */
 function getOrderValue(orderName, defaultValue)
 {
@@ -682,8 +685,11 @@ function resetLotsFilters()
     });
 };
 
-/* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE CANTIDADES DE LOS PEDIDOS Y DE LOS LOTES */
+//Definimos los nombres de las secciones:
+let filtersSupplyOrdersSections = ["pCode", "sName"];
+let filtersLotsSections = ["stockId"];
 
+/* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE CANTIDADES DE LOS PEDIDOS Y DE LOS LOTES */
 //Definimos la configuración para los inputs de los pedidos:
 const amountsSupplyOrdersConfig =
 {
@@ -713,9 +719,22 @@ const amountsLotsConfig =
 //Unificamos ambas configuraciones:
 const amountsConfig = [amountsSupplyOrdersConfig, amountsLotsConfig];
 
+//Definimos la configuración de los filtros a chequear para habilitar o no el botón:
+const sections = 
+[
+	{
+		names: filtersSupplyOrdersSections,
+		buttonId: "applyFiltersSOButton",
+	},
+	{
+		names: filtersLotsSections,
+		buttonId: "applyFiltersLButton",
+	}
+];
+
 //Cuando carga el DOM asignamos la configuración a los inputs para poder hacer las validaciones:
 import { configAmountValidations } from "/js/amountValidations.js";
-document.addEventListener("DOMContentLoaded", () => configAmountValidations(amountsConfig));
+document.addEventListener("DOMContentLoaded", () => configAmountValidations(amountsConfig, sections));
 
 /* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE FECHAS DE LOS LOTES */
 
@@ -724,8 +743,16 @@ const datesConfig = {rangeFromDateId: "rFRDate", rangeUntilDateId: "rURDate", ap
 
 //Cuando se selecciona una fecha en el input de fecha desde en un rango o en el de fecha hasta de un rango, validamos:
 import { validateDates } from "/js/dateValidations.js";
-document.getElementById(datesConfig.rangeFromDateId).addEventListener("change", () => validateDates(datesConfig));
-document.getElementById(datesConfig.rangeUntilDateId).addEventListener("change", () => validateDates(datesConfig));
+document.getElementById(datesConfig.rangeFromDateId).addEventListener("change", () => 
+{
+	validateDates(datesConfig);
+	checkFiltersState(filtersLotsSections, "applyFiltersLButton");	
+});
+document.getElementById(datesConfig.rangeUntilDateId).addEventListener("change", () => 
+{
+	validateDates(datesConfig);
+	checkFiltersState(filtersLotsSections, "applyFiltersLButton");		
+});
 
 /* ORDENAMOS LOS PEDIDOS */ 
 document.getElementById("applyOrderSOButton").addEventListener("click", () => filterSupplyOrders());

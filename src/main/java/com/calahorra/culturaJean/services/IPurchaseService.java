@@ -157,11 +157,11 @@ public interface IPurchaseService
 	public List<PurchaseDTO> applyFilterTypeTime(List<PurchaseDTO> purchases, String fromTime, String untilTime, String rangeFromTime, String rangeUntilTime);
 	
 	//Filtramos las compras por nombre de usuario:
-	public List<PurchaseDTO> filterByUsername(List<PurchaseDTO> purchases, String username);
+	public List<PurchaseDTO> filterByUsername(List<PurchaseDTO> purchases, List<String> usernames);
 	
 	//Filtramos las compras por método de pago:
-	public List<PurchaseDTO> filterByMethodOfPay(List<PurchaseDTO> purchases, String methodOfPay);
-	
+	public List<PurchaseDTO> filterByMethodOfPay(List<PurchaseDTO> purchases, List<String> methodsOfPay);
+		
 	//Filtramos las compras por el importe de la misma mayor o igual a uno determinado:
 	public List<PurchaseDTO> filterByFromPurchasePrice(List<PurchaseDTO> purchases, float fromPurchasePrice);
 	
@@ -172,13 +172,8 @@ public interface IPurchaseService
 	public List<PurchaseDTO> filterByPurchasePriceRange(List<PurchaseDTO> purchases, float rangeFromPurchasePrice, float rangeUntilPurchasePrice);	
 	
 	//Aplicamos el filtro elegido de la sección precio de la compra/venta:
-	public List<PurchaseDTO> applyFilterTypePurchasePrice(List<PurchaseDTO> purchases, String fromPurchasePrice, String untilPurchasePrice,
-														  String rangeFromPurchasePrice, String rangeUntilPurchasePrice);
-	
-	//Verificación de valores de inputs tipo date y time:
-	
-	//Verificamos o corregimos los valores que llegan de los inputs tipo date y time para evitar la presencia de ',' en ellos:
-	public String verifyOrCorrectValue(String value);
+	public List<PurchaseDTO> applyFilterTypePurchasePrice(List<PurchaseDTO> purchases, float fromPurchasePrice, float untilPurchasePrice,
+														  float rangeFromPurchasePrice, float rangeUntilPurchasePrice);
 	
 	//Mapear:
 	

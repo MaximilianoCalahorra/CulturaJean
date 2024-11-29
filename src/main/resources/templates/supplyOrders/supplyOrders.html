@@ -63,20 +63,20 @@
 							<summary>Amount</summary>
 							<details id="amountUContainer">
 								<summary>Specific Amount</summary>
-								<input type="number" min="1" name="amountU" th:value="${amountU}" id="amountU">
+								<input type="text" inputmode="decimal" name="amountU" th:value="${amountU}" id="amountU">
 							</details>
 							<details id="fromAmountUContainer">
 								<summary>Greater or Equal To Amount</summary>
-								<input type="number" min="1" name="fAmountU" th:value="${fAmountU}" id="fAmountU">
+								<input type="text" inputmode="decimal" name="fAmountU" th:value="${fAmountU}" id="fAmountU">
 							</details>
 							<details id="untilAmountUContainer">
 								<summary>Less or Equal To Amount</summary>
-								<input type="number" min="1" name="uAmountU" th:value="${uAmountU}" id="uAmountU">
+								<input type="text" inputmode="decimal" name="uAmountU" th:value="${uAmountU}" id="uAmountU">
 							</details>
 							<details id="rangeAmountUContainer">
 								<summary>Amount To Amount</summary>
-								<input type="number" min="1" name="rFAmountU" th:value="${rFAmountU}" id="rFAmountU">
-								<input type="number" min="1" name="rUAmountU" th:value="${rUAmountU}" id="rUAmountU">
+								<input type="text" inputmode="decimal" name="rFAmountU" th:value="${rFAmountU}" id="rFAmountU">
+								<input type="text" inputmode="decimal" name="rUAmountU" th:value="${rUAmountU}" id="rUAmountU">
 							</details>
 						</details>
 					</label>
@@ -128,7 +128,7 @@
 							<option value="orderDescByAmount" th:selected="${orderD == 'orderDescByAmount'}">Descendent By Amount</option>
 						</select>
 					</label>
-					<button id="applyOrderDeliveredButton">Apply</button>
+					<button type="button" id="applyOrderDeliveredButton">Apply</button>
 				</form>
 				<form>
 					<label>Choose Filters:
@@ -166,26 +166,26 @@
 							<summary>Amount</summary>
 							<details id="amountDContainer">
 								<summary>Specific Amount</summary>
-								<input type="number" min="1" name="amountD" th:value="${amountD}" id="amountD">
+								<input type="text" inputmode="decimal" name="amountD" th:value="${amountD}" id="amountD">
 							</details>
 							<details id="fromAmountDContainer">
 								<summary>Greater or Equal To Amount</summary>
-								<input type="number" min="1" name="fAmountD" th:value="${fAmountD}" id="fAmountD">
+								<input type="text" inputmode="decimal" name="fAmountD" th:value="${fAmountD}" id="fAmountD">
 							</details>
 							<details id="untilAmountDContainer">
 								<summary>Less or Equal To Amount</summary>
-								<input type="number" min="1" name="uAmountD" th:value="${uAmountD}" id="uAmountD">
+								<input type="text" inputmode="decimal" name="uAmountD" th:value="${uAmountD}" id="uAmountD">
 							</details>
 							<details id="rangeAmountDContainer">
 								<summary>Amount To Amount</summary>
-								<input type="number" min="1" name="rFAmountD" th:value="${rFAmountD}" id="rFAmountD">
-								<input type="number" min="1" name="rUAmountD" th:value="${rUAmountD}" id="rUAmountD">
+								<input type="text" inputmode="decimal" name="rFAmountD" th:value="${rFAmountD}" id="rFAmountD">
+								<input type="text" inputmode="decimal" name="rUAmountD" th:value="${rUAmountD}" id="rUAmountD">
 							</details>
 						</details>
 					</label>
-					<button id="applyFilterDeliveredButton">Apply</button>
+					<button type="button" id="applyFilterDeliveredButton">Apply</button>
 				</form>
-				<button id="resetAllDeliveredButton">Reset All</button>
+				<button type="button" id="resetAllDeliveredButton">Reset All</button>
 				<table border="3" id="deliveredSupplyOrderTable">
 					<thead>
 						<tr>
