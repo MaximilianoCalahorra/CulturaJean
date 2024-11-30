@@ -1,5 +1,5 @@
 # Sitio Web Cultura Jean
-Este repositorio contiene el desarrollo de un sitio web que simula un e-commerce de ropa desarrollado con Java 22 utilizando Spring, Maven y MySQL Workbench como proyecto personal que amplía el desarrollado con mi grupo para una materia de la carrera [(Sneakers Club)](https://github.com/MaximilianoCalahorra/SneakersClub).
+Este repositorio contiene el desarrollo de un sitio web que simula un e-commerce de ropa desarrollado con Java 22 utilizando Spring, Maven y PostgreSQL como proyecto personal que amplía el desarrollado con mi grupo para una materia de la carrera [(Sneakers Club)](https://github.com/MaximilianoCalahorra/SneakersClub).
 
 ## Explicación del sitio web
 En el siguiente PDF se puede encontrar una explicación de las distintas funcionalidades que ofrece el sitio web: [Explicación del sitio web.pdf](https://github.com/user-attachments/files/17234368/Explicacion.del.sitio.web.pdf).

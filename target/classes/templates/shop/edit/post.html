@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cultura Jean | Products</title>
+	</head>
+	<body>
+		<div th:insert="~{navBar/admin.html::div-header}"></div>
+		<main>
+			<section>
+				<h1>Modified Product</h1>
+				<div>
+					<p>Code: <span th:text="${product.code}"></span></p>
+					<p>Category: <span th:text="${product.category}"></span></p>
+					<p>Gender: <span th:text="${product.gender}"></span></p>
+					<p>Size: <span th:text="${product.size}"></span></p>
+					<p>Color: <span th:text="${product.color}"></span></p>
+					<p>Cost: $<span th:text="${product.cost}"></span></p>
+					<p>Sale Price: $<span th:text="${product.salePrice}"></span></p>
+					<p>Name: <span th:text="${product.name}"></span></p>
+					<p>Description: <span th:text="${product.description}"></span></p>
+					<p>Enabled: <span th:text="${product.enabled ? 'Yes' : 'No'}"></span></p>
+					<p>Image:
+						<img th:src="@{'/assets/img/products/'+${product.gender}+'/'+${product.category}+'/'+${product.imageName}+'.jpeg'}">
+					</p> 
+				</div>
+			</section>
+			<a href="/index">Go To Products</a>
+		</main>
+		<div th:insert="~{footer/footer.html::footer}"></div>
+	</body>
+</html>

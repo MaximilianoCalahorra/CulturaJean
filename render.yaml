@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: CulturaJean
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile

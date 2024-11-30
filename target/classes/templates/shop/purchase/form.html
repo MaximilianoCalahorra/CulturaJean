@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cultura Jean | Purchase Form</title>
+	</head>
+	<body>
+		<div th:insert="~{navBar/customer.html::div-header}"></div>
+		<main>
+			<section>
+				<h1>Your Purchase At This Moment</h1>
+				<p th:each="messageItemWithoutStock: ${messagesItemsWithoutStock}" th:text="${messageItemWithoutStock}"></p>
+				<form th:if="${purchase.purchaseItems.size() > 0}" th:object="${purchase}" action="/purchase/savePurchase" method="post">
+					<label>Name: <span th:text="*{member.name}"></span></label>
+					<label>Last Name: <span th:text="*{member.lastName}"></span></label>
+					<table border="3">
+						<thead>
+							<tr>
+								<th>Image</th>
+								<th>Size</th>
+								<th>Unit Sales Price</th>
+								<th>Amount</th>
+								<th>Subtotal</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr th:each="purchaseItem: ${purchase.purchaseItems}">
+								<td><img th:src="@{${'/assets/img/products/' + purchaseItem.product.gender + '/' + purchaseItem.product.category + '/' + purchaseItem.product.imageName + '.jpeg'}}"/></td>
+								<td th:text="${purchaseItem.product.size}"></td>
+								<td th:text="${purchaseItem.product.salePrice}"></td>
+								<td th:text="${purchaseItem.amount}"></td>
+								<td th:text="${purchaseItem.calculateSubtotalSale()}"></td>
+							</tr>
+						</tbody>
+					</table>
+					<label>Purchase Total = USD<span th:text="${purchase.calculateTotalSale()}"></span></label>
+					<label>Method Of Pay
+						<select th:field="*{methodOfPay}">
+							<option value="Credit">Credit</option>
+							<option value="Debit">Debit</option>
+						</select>
+					</label>
+					<input type="submit" value="Confirm Purchase">
+				</form>
+			</section>
+			<a href="/purchase/purchaseItems">Cancel</a>
+		</main>
+		<div th:insert="~{footer/footer.html::footer}"></div>
+	</body>
+</html>
