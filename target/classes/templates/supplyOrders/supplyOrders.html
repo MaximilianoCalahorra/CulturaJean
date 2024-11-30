@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cultura Jean | Supply Orders</title>
+	</head>
+	<body>
+		<div th:insert="~{navBar/admin.html::div-header}"></div>
+		<main>
+			<div>
+				<h1>Welcome to the supply orders, admin!</h1>
+			</div>
+			<section>
+				<h2>Undelivered Supply Orders</h2>
+				<form>
+					<label>Choose The Order:
+						<select name="orderU">
+							<option value="orderAscByProductCode" th:selected="${orderU == 'orderAscByProductCode'}">Ascendent By Product Code</option>
+							<option value="orderDescByProductCode" th:selected="${orderU == 'orderDescByProductCode'}">Descendent By Product Code</option>
+							<option value="orderAscBySupplierName" th:selected="${orderU == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
+							<option value="orderDescBySupplierName" th:selected="${orderU == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
+							<option value="orderAscByAdminUsername" th:selected="${orderU == 'orderAscByAdminUsername'}">Ascendent By Admin Username</option>
+							<option value="orderDescByAdminUsername" th:selected="${orderU == 'orderDescByAdminUsername'}">Descendent By Admin Username</option>
+							<option value="orderAscByAmount" th:selected="${orderU == 'orderAscByAmount'}">Ascendent By Amount</option>
+							<option value="orderDescByAmount" th:selected="${orderU == 'orderDescByAmount'}">Descendent By Amount</option>
+						</select>
+					</label>
+					<button type="button" id="applyOrderUndeliveredButton">Apply</button>
+				</form>
+				<form>
+					<label>Choose Filters:
+						<details id="pCodeUContainer">
+							<span id="pCodeUMaxValues" th:data-max-values="${productCodesU.size()}" hidden></span>
+							<summary>Product Code</summary>
+							<input type="checkbox" name="pCodeU" value="all" id="pCodeU-all" th:checked="${pCodeU == 'all'}">
+							<label for="pCodeU-all">All</label>
+							<div th:each="code, iterStat : ${productCodesU}">
+						        <input type="checkbox" name="pCodeU" th:value="${code}" th:id="'pCodeU-' + ${iterStat.index}" disabled>
+						        <label th:for="'pCodeU-' + ${iterStat.index}" th:text="${code}"></label>
+						    </div>	
+						</details>
+						<details id="sNameUContainer">
+							<span id="sNameUMaxValues" th:data-max-values="${supplierNamesU.size()}" hidden></span>
+							<summary>Supplier Name</summary>
+							<input type="checkbox" name="sNameU" value="all" id="sNameU-all" th:checked="${sNameU == 'all'}">
+							<label for="sNameU-all">All</label>
+							<div th:each="name, iterStat : ${supplierNamesU}">
+						        <input type="checkbox" name="sNameU" th:value="${name}" th:id="'sNameU-' + ${iterStat.index}" disabled>
+						        <label th:for="'sNameU-' + ${iterStat.index}" th:text="${name}"></label>
+						    </div>
+						</details>
+						<details id="usernameUContainer">
+							<span id="usernameUMaxValues" th:data-max-values="${adminUsernamesU.size()}" hidden></span>
+							<summary>Admin Username</summary>
+							<input type="checkbox" name="usernameU" value="all" id="usernameU-all" th:checked="${usernameU == 'all'}">
+							<label for="usernameU-all">All</label>
+							<div th:each="username, iterStat : ${adminUsernamesU}">
+						        <input type="checkbox" name="usernameU" th:value="${username}" th:id="'usernameU-' + ${iterStat.index}" disabled>
+						        <label th:for="'usernameU-' + ${iterStat.index}" th:text="${username}"></label>
+						    </div>
+						</details>
+						<details id="amountsUContainer">
+							<summary>Amount</summary>
+							<details id="amountUContainer">
+								<summary>Specific Amount</summary>
+								<input type="text" inputmode="decimal" name="amountU" th:value="${amountU}" id="amountU">
+							</details>
+							<details id="fromAmountUContainer">
+								<summary>Greater or Equal To Amount</summary>
+								<input type="text" inputmode="decimal" name="fAmountU" th:value="${fAmountU}" id="fAmountU">
+							</details>
+							<details id="untilAmountUContainer">
+								<summary>Less or Equal To Amount</summary>
+								<input type="text" inputmode="decimal" name="uAmountU" th:value="${uAmountU}" id="uAmountU">
+							</details>
+							<details id="rangeAmountUContainer">
+								<summary>Amount To Amount</summary>
+								<input type="text" inputmode="decimal" name="rFAmountU" th:value="${rFAmountU}" id="rFAmountU">
+								<input type="text" inputmode="decimal" name="rUAmountU" th:value="${rUAmountU}" id="rUAmountU">
+							</details>
+						</details>
+					</label>
+					<button type="button" id="applyFilterUndeliveredButton">Apply</button>
+				</form>
+				<button type="button" id="resetAllUndeliveredButton">Reset All</button>
+				<table border="3" id="undeliveredSupplyOrderTable">
+					<thead>
+						<tr>
+							<th>Supply Order Id</th>
+							<th>Product Code</th>
+							<th>Username</th>				
+							<th>Supplier Name</th>
+							<th>Amount</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody id="undeliveredSupplyOrderTBodyTable">
+						<tr th:each="supplyOrder: ${undeliveredSupplyOrders}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
+							<td th:text="${supplyOrder.supplyOrderId}"></td>
+							<td th:text="${supplyOrder.product.code}"></td>
+							<td th:text="${supplyOrder.member.username}"></td>
+							<td th:text="${supplyOrder.supplier.name}"></td>
+							<td th:text="${supplyOrder.amount}"></td>
+							<td>
+								<button class="register-delivered-btn" th:data-supply-order-id="${supplyOrder.supplyOrderId}">Register Delivered</button>
+							</td>
+						</tr>
+						<tr th:if="${undeliveredSupplyOrders.size() == 0}">
+					        <td colspan="6" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
+					</tbody>
+				</table>
+			</section>
+			<section>
+				<h2>Delivered Supply Orders</h2>
+				<form>
+					<label>Choose The Order:
+						<select name="orderD">
+							<option value="orderAscByProductCode" th:selected="${orderD == 'orderAscByProductCode'}">Ascendent By Product Code</option>
+							<option value="orderDescByProductCode" th:selected="${orderD == 'orderDescByProductCode'}">Descendent By Product Code</option>
+							<option value="orderAscBySupplierName" th:selected="${orderD == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
+							<option value="orderDescBySupplierName" th:selected="${orderD == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
+							<option value="orderAscByAdminUsername" th:selected="${orderD == 'orderAscByAdminUsername'}">Ascendent By Admin Username</option>
+							<option value="orderDescByAdminUsername" th:selected="${orderD == 'orderDescByAdminUsername'}">Descendent By Admin Username</option>
+							<option value="orderAscByAmount" th:selected="${orderD == 'orderAscByAmount'}">Ascendent By Amount</option>
+							<option value="orderDescByAmount" th:selected="${orderD == 'orderDescByAmount'}">Descendent By Amount</option>
+						</select>
+					</label>
+					<button type="button" id="applyOrderDeliveredButton">Apply</button>
+				</form>
+				<form>
+					<label>Choose Filters:
+						<details id="pCodeDContainer">
+							<span id="pCodeDMaxValues" th:data-max-values="${productCodesD.size()}" hidden></span>
+							<summary>Product Code</summary>
+							<input type="checkbox" name="pCodeD" value="all" id="pCodeD-all" th:checked="${pCodeD == 'all'}">
+							<label for="pCodeD-all">All</label>
+							<div th:each="code, iterStat : ${productCodesD}">
+						        <input type="checkbox" name="pCodeD" th:value="${code}" th:id="'pCodeD-' + ${iterStat.index}" disabled>
+						        <label th:for="'pCodeD-' + ${iterStat.index}" th:text="${code}"></label>
+						    </div>	
+						</details>
+						<details id="sNameDContainer">
+							<span id="sNameDMaxValues" th:data-max-values="${supplierNamesD.size()}" hidden></span>
+							<summary>Supplier Name</summary>
+							<input type="checkbox" name="sNameD" value="all" id="sNameD-all" th:checked="${sNameD == 'all'}">
+							<label for="sNameD-all">All</label>
+							<div th:each="name, iterStat : ${supplierNamesD}">
+						        <input type="checkbox" name="sNameD" th:value="${name}" th:id="'sNameD-' + ${iterStat.index}" disabled>
+						        <label th:for="'sNameD-' + ${iterStat.index}" th:text="${name}"></label>
+						    </div>
+						</details>
+						<details id="usernameDContainer">
+							<span id="usernameDMaxValues" th:data-max-values="${adminUsernamesD.size()}" hidden></span>
+							<summary>Admin Username</summary>
+							<input type="checkbox" name="usernameD" value="all" id="usernameD-all" th:checked="${usernameD == 'all'}">
+							<label for="usernameD-all">All</label>
+							<div th:each="username, iterStat : ${adminUsernamesD}">
+						        <input type="checkbox" name="usernameD" th:value="${username}" th:id="'usernameD-' + ${iterStat.index}" disabled>
+						        <label th:for="'usernameD-' + ${iterStat.index}" th:text="${username}"></label>
+						    </div>
+						</details>
+						<details id="amountsDContainer">
+							<summary>Amount</summary>
+							<details id="amountDContainer">
+								<summary>Specific Amount</summary>
+								<input type="text" inputmode="decimal" name="amountD" th:value="${amountD}" id="amountD">
+							</details>
+							<details id="fromAmountDContainer">
+								<summary>Greater or Equal To Amount</summary>
+								<input type="text" inputmode="decimal" name="fAmountD" th:value="${fAmountD}" id="fAmountD">
+							</details>
+							<details id="untilAmountDContainer">
+								<summary>Less or Equal To Amount</summary>
+								<input type="text" inputmode="decimal" name="uAmountD" th:value="${uAmountD}" id="uAmountD">
+							</details>
+							<details id="rangeAmountDContainer">
+								<summary>Amount To Amount</summary>
+								<input type="text" inputmode="decimal" name="rFAmountD" th:value="${rFAmountD}" id="rFAmountD">
+								<input type="text" inputmode="decimal" name="rUAmountD" th:value="${rUAmountD}" id="rUAmountD">
+							</details>
+						</details>
+					</label>
+					<button type="button" id="applyFilterDeliveredButton">Apply</button>
+				</form>
+				<button type="button" id="resetAllDeliveredButton">Reset All</button>
+				<table border="3" id="deliveredSupplyOrderTable">
+					<thead>
+						<tr>
+							<th>Supply Order Id</th>
+							<th>Product Code</th>
+							<th>Username</th>				
+							<th>Supplier Name</th>
+							<th>Amount</th>
+						</tr>
+					</thead>
+					<tbody id="deliveredSupplyOrderTBodyTable">
+						<tr th:each="supplyOrder: ${deliveredSupplyOrders}">
+							<td th:text="${supplyOrder.supplyOrderId}"></td>
+							<td th:text="${supplyOrder.product.code}"></td>
+							<td th:text="${supplyOrder.member.username}"></td>
+							<td th:text="${supplyOrder.supplier.name}"></td>
+							<td th:text="${supplyOrder.amount}"></td>
+						</tr>
+						<tr th:if="${deliveredSupplyOrders.size() == 0}">
+					        <td colspan="5" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
+					</tbody>
+				</table>
+			</section>
+		</main>
+		<div th:insert="~{footer/footer.html::footer}"></div>
+	</body>
+	<script type="module" src="/js/supplyOrders.js"></script>
+	<script type="module" src="/js/amountValidations.js"></script>
+</html>

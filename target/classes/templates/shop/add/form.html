@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cultura Jean | Products</title>
+	</head>
+	<body>
+		<div th:insert="~{navBar/admin.html::div-header}"></div>
+		<main>
+			<section>
+				<h1>Add Product</h1>
+				<form th:object="${stock}" action="#" th:action="@{/product/postAdd}" enctype="multipart/form-data" method="post">
+					<label>Code: <input type="text" th:field="*{product.code}" placeholder="eg: SSTSM1-XS" required></label>
+					<label>Category:
+						<select th:field="*{product.category}" required> 
+							<option value="Jackets">Jackets</option>
+							<option value="Jeans">Jeans</option>
+							<option value="Jumpers">Jumpers</option>
+							<option value="Long Sleeve T-Shirts">Long Sleeve T-Shirts</option>
+							<option value="Pants">Pants</option>
+							<option value="Short Sleeve T-Shirts">Short Sleeve T-Shirts</option>
+						</select>
+					</label>
+					<label>Gender:
+						<select th:field="*{product.gender}" required> 
+							<option value="M">M</option> 
+							<option value="W">W</option> 
+						</select>
+					</label>
+					<label>Size: 
+						<select th:field="*{product.size}" required> 
+							<option value="22">22</option> 
+							<option value="24">24</option> 
+							<option value="25">25</option> 
+							<option value="26">26</option> 
+							<option value="26/XS">26/XS</option> 
+							<option value="27">27</option> 
+							<option value="28">28</option>
+							<option value="28/S">28/S</option>
+							<option value="30">30</option> 
+							<option value="30/M">30/M</option> 
+							<option value="32">32</option>
+							<option value="32/L">32/L</option> 
+							<option value="34">34</option>
+							<option value="34/XL">34/XL</option>
+							<option value="35">35</option> 
+							<option value="36">36</option> 
+							<option value="36/XXL">36/XXL</option>
+							<option value="37">37</option> 
+							<option value="38">38</option> 
+							<option value="40">40</option> 
+							<option value="42">42</option> 
+							<option value="44">44</option> 
+							<option value="S">S</option> 
+							<option value="M">M</option> 
+							<option value="L">L</option> 
+							<option value="XL">XL</option> 
+						</select>
+					</label>
+					<label>Color: <input type="color" th:field="*{product.color}" required></label>
+					<label>Cost: $<input type="number" th:field="*{product.cost}" min="1" required></label>
+					<label>Sale Price: $<input type="number" th:field="*{product.salePrice}" min="1" required></label>
+					<label>Name: <input type="text" th:field="*{product.name}" placeholder="eg: Classic Printed T-Shirt" required></label>
+					<label>Description: <textarea th:field="*{product.description}" placeholder="eg: Classic Red Printed T-Shirt 100% Cotton" required></textarea></label>
+					<label>Enabled: 
+						True <input type="radio" th:field="*{product.enabled}" value="true" required/>
+						False <input type="radio" th:field="*{product.enabled}" value="false" required/>
+					</label>
+					<label>Image: 
+						<input type="file" accept=".jpeg" name="imageFile">
+					</label>
+					<label>Desirable Amount: <input type="number" th:field="*{desirableAmount}" min="1" required></label>
+					<label>Minimum Amount: <input type="number" th:field="*{minimumAmount}" min="1" required></label>
+					<input type="submit" value="Confirm">
+				</form>
+				<p th:text="${error}"></p>
+			</section>
+			<a href="/index">Cancel</a>
+		</main>
+		<div th:insert="~{footer/footer.html::footer}"></div>
+	</body>
+</html>

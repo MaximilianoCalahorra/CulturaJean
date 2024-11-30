@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title>Cultura Jean | Lots</title>
+	</head>
+	<body>
+		<div th:insert="~{navBar/admin.html::div-header}"></div>
+		<main>
+			<div>
+				<h1>Welcome to the lots, admin!</h1>
+			</div>
+			<section>
+				<h2>Lots To Register</h2>
+				<form>
+					<label>Choose The Order:
+						<select name="orderSO">
+							<option value="orderAscByProductCode" th:selected="${orderSO == 'orderAscByProductCode'}">Ascendent By Product Code</option>
+							<option value="orderDescByProductCode" th:selected="${orderSO == 'orderDescByProductCode'}">Descendent By Product Code</option>
+							<option value="orderAscBySupplierName" th:selected="${orderSO == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
+							<option value="orderDescBySupplierName" th:selected="${orderSO == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
+							<option value="orderAscByAmount" th:selected="${orderSO == 'orderAscByAmount'}">Ascendent By Amount</option>
+							<option value="orderDescByAmount" th:selected="${orderSO == 'orderDescByAmount'}">Descendent By Amount</option>
+						</select>
+					</label>
+					<button type="button" id="applyOrderSOButton">Apply</button>
+				</form>
+				<form>
+					<label>Choose Filters:
+						<details id="pCodeContainer">
+							<span id="pCodeMaxValues" th:data-max-values="${productCodes.size()}" hidden></span>
+							<summary>Product Code</summary>
+							<input type="checkbox" name="pCode" value="all" id="pCode-all" th:checked="${pCode == 'all'}">
+							<label for="pCode-all">All</label>
+							<div th:each="code, iterStat : ${productCodes}">
+						        <input type="checkbox" name="pCode" th:value="${code}" th:id="'pCode-' + ${iterStat.index}" disabled>
+						        <label th:for="'pCode-' + ${iterStat.index}" th:text="${code}"></label>
+						    </div>		
+						</details>
+						<details id="sNameContainer">
+							<span id="sNameMaxValues" th:data-max-values="${supplierNames.size()}" hidden></span>
+							<summary>Supplier Name</summary>
+							<input type="checkbox" name="sName" value="all" id="sName-all" th:checked="${sName == 'all'}">
+							<label for="sName-all">All</label>
+							<div th:each="name, iterStat : ${supplierNames}">
+						        <input type="checkbox" name="sName" th:value="${name}" th:id="'sName-' + ${iterStat.index}" disabled>
+						        <label th:for="'sName-' + ${iterStat.index}" th:text="${name}"></label>
+						    </div>
+						</details>
+						<details id="amountsContainer">
+							<summary>Amount</summary>
+							<details id="amountContainer">
+								<summary>Specific Amount</summary>
+								<input type="text" inputmode="decimal" name="amount" th:value="${amount}" id="amount">
+							</details>
+							<details id="fromAmountContainer">
+								<summary>Greater or Equal To Amount</summary>
+								<input type="text" inputmode="decimal" name="fAmount" th:value="${fAmount}" id="fAmount">
+							</details>
+							<details id="untilAmountContainer">
+								<summary>Less or Equal To Amount</summary>
+								<input type="text" inputmode="decimal" name="uAmount" th:value="${uAmount}" id="uAmount">
+							</details>
+							<details id="rangeAmountContainer">
+								<summary>Amount To Amount</summary>
+								<input type="text" inputmode="decimal" name="rFAmount" th:value="${rFAmount}" id="rFAmount">
+								<input type="text" inputmode="decimal" name="rUAmount" th:value="${rUAmount}" id="rUAmount">
+							</details>
+						</details>
+					</label>
+					<button type="button" id="applyFiltersSOButton">Apply</button>
+				</form>
+				<button type="button" id="resetAllSOButton">Reset All</button>
+				<table border="3" id="supplyOrdersTable">
+					<thead>
+						<tr>
+							<th>Supply Order Id</th>
+							<th>Product Code</th>
+							<th>Username</th>			
+							<th>Supplier Name</th>
+							<th>Amount</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody id="tbodySupplyOrdersTable">
+						<tr th:each="supplyOrder: ${supplyOrdersToLots}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
+							<td th:text="${supplyOrder.supplyOrderId}"></td>
+							<td th:text="${supplyOrder.product.code}"></td>
+							<td th:text="${supplyOrder.member.username}"></td>
+							<td th:text="${supplyOrder.supplier.name}"></td>
+							<td th:text="${supplyOrder.amount}"></td>
+							<td>
+								<button type="button" 
+										class="register-lot-btn" 
+										th:data-supply-order-id="${supplyOrder.supplyOrderId}">
+										Register Lot
+								</button>
+							</td>
+						</tr>
+						<tr th:if="${supplyOrdersToLots.size() == 0}">
+					        <td colspan="6" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
+					</tbody>
+				</table>
+			</section>
+			<section>
+				<h2>Registered Lots</h2>
+				<form>
+					<label>Choose The Order:
+						<select name="orderL">
+							<option value="orderAscByStockId" th:selected="${orderL == 'orderAscByStockId'}">Ascendent By Stock Id</option>
+							<option value="orderDescByStockId" th:selected="${orderL == 'orderDescByStockId'}">Descendent By Stock Id</option>
+							<option value="orderAscByReceptionDate" th:selected="${orderL == 'orderAscByReceptionDate'}">Ascendent By Reception Date</option>
+							<option value="orderDescByReceptionDate" th:selected="${orderL == 'orderDescByReceptionDate'}">Descendent By Reception Date</option>
+							<option value="orderAscByExistingAmount" th:selected="${orderL == 'orderAscByExistingAmount'}">Ascendent By Existing Amount</option>
+							<option value="orderDescByExistingAmount" th:selected="${orderL == 'orderDescByExistingAmount'}">Descendent By Existing Amount</option>
+						</select>
+					</label>
+					<button type="button" id="applyOrderLButton">Apply</button>
+				</form>
+				<form>
+					<label>Choose Filters:
+						<details id="stockIdContainer">
+							<span id="stockIdMaxValues" th:data-max-values="${stockIds.size()}" hidden></span>
+							<summary>Stock Id</summary>
+							<input type="checkbox" name="stockId" value="all" id="stockId-all" th:checked="${stockId == 'all'}">
+							<label for="stockId-all">All</label>
+							<div th:each="stockId, iterStat : ${stockIds}">
+						        <input type="checkbox" name="stockId" th:value="${stockId}" th:id="'stockId-' + ${iterStat.index}" disabled>
+						        <label th:for="'stockId-' + ${iterStat.index}" th:text="${stockId}"></label>
+						    </div>		
+						</details>
+						<details id="datesContainer">
+						    <summary>Reception Date</summary>
+						    <details id="receptionDateContainer">
+						        <summary>Specific Reception Date</summary>
+						        <input type="date" name="rDate" id="rDate" onkeydown="return false;">
+						    </details>
+						    <details id="fromReceptionDateContainer">
+						        <summary>After or Equal To Reception Date</summary>
+						        <input type="date" name="fRDate" id="fRDate" onkeydown="return false;">
+						    </details>
+						    <details id="untilReceptionDateContainer">
+						        <summary>Before or Equal To Reception Date</summary>
+						        <input type="date" name="uRDate" id="uRDate" onkeydown="return false;">
+						    </details>
+						    <details id="rangeReceptionDateContainer">
+						        <summary>Reception Date To Reception Date</summary>
+						        <input type="date" name="rFRDate" id="rFRDate" onkeydown="return false;">
+						        <input type="date" name="rURDate" id="rURDate" onkeydown="return false;">
+						    </details>
+						</details>
+						<details id="existingAmountsContainer">
+							<summary>Existing Amount</summary>
+							<details id="eAmountContainer">
+								<summary>Specific Existing Amount</summary>
+								<input type="text" inputmode="decimal" name="eAmount" th:value="${eAmount}" id="eAmount">
+							</details>
+							<details id="fromEAmountContainer">
+								<summary>Greater or Equal To Existing Amount</summary>
+								<input type="text" inputmode="decimal" name="fEAmount" th:value="${fEAmount}" id="fEAmount">
+							</details>
+							<details id="untilEAmountContainer">
+								<summary>Less or Equal To Existing Amount</summary>
+								<input type="text" inputmode="decimal" name="uEAmount" th:value="${uEAmount}" id="uEAmount">
+							</details>
+							<details id="rangeEAmountContainer">
+								<summary>Existing Amount To Existing Amount</summary>
+								<input type="text" inputmode="decimal" name="rFEAmount" th:value="${rFEAmount}" id="rFEAmount">
+								<input type="text" inputmode="decimal" name="rUEAmount" th:value="${rUEAmount}" id="rUEAmount">
+							</details>
+						</details>
+					</label>
+					<button type="button" id="applyFiltersLButton">Apply</button>
+				</form>
+				<button type="button" id="resetAllLButton">Reset All</button>
+				<table border="3" id="lotsTable">
+					<thead>
+						<tr>
+							<th>Lot Id</th>
+							<th>Stock Id</th>
+							<th>Reception Date</th>				
+							<th>Initial Amount</th>
+							<th>Existing Amount</th>
+							<th>Purchase Price</th>
+							<th>Supply Order Id</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyLotsTable">
+						<tr th:each="lot: ${lotsRegistered}">
+							<td th:text="${lot.lotId}"></td>
+							<td th:text="${lot.stock.stockId}"></td>
+							<td th:text="${lot.receptionDate}"></td>
+							<td th:text="${lot.initialAmount}"></td>
+							<td th:text="${lot.existingAmount}"></td>
+							<td th:text="${lot.purchasePrice}"></td>
+							<td th:text="${lot.supplyOrder.supplyOrderId}"></td>
+						</tr>
+						<tr th:if="${lotsRegistered.size() == 0}">
+					        <td colspan="7" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
+					</tbody>
+				</table>
+			</section>
+		</main>
+		<div th:insert="~{footer/footer.html::footer}"></div>
+	</body>
+	<script type="module" src="/js/lots.js"></script>
+	<script type="module" src="/js/amountValidations.js"></script>
+	<script type="module" src="/js/dateValidations.js"></script>
+</html>
