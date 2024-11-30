@@ -1,5 +1,5 @@
 # Usa la imagen base de Java JDK 22
-FROM eclipse-temurin:22-jdk-slim
+FROM openjdk:17-jdk-slim
 
 # Configura el directorio de trabajo dentro del contenedor
 WORKDIR /app
