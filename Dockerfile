@@ -8,11 +8,8 @@ WORKDIR /app
 COPY pom.xml ./
 
 # Copia el wrapper de Maven (si lo usas) al contenedor
-COPY .mvn .mvn
 COPY mvnw .
-
-# Ejecuta la construcción del proyecto (esto generará el .jar)
-RUN ./mvnw clean package -DskipTests
+COPY mvnw.cmd .
 
 # Copia el archivo .jar generado al contenedor
 COPY target/culturaJean-0.0.1-SNAPSHOT.jar app.jar
