@@ -1,28 +1,25 @@
-# Usa la imagen base de OpenJDK 17
-FROM openjdk:17-jdk-slim AS build
+# Usa OpenJDK 22
+FROM openjdk:22-jdk-slim
 
 # Instala Maven
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y maven
 
 # Configura el directorio de trabajo
 WORKDIR /app
 
-# Copia el código fuente al contenedor
-COPY . .
+# Copia el archivo pom.xml
+COPY pom.xml .
+
+# Copia el resto del código
+COPY src ./src
 
 # Ejecuta Maven para construir el proyecto
 RUN mvn clean package -DskipTests
 
-# Usa OpenJDK 17 para ejecutar la aplicación
-FROM openjdk:17-jdk-slim
+# Copia el .jar generado
+COPY target/culturaJean-0.0.1-SNAPSHOT.jar app.jar
 
-# Configura el directorio de trabajo
-WORKDIR /app
-
-# Copia el archivo .jar generado desde la etapa de construcción
-COPY --from=build /app/target/*.jar app.jar
-
-# Expone el puerto 8080
+# Expone el puerto
 EXPOSE 8080
 
 # Comando para ejecutar la aplicación
