@@ -16,6 +16,9 @@ COPY src ./src
 # Ejecuta Maven para construir el proyecto
 RUN mvn clean package -DskipTests
 
+# Listar archivos generados para asegurarse de que el .jar está en el directorio target
+RUN ls target/
+
 # Copia el .jar generado
 COPY target/culturaJean-0.0.1-SNAPSHOT.jar app.jar
 
