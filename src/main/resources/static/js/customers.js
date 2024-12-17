@@ -1,3 +1,16 @@
+//Importamos una funcionalidad que necesitamos:
+import { getOrderValue } from "/js/general.js";
+
+//Ids de los botones de aplicar ordenamiento y filtros:
+const applyOrderButtonId = "applyOrderButton";
+const applyFilterButtonId = "applyFilterButton";
+
+//Name de la etiqueta que permite seleccionar el ordenamiento:
+const orderName = "order";
+
+//Criterio de ordenamiento por defecto:
+const defaultOrder = "orderAscByLastName";
+
 /* OBTENEMOS LOS CLIENTES FILTRADOS Y ORDENADOS */
 async function filteredCustomers(order, enabled)
 {
@@ -54,17 +67,12 @@ function generateHTMLForCustomers(customers)
 /* GENERAMOS EL MENSAJE INDICANDO QUE NO HAY CLIENTES */
 function generateHTMLForEmptyCustomers()
 {
-	return html = `<tr>
-				       <td colspan="7" style="text-align: center; font-style: italic; color: gray;">
-				            No results found.
-				       </td>
-			       </tr>`;	
-}
-
-/* OBTENEMOS EL CRITERIO DE ORDENAMIENTO */
-function getOrder()
-{
-	return document.querySelector('select[name="order"]').value;
+	const html = `<tr>
+				      <td colspan="7" style="text-align: center; font-style: italic; color: gray;">
+				           No results found.
+				      </td>
+			      </tr>`;	
+	return html;
 }
 
 /* OBTENEMOS EL CRITERIO DE FILTRADO PARA EL ESTADO DE LOS CLIENTESS */
@@ -77,7 +85,7 @@ function getEnabled()
 function applyFilter()
 {
 	//Obtenemos el criterio de ordenamiento y el de filtrado elegidos:
-    const order = getOrder();
+    const order = getOrderValue(orderName, defaultOrder);
     const enabled = getEnabled();
 
     //Realizamos la consulta para obtener los clientes:
@@ -115,10 +123,10 @@ function applyFilter()
 document.addEventListener('DOMContentLoaded', () =>
 {
     //Ante un clic en el botón de aplicar determinado ordenamiento:
-    document.getElementById('applyOrderButton').addEventListener('click', applyFilter);
+    document.getElementById(applyOrderButtonId).addEventListener('click', applyFilter);
 
     //Ante un clic en el botón de aplicar el filtro:
-    document.getElementById('applyFilterButton').addEventListener('click', applyFilter)
+    document.getElementById(applyFilterButtonId).addEventListener('click', applyFilter)
 });
 
 //Seleccionamos el cuerpo de la tabla de clientes y escuchamos eventos de clic en él:
