@@ -1,59 +1,70 @@
-//Importamos la función para ocultar un mensaje de error en la vista:
-import { hideError } from "/js/errorMessage.js";
-
-/* OBTENEMOS EL CRITERIO DE ORDENAMIENTO PARA LOS PEDIDOS DE APROVISIONAMIENTO ENTREGADOS/NO ENTREGADOS */
-function getOrder(delivered)
+//Importamos las funciones necesarias:
+import 
 {
-	//Definimos el valor por defecto:
-	let order = "orderAscByProductCode";
-	
-	//Si se pide el de los pedidos entregados:
-	if(delivered)
-	{
-		order = document.querySelector("select[name='orderD']").value || "orderAscByProductCode"; //Criterio de ordenamiento.
-	}
-	else //Por el contrario, si se pide el de los no entregados:
-	{
-		order = document.querySelector("select[name='orderU']").value || "orderAscByProductCode"; //Criterio de ordenamiento.
-	}
-	
-	return order; //Retornamos el criterio de ordenamiento.
+	getOrderValue,
+	getSelectedValues,
+	descheckedAndDisableOtherOptions,
+	reinicializeInputs,
+	updateCheckboxes,
+	checkFiltersState,
+	changeStatusOtherOptions
+} from "/js/general.js";
+
+import { configAmountValidations } from "/js/amountValidations.js";
+
+//Ids de las etiquetas para seleccionar el criterio de ordenamiento de los pedidos entregados y de los no entregados:
+const uOrderName = "orderU";
+const dOrderName = "orderD";
+
+//Criterios de ordenamiento por defecto de ambos tipos de pedidos:
+const uDefaultOrder = "orderAscByProductCode";
+const dDefaultOrder = "orderAscByProductCode";
+
+//Ids de los botones de aplicar ordenamiento y filtros de los pedidos no entregados:
+const applyOrderDButtonId = "applyOrderDeliveredButton";
+const applyFiltersDButtonId = "applyFilterDeliveredButton";
+const dButtonIds = [applyOrderDButtonId, applyFiltersDButtonId];
+
+//Ids de los botones de aplicar ordenamiento y filtros de los pedidos entregados:
+const applyOrderUButtonId = "applyOrderUndeliveredButton";
+const applyFiltersUButtonId = "applyFilterUndeliveredButton";
+const uButtonIds = [applyOrderUButtonId, applyFiltersUButtonId];
+
+//Ids de las secciones de filtro de los pedidos entregados y de los no entregados:
+const dSections = ["pCodeD", "sNameD", "usernameD"];
+const uSections = ["pCodeU", "sNameU", "usernameU"];
+
+//Definimos la configuración para los inputs de los pedidos no entregados:
+const amountsUConfig =
+{
+    inputs: 
+    [
+        { id: "amountU", min: 1 },
+        { id: "fAmountU", min: 1 },
+        { id: "uAmountU", min: 1 },
+        { range: ["rFAmountU", "rUAmountU"], min: 1 }
+    ],
+    buttonIds: uButtonIds
+};
+
+//Definimos la configuración para los inputs de los pedidos entregados:
+const amountsDConfig =
+{
+    inputs: 
+    [
+        { id: "amountD", min: 1 },
+        { id: "fAmountD", min: 1 },
+        { id: "uAmountD", min: 1 },
+        { range: ["rFAmountD", "rUAmountD"], min: 1 }
+    ],
+	buttonIds: dButtonIds
 }
 
-/* OBTENEMOS LOS VALORES SELECCIONADOS DE UNA SECCIÓN, OPTIMIZANDO SI CORRESPONDE ENVIAR "all" */
-function getSelectedValues(sectionName) 
-{	
-	//Obtenemos todas las opciones menos la de "all":
-    const options = document.querySelectorAll(`input[name="${sectionName}"]:not([value="all"]`);
-    
-    //Obtenemos la opción de "all":
-    const optionAll = document.querySelector(`input[name="${sectionName}"][value="all"]`);
-    
-    //Obtenemos la cantidad de opciones máxima que hay para el filtro:
-    const maxOptions = document.getElementById(`${sectionName}MaxValues`);
-    const maxOptionsValue = maxOptions.dataset.maxValues;
-    
-    let selectedValues = [];
-    
-    //Si está seleccionada la opción de "all":
-    if(optionAll.checked)
-    {
-		selectedValues = [optionAll.value]; //Vamos a filtrar solo por ese criterio.
-	}
-	else //Por el contrario, si hay más opciones seleccionadas:
-	{
-		//Obtenemos todos los valores seleccionados menos el de "all":
-	    selectedValues = Array.from(options).filter(option => option.checked && option.value !== "all").map(option => option.value);
-	
-	    //Si todas las opciones están seleccionadas excepto "all" y la cantidad de seleccionadas es igual a la máxima de todas las posibles:
-	    if(selectedValues.length === options.length && selectedValues.length === maxOptionsValue) 
-	    {
-	        selectedValues = ["all"]; //Solo hay que tener en cuenta la opción de "all".
-	    }
-	}
+//Unificamos ambas configuraciones:
+const amountsConfig = [amountsUConfig, amountsDConfig];
 
-    return selectedValues; //Devolvemos los valores seleccionados.
-}
+//Definimos la configuración de los filtros a chequear para habilitar o no el botón:
+const sections = [uSections, dSections];
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO PARA LOS PEDIDOS DE APROVISIONAMIENTO ENTREGADOS/NO ENTREGADOS */
 function getFilters(delivered)
@@ -94,92 +105,6 @@ function getFilters(delivered)
 	
 	//Retornamos los valores de cada filtro:
 	return {productCodes, supplierNames, adminUsernames, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount}; 
-}
-
-/* ACTIVAMOS LA OPCIÓN DE TODOS EN UNA SECCIÓN Y DESACTIVAMOS LAS DEMÁS */
-function descheckedAndDisableOtherOptions(sectionName)
-{	
-	//Obtenemos todas las opciones menos la de "all":
-	let options = document.querySelectorAll(`input[name="${sectionName}"]:not([value="all"])`); 
-
-    //Desmarcamos y desactivamos todas:
-    options.forEach(option => 
-    {
-        option.checked = false;
-        option.disabled = true;
-	});
-}
-
-/* REESTABLECEMOS LOS INPUTS DE CANTIDAD */
-function reinicializeAmounts(delivered)
-{	
-	let amountInput;
-	let fromAmountInput;
-	let untilAmountInput;
-	let rangeFromAmountInput;
-	let rangeUntilAmountInput;
-	
-	//Pedidos entregados:
-	if(delivered)
-	{
-		//Cantidad específica:
-		amountInput = document.getElementById("amountD");
-		amountInput.value = ""; 
-		hideError(amountInput);
-		
-		//Cantidad mayor o igual a:
-		fromAmountInput = document.getElementById("fAmountD");
-		fromAmountInput.value = ""; 
-		hideError(fromAmountInput);
-		
-		//Cantidad menor o igual a:
-		untilAmountInput = document.getElementById("uAmountD");
-		untilAmountInput.value = ""; 
-		hideError(untilAmountInput);
-		
-		//Cantidad mayor o igual a dentro de un rango:
-		rangeFromAmountInput = document.getElementById("rFAmountD");
-		rangeFromAmountInput.value = ""; 
-		hideError(rangeFromAmountInput);
-		
-		//Cantidad menor o igual a dentro de un rango:
-		rangeUntilAmountInput = document.getElementById("rUAmountD");
-		rangeUntilAmountInput.value = ""; 
-		hideError(rangeUntilAmountInput);
-		
-		//Habilitamos el botón de aplicar filtros:
-		document.getElementById("applyFilterDeliveredButton").disabled = false;
-	}
-	else //Pedidos no entregados:
-	{
-		//Cantidad específica:
-		amountInput = document.getElementById("amountU");
-		amountInput.value = ""; 
-		hideError(amountInput);
-		
-		//Cantidad mayor o igual a:
-		fromAmountInput = document.getElementById("fAmountU");
-		fromAmountInput.value = ""; 
-		hideError(fromAmountInput);
-		
-		//Cantidad menor o igual a:
-		untilAmountInput = document.getElementById("uAmountU");
-		untilAmountInput.value = ""; 
-		hideError(untilAmountInput);
-		
-		//Cantidad mayor o igual a dentro de un rango:
-		rangeFromAmountInput = document.getElementById("rFAmountU");
-		rangeFromAmountInput.value = ""; 
-		hideError(rangeFromAmountInput);
-		
-		//Cantidad menor o igual a dentro de un rango:
-		rangeUntilAmountInput = document.getElementById("rUAmountU");
-		rangeUntilAmountInput.value = ""; 
-		hideError(rangeUntilAmountInput);
-		
-		//Habilitamos el botón de aplicar filtros:
-		document.getElementById("applyFilterUndeliveredButton").disabled = false;
-	}
 }
 
 /* OBTENEMOS LOS PEDIDOS ENTREGADOS/NO ENTREGADOS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADOS SEGÚN DETERMINADO CRITERIO */
@@ -233,52 +158,6 @@ function generateHTMLForSupplyOrders(delivered, supplyOrders)
 		html += `<tr>`;
     });
     return html;
-}
-
-/* ACTUALIZAMOS LOS CHECKBOXES DE UNA SECCIÓN DE FILTRO */
-function updateCheckboxes(containerId, name, values, selectedValues) 
-{	
-	const container = document.getElementById(containerId); //Obtenemos el elemento padre.
-	container.removeAttribute("open"); //Cerramos las opciones del details para no ocupar demasiado espacio de la pantalla.
-
-    //Limpiamos las opciones actuales (excepto el checkbox "All"):
-    const options = container.querySelectorAll('input[type="checkbox"]:not([value="all"])');
-    options.forEach(option => option.parentElement.remove());
-
-    //Generamos el checkbox para las demás opciones:
-    values.forEach((value, index) => 
-    {
-		//Definimos la primera parte de la opción:
-		let option = `<div>
-	                      <input type="checkbox" name=${name} value="${value}" id="${name}-${index + 1}"`;
-		            
-		//Si está seleccionada la opción "all" en este tipo de filtro:    
-		if(selectedValues.includes("all"))
-		{
-			//Entonces generamos las opciones pero desactivadas:
-			option += ` disabled>
-		              <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;
-		}
-		
-		//Si no está seleccionada la opción de "all" y dentro de las seleccionadas está la opción que estamos estamos evaluando:
-		else if(selectedValues.includes(value))
-		{
-			//Entonces la insertamos al HTML marcada:
-			option += ` checked>
-					  <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;	
-		}
-		else //Para el resto de los casos:
-		{
-			//Entonces generamos la opción por defecto, sin marcar y habilitada:
-			option += `>
-					  <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;
-		}
-		
-        container.insertAdjacentHTML("beforeend", option); //Agregamos la opción al final.
-    });
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE PEDIDOS ENTREGADOS/NO ENTREGADOS ACTUAL */
@@ -380,13 +259,34 @@ function generateHTMLForEmptyResults(delivered)
     document.getElementById(pCodeAll).checked = true; //Códigos de producto.
     document.getElementById(sNameAll).checked = true; //Nombres de proveedor.
     document.getElementById(usernameAll).checked = true; //Usernames de administrador.
-    reinicializeAmounts(delivered); //Cantidades.
+    
+    let amountInputIds = [];
+    if(delivered)
+    {
+		amountInputIds = ["amountD", "fAmountD", "uAmountD", "rFAmountD", "rUAmountD"];	
+	}
+	else
+	{
+		amountInputIds = ["amountU", "fAmountU", "uAmountU", "rFAmountU", "rUAmountU"];
+	}
+    
+    reinicializeInputs(amountInputIds); //Cantidades.
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS PEDIDOS ENTREGADOS/NO ENTREGADOS Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
 function filterSupplyOrders(delivered)
 {
-	const order = getOrder(delivered); //Obtenemos el criterio de ordenamiento.
+	//Obtenemos el criterio de ordenamiento:
+	let order;
+	if(delivered)
+	{
+		order = getOrderValue(dOrderName, dDefaultOrder);
+	}
+	else
+	{
+		order = getOrderValue(uOrderName, uDefaultOrder);
+	}
+	
 	const filters = getFilters(delivered); //Obtenemos los valores de filtrado.
 	
 	//Cargamos el criterio de ordenamiento y los de filtrado:
@@ -432,68 +332,19 @@ function filterSupplyOrders(delivered)
     });
 }
 
-/* VERIFICAMOS SI HAY AL MENOS UN CHECKBOX MARCADO EN UNA SECCIÓN */
-function isAnyCheckedInSection(sectionName) 
-{
-    return Array.from(document.querySelectorAll(`input[name="${sectionName}"]:checked`)).length > 0;
-}
-
-/* VERIFICAMOS SI TODAS LAS SECCIONES TIENEN AL MENOS UN CHECKBOX MARCADO */
-function checkFiltersState(delivered) 
-{
-	let allSectionsChecked;  
-	let applyButton;  
-	
-	//Pedidos entregados:
-	if(delivered)
-	{
-		//Obtenemos si alguna opción de cada sección fue marcada:
-		allSectionsChecked = isAnyCheckedInSection("pCodeD") && isAnyCheckedInSection("sNameD") && isAnyCheckedInSection("usernameD");
-        
-        //Obtenemos el botón de aplicar filtros:
-        applyButton = document.getElementById("applyFilterDeliveredButton");
-	}
-	else //Pedidos no entregados:
-	{
-		//Obtenemos si alguna opción de cada sección fue marcada:
-		allSectionsChecked = isAnyCheckedInSection("pCodeU") && isAnyCheckedInSection("sNameU") && isAnyCheckedInSection("usernameU");
-        
-        //Obtenemos el botón de aplicar filtros:
-        applyButton = document.getElementById("applyFilterUndeliveredButton");
-	}
-    
-    //Habilitamos o deshabilitamos el botón según el estado de las secciones:
-	applyButton.disabled = !allSectionsChecked;
-}
-
-/* ALTERAMOS LAS DEMÁS OPCIONES DE UNA SECCIÓN EN BASE AL ESTADO DE LA OPCIÓN "all" */
-function changeStatusOtherOptions(event, sectionName)
-{
-	const isChecked = event.target.checked; //Obtenemos si fue marcado o no.
-
-	//Si está marcada:
-    if(isChecked) 
-    {
-		//Desmarcamos y deshabilitamos todas las opciones menos la de "all":
-        descheckedAndDisableOtherOptions(sectionName);
-    } 
-    else 
-    {
-		//Obtenemos todas las opciones menos la de "all":
-		const options = document.querySelectorAll(`input[name="${sectionName}"]:not([value="all"])`); 
-        
-        //Las habilitamos:
-        options.forEach(option => 
-        {
-            option.disabled = false;
-        });
-    }
-}
-
 /* RESETEAMOS LOS FILTROS DE LOS PEDIDOS ENTREGADOS/NO ENTREGADOS Y OBTENEMOS LOS PEDIDOS QUE APLIQUEN A ESA CONFIGURACIÓN */
 function resetFilters(delivered)
 {
-	const order = getOrder(delivered); //Obtenemos el criterio de ordenamiento.
+	//Obtenemos el criterio de ordenamiento:
+	let order;
+	if(delivered)
+	{
+		order = getOrderValue(dOrderName, dDefaultOrder);	
+	}
+	else
+	{
+		order = getOrderValue(uOrderName, uDefaultOrder);	
+	}
 	
 	//Definimos los nuevos valores de filtrado:
 	const filters =
@@ -526,6 +377,8 @@ function resetFilters(delivered)
 			let pCode = "pCodeU";
 			let sName = "sNameU";
 			let username = "usernameU";
+			let amountInputIds = ["amountU", "fAmountU", "uAmountU", "rFAmountU", "rUAmountU"];
+			let buttonIds = uButtonIds;
 			
 			//La modificamos si se trata de pedidos entregados:
 			if(delivered)
@@ -534,6 +387,8 @@ function resetFilters(delivered)
 				pCode = "pCodeD";
 				sName = "sNameD";
 				username = "usernameD";
+				amountInputIds = ["amountD", "fAmountD", "uAmountD", "rFAmountD", "rUAmountD"];
+				buttonIds = dButtonIds;
 			}
 			
 			//Seleccionamos el body de la tabla:
@@ -567,7 +422,7 @@ function resetFilters(delivered)
 		    descheckedAndDisableOtherOptions(username);
 		     
 		    //Limpiamos el valor de los inputs de cantidad:
-		    reinicializeAmounts(delivered);
+		    reinicializeInputs(amountInputIds, buttonIds);
 		}
 		else
 		{
@@ -582,16 +437,16 @@ function resetFilters(delivered)
 };
 
 /* ORDENAMOS LOS PEDIDOS ENTREGADOS */ 
-document.getElementById("applyOrderDeliveredButton").addEventListener("click", () => filterSupplyOrders(true));
+document.getElementById(applyOrderDButtonId).addEventListener("click", () => filterSupplyOrders(true));
 
 /* ORDENAMOS LOS PEDIDOS NO ENTREGADOS */ 
-document.getElementById("applyOrderUndeliveredButton").addEventListener("click", () => filterSupplyOrders(false));
+document.getElementById(applyOrderUButtonId).addEventListener("click", () => filterSupplyOrders(false));
 
 /* FILTRAMOS LOS PEDIDOS ENTREGADOS */ 
-document.getElementById("applyFilterDeliveredButton").addEventListener("click", () => filterSupplyOrders(true));
+document.getElementById(applyFiltersDButtonId).addEventListener("click", () => filterSupplyOrders(true));
 
 /* FILTRAMOS LOS PEDIDOS NO ENTREGADOS */ 
-document.getElementById("applyFilterUndeliveredButton").addEventListener("click", () => filterSupplyOrders(false));
+document.getElementById(applyFiltersUButtonId).addEventListener("click", () => filterSupplyOrders(false));
 
 /* RESETEO DE LOS FILTROS DE LOS PEDIDOS ENTREGADOS */
 document.getElementById("resetAllDeliveredButton").addEventListener("click", () => resetFilters(true));
@@ -628,7 +483,8 @@ document.getElementById("undeliveredSupplyOrderTBodyTable").addEventListener("cl
             	
             	const delivered = false; //Son pedidos no entregados.
             	
-            	const order = getOrder(delivered); //Obtenemos el criterio de ordenamiento.
+            	const order = getOrderValue(uOrderName, uDefaultOrder); //Obtenemos el criterio de ordenamiento.
+				
             	const filters = getFilters(delivered); //Obtenemos los criterios de filtrado.
             	
             	const filtersData = {order, ...filters, delivered}; //Definimos el conjunto de datos para filtrar.
@@ -690,7 +546,7 @@ document.getElementById("usernameD-all").addEventListener("click", (event) => ch
 document.getElementById("usernameU-all").addEventListener("click", (event) => changeStatusOtherOptions(event, "usernameU"));
 
 /* AGREGAMOS LISTENERS A LOS CONTENEDORES DE LAS SECCIONES DE FILTRO DE LOS PEDIDOS ENTREGADOS */
-["pCodeD", "sNameD", "usernameD"].forEach(sectionName => 
+dSections.forEach(sectionName => 
 {
 	//Obtenemos el elemento contenedor del input:
     const sectionContainer = document.querySelector(`details summary:has(~ input[name="${sectionName}"])`).parentElement;
@@ -701,13 +557,13 @@ document.getElementById("usernameU-all").addEventListener("click", (event) => ch
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkFiltersState(true); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+            checkFiltersState(dSections, dButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
         }
     });
 });
 
 /* AGREGAMOS LISTENERS A LOS CONTENEDORES DE LAS SECCIONES DE FILTRO DE LOS PEDIDOS NO ENTREGADOS */
-["pCodeU", "sNameU", "usernameU"].forEach(sectionName => 
+uSections.forEach(sectionName => 
 {
 	//Obtenemos el elemento contenedor del input:
     const sectionContainer = document.querySelector(`details summary:has(~ input[name="${sectionName}"])`).parentElement;
@@ -718,59 +574,11 @@ document.getElementById("usernameU-all").addEventListener("click", (event) => ch
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkFiltersState(false); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+            checkFiltersState(uSections, uButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
         }
     });
 });
 
 /* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE CANTIDADES DE LOS PEDIDOS ENTREGADOS Y DE LOS NO ENTREGADOS */
-
-//Definimos la configuración para los inputs de los pedidos no entregados:
-const amountsUndeliveredSupplyOrdersConfig =
-{
-    inputs: 
-    [
-        { id: "amountU", min: 1 },
-        { id: "fAmountU", min: 1 },
-        { id: "uAmountU", min: 1 },
-        { range: ["rFAmountU", "rUAmountU"], min: 1 }
-    ],
-    button: "applyFilterUndeliveredButton"
-};
-
-//Definimos la configuración para los inputs de los pedidos entregados:
-const amountsDeliveredSupplyOrdersConfig =
-{
-    inputs: 
-    [
-        { id: "amountD", min: 1 },
-        { id: "fAmountD", min: 1 },
-        { id: "uAmountD", min: 1 },
-        { range: ["rFAmountD", "rUAmountD"], min: 1 }
-    ],
-    button: "applyFilterDeliveredButton"
-}
-
-//Unificamos ambas configuraciones:
-const amountsConfig = [amountsUndeliveredSupplyOrdersConfig, amountsDeliveredSupplyOrdersConfig];
-
-//Definimos los nombres de las secciones:
-let filtersDeliveredSupplyOrdersSections = ["pCodeD", "sNameD", "usernameD"];
-let filtersUndeliveredSupplyOrdersSections = ["pCodeU", "sNameU", "usernameU"];
-
-//Definimos la configuración de los filtros a chequear para habilitar o no el botón:
-const sections = 
-[
-	{
-		names: filtersDeliveredSupplyOrdersSections,
-		buttonId: "applyFilterDeliveredButton",
-	},
-	{
-		names: filtersUndeliveredSupplyOrdersSections,
-		buttonId: "applyFilterUndeliveredButton",
-	}
-];
-
 //Cuando carga el DOM asignamos la configuración a los inputs para poder hacer las validaciones:
-import { configAmountValidations } from "/js/amountValidations.js";
 document.addEventListener("DOMContentLoaded", () => configAmountValidations(amountsConfig, sections));

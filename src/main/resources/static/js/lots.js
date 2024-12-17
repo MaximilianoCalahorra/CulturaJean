@@ -1,49 +1,82 @@
-//Importamos la función para ocultar un mensaje de error en la vista:
-import { hideError } from "/js/errorMessage.js";
+//Importamos las funcionalidades que necesitamos:
+import 
+{ 
+	getOrderValue,
+ 	getSelectedValues, 
+ 	checkFiltersState, 
+ 	descheckedAndDisableOtherOptions,
+ 	updateCheckboxes,
+ 	changeStatusOtherOptions,
+ 	reinicializeInputs
+} from "/js/general.js";
 
-//Importamos la función para chequear si todas las secciones de checkboxes tienen al menos uno marcado:
-import { checkFiltersState } from "/js/general.js";
+import { configAmountValidations } from "/js/amountValidations.js";
 
-/* OBTENEMOS EL CRITERIO DE ORDENAMIENTO SELECCIONADO PARA LOS PEDIDOS DE APROVISIONAMIENTO/LOTES */
-function getOrderValue(orderName, defaultValue)
+import { validateDates } from "/js/dateValidations.js";
+
+//Ids de los botones de ordenar y aplicar filtros de los pedidos:
+const applyOrderSOButtonId = "applyOrderSOButton";
+const applyFiltersSOButtonId = "applyFiltersSOButton";
+const soButtonIds = [applyOrderSOButtonId, applyFiltersSOButtonId];
+
+//Ids de los botones de ordenar y aplicar filtros de los lotes:
+const applyOrderLButtonId = "applyOrderLButton";
+const applyFiltersLButtonId = "applyFiltersLButton";
+const lButtonIds = [applyOrderLButtonId, applyFiltersLButtonId];
+
+//Criterios de ordenamiento por defecto de los pedidos y los lotes:
+const defaultSOOrder = "orderDescByAmount";
+const defaultLOrder = "orderAscByExistingAmount";
+
+//Name de la etiqueta que permite seleccionar el ordenamiento de los pedidos y de los lotes:
+const orderSOName = "orderSO";
+const orderLName = "orderL";
+
+//Ids de los inputs de cantidad de los pedidos:
+const amountSOInputIds = ["amount", "fAmount", "uAmount", "rFAmount", "rUAmount"];
+
+//Ids de los inputs de cantidad y fecha de los lotes:
+const amountLInputIds = ["eAmount", "fEAmount", "uEAmount", "rFEAmount", "rUEAmount"];
+const dateLInputIds = ["rDate", "fRDate", "uRDate", "rFRDate", "rURDate"];
+
+//Definimos los nombres de las secciones:
+let filtersSOSections = ["pCode", "sName"];
+let filtersLSections = ["stockId"];
+
+//Definimos la configuración para los inputs de los pedidos:
+const amountsSOConfig =
 {
-	return document.querySelector(`select[name="${orderName}"]`).value || `${defaultValue}`;
+    inputs: 
+    [
+        { id: "amount", min: 1 },
+        { id: "fAmount", min: 1 },
+        { id: "uAmount", min: 1 },
+        { range: ["rFAmount", "rUAmount"], min: 1 }
+    ],
+    buttonIds: soButtonIds
+};
+
+//Definimos la configuración para los inputs de los lotes:
+const amountsLConfig =
+{
+    inputs: 
+    [
+        { id: "eAmount", min: 0 },
+        { id: "fEAmount", min: 0 },
+        { id: "uEAmount", min: 0 },
+        { range: ["rFEAmount", "rUEAmount"], min: 0 }
+    ],
+    buttonIds: lButtonIds
 }
 
-/* OBTENEMOS LOS VALORES SELECCIONADOS DE UNA SECCIÓN DE FILTRADO, OPTIMIZANDO SI CORRESPONDE ENVIAR "all" */
-function getSelectedValues(sectionName)
-{
-	//Obtenemos todas las opciones menos la de "all":
-    const options = document.querySelectorAll(`input[name="${sectionName}"]:not([value="all"]`);
-    
-    //Obtenemos la opción de "all":
-    const optionAll = document.querySelector(`input[name="${sectionName}"][value="all"]`);
-    
-    //Obtenemos la cantidad de opciones máxima que hay para el filtro:
-    const maxOptions = document.getElementById(`${sectionName}MaxValues`);
-    const maxOptionsValue = maxOptions.dataset.maxValues;
-    
-    let selectedValues = [];
-    
-    //Si está seleccionada la opción de "all":
-    if(optionAll.checked)
-    {
-		selectedValues = [optionAll.value]; //Vamos a filtrar solo por ese criterio.
-	}
-	else //Por el contrario, si hay más opciones seleccionadas:
-	{
-		//Obtenemos todos los valores seleccionados menos el de "all":
-	    selectedValues = Array.from(options).filter(option => option.checked && option.value !== "all").map(option => option.value);
-	
-	    //Si todas las opciones están seleccionadas excepto "all" y la cantidad de seleccionadas es igual a la máxima de todas las posibles:
-	    if(selectedValues.length === options.length && selectedValues.length === maxOptionsValue) 
-	    {
-	        selectedValues = ["all"]; //Solo hay que tener en cuenta la opción de "all".
-	    }
-	}
+//Unificamos ambas configuraciones:
+const amountsConfig = [amountsSOConfig, amountsLConfig];
 
-    return selectedValues; //Devolvemos los valores seleccionados.
-}
+//Definimos la configuración de los filtros a chequear para habilitar o no los botones:
+const sections = [filtersSOSections, filtersLSections];
+
+//Definimos la configuración de los inputs de las fechas:
+const datesConfig = {rangeFromDateId: "rFRDate", rangeUntilDateId: "rURDate", buttonIds: lButtonIds};
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LOS PEDIDOS */
 function getSupplyOrdersFiltersValues()
@@ -76,116 +109,6 @@ function getLotsFiltersValues()
 		rangeFromAmount: document.querySelector('input[name="rFEAmount"]').value || "-1", //Cantidad mayor o igual a dentro de un rango.
 		rangeUntilAmount: document.querySelector('input[name="rUEAmount"]').value || "-1" //Cantidad menor o igual a dentro de un rango.
 	};
-}
-
-/* ACTIVAMOS LA OPCIÓN DE TODOS EN UNA SECCIÓN Y DESACTIVAMOS LAS DEMÁS */
-function descheckedAndDisableOtherOptions(sectionName)
-{	
-	//Obtenemos todas las opciones menos la de "all":
-	let options = document.querySelectorAll(`input[name="${sectionName}"]:not([value="all"])`); 
-
-    //Desmarcamos y desactivamos todas:
-    options.forEach(option => 
-    {
-        option.checked = false;
-        option.disabled = true;
-	});
-}
-
-/* REESTABLECEMOS LOS INPUTS DE CANTIDAD DE LOS PEDIDOS */
-function reinicializeSupplyOrdersAmounts()
-{	
-	//Cantidad específica:
-	const amountInput = document.getElementById("amount");
-	amountInput.value = ""; 
-	hideError(amountInput);
-	
-	//Cantidad mayor o igual a:
-	const fromAmountInput = document.getElementById("fAmount");
-	fromAmountInput.value = ""; 
-	hideError(fromAmountInput);
-	
-	//Cantidad menor o igual a:
-	const untilAmountInput = document.getElementById("uAmount");
-	untilAmountInput.value = ""; 
-	hideError(untilAmountInput);
-	
-	//Cantidad mayor o igual a dentro de un rango:
-	const rangeFromAmountInput = document.getElementById("rFAmount");
-	rangeFromAmountInput.value = ""; 
-	hideError(rangeFromAmountInput);
-	
-	//Cantidad menor o igual a dentro de un rango:
-	const rangeUntilAmountInput = document.getElementById("rUAmount");
-	rangeUntilAmountInput.value = ""; 
-	hideError(rangeUntilAmountInput);
-	
-	//Habilitamos el botón de aplicar filtros:
-	document.getElementById("applyFiltersSOButton").disabled = false;
-}
-
-/* REESTABLECEMOS LOS INPUTS DE CANTIDAD DE LOS LOTES */
-function reinicializeLotsAmounts()
-{	
-	//Cantidad específica:
-	const amountInput = document.getElementById("eAmount");
-	amountInput.value = ""; 
-	hideError(amountInput);
-	
-	//Cantidad mayor o igual a:
-	const fromAmountInput = document.getElementById("fEAmount");
-	fromAmountInput.value = ""; 
-	hideError(fromAmountInput);
-	
-	//Cantidad menor o igual a:
-	const untilAmountInput = document.getElementById("uEAmount");
-	untilAmountInput.value = ""; 
-	hideError(untilAmountInput);
-	
-	//Cantidad mayor o igual a dentro de un rango:
-	const rangeFromAmountInput = document.getElementById("rFEAmount");
-	rangeFromAmountInput.value = ""; 
-	hideError(rangeFromAmountInput);
-	
-	//Cantidad menor o igual a dentro de un rango:
-	const rangeUntilAmountInput = document.getElementById("rUEAmount");
-	rangeUntilAmountInput.value = ""; 
-	hideError(rangeUntilAmountInput);
-	
-	//Habilitamos el botón de aplicar filtros:
-	document.getElementById("applyFiltersLButton").disabled = false;
-}
-
-/* REESTABLECEMOS LOS INPUTS DE FECHAS DE LOS LOTES */
-function reinicializeLotsDates()
-{	
-	//Fecha específica:
-	const dateInput = document.getElementById("rDate");
-	dateInput.value = ""; 
-	hideError(dateInput);
-	
-	//Fecha posterior o igual a:
-	const fromDateInput = document.getElementById("fRDate");
-	fromDateInput.value = ""; 
-	hideError(fromDateInput);
-	
-	//Fecha anterior o igual a:
-	const untilDateInput = document.getElementById("uRDate");
-	untilDateInput.value = ""; 
-	hideError(untilDateInput);
-	
-	//Fecha posterior o igual a dentro de un rango.
-	const rangeFromDateInput = document.getElementById("rFRDate");
-	rangeFromDateInput.value = ""; 
-	hideError(rangeFromDateInput);
-	
-	//Fecha anterior o igual a dentro de un rango.
-	const rangeUntilDateInput = document.getElementById("rURDate");
-	rangeUntilDateInput.value = ""; 
-	hideError(rangeUntilDateInput);
-	
-	//Habilitamos el botón de aplicar filtros:
-	document.getElementById("applyFiltersLButton").disabled = false;
 }
 
 /* OBTENEMOS LOS PEDIDOS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADOS SEGÚN DETERMINADO CRITERIO */
@@ -283,52 +206,6 @@ function generateHTMLForLots(lots)
     return html;
 }
 
-/* ACTUALIZAMOS LOS CHECKBOXES DE UNA SECCIÓN DE FILTRO */
-function updateCheckboxes(containerId, name, values, selectedValues) 
-{	
-	const container = document.getElementById(containerId); //Obtenemos el elemento padre.
-	container.removeAttribute("open"); //Cerramos las opciones del details para no ocupar demasiado espacio de la pantalla.
-
-    //Limpiamos las opciones actuales (excepto el checkbox "All"):
-    const options = container.querySelectorAll('input[type="checkbox"]:not([value="all"])');
-    options.forEach(option => option.parentElement.remove());
-
-    //Generamos el checkbox para las demás opciones:
-    values.forEach((value, index) => 
-    {	
-		//Definimos la primera parte de la opción:
-		let option = `<div>
-	                      <input type="checkbox" name=${name} value="${value}" id="${name}-${index + 1}"`;            
-		            
-		//Si está seleccionada la opción "all" en este tipo de filtro:    
-		if(selectedValues.includes("all"))
-		{
-			//Entonces generamos las opciones pero desactivadas:
-			option += ` disabled>
-		              <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;
-		}
-		
-		//Si no está seleccionada la opción de "all" y dentro de las seleccionadas está la opción que estamos estamos evaluando:
-		else if(selectedValues.includes(String(value)))
-		{
-			//Entonces la insertamos al HTML marcada:
-			option += ` checked>
-					  <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;	
-		}
-		else //Para el resto de los casos:
-		{
-			//Entonces generamos la opción por defecto, sin marcar y habilitada:
-			option += `>
-					  <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;
-		}
-		
-        container.insertAdjacentHTML("beforeend", option); //Agregamos la opción al final.
-    });
-}
-
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE PEDIDOS ACTUAL */
 function updateSupplyOrdersFilterOptions(data, selectedFilters) 
 {
@@ -389,7 +266,7 @@ function generateHTMLForEmptySupplyOrders()
     //Reinicializamos los valores de los filtros: 
     document.getElementById("pCode-all").checked = true; //Códigos de producto.
     document.getElementById("sName-all").checked = true; //Nombres de proveedor.
-    reinicializeSupplyOrdersAmounts(); //Cantidades.
+    reinicializeInputs(amountSOInputIds, soButtonIds); //Cantidades.
 }
 
 /* GENERAMOS DETERMINADO HTML PARA CUANDO NO HAY LOTES ENCONTRADOS */
@@ -408,14 +285,14 @@ function generateHTMLForEmptyLots()
     
     //Reinicializamos los valores de los filtros: 
     document.getElementById("stockId-all").checked = true; //Ids de stock.
-    reinicializeLotsDates(); //Fechas.
-    reinicializeLotsAmounts(); //Cantidades.
+    reinicializeInputs(dateLInputIds, lButtonIds); //Fechas.
+    reinicializeInputs(amountLInputIds, lButtonIds); //Cantidades.
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS PEDIDOS Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
 function filterSupplyOrders()
 {
-	const order = getOrderValue("orderSO", "orderDescByAmount"); //Obtenemos el criterio de ordenamiento.
+	const order = getOrderValue(orderSOName, defaultSOOrder); //Obtenemos el criterio de ordenamiento.
 	const filters = getSupplyOrdersFiltersValues(); //Obtenemos los valores de filtrado.
 	
 	//Cargamos el criterio de ordenamiento y los de filtrado:
@@ -455,7 +332,7 @@ function filterSupplyOrders()
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS LOTES Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
 function filterLots()
 {
-	const order = getOrderValue("orderL", "orderAscByExistingAmount"); //Obtenemos el criterio de ordenamiento.
+	const order = getOrderValue(orderLName, defaultLOrder); //Obtenemos el criterio de ordenamiento.
 	const filters = getLotsFiltersValues(); //Obtenemos los valores de filtrado.
 	
 	//Cargamos el criterio de ordenamiento y los de filtrado:
@@ -492,66 +369,10 @@ function filterLots()
     });
 }
 
-/* VERIFICAMOS SI HAY AL MENOS UN CHECKBOX MARCADO EN UNA SECCIÓN */
-function isAnyCheckedInSection(sectionName) 
-{
-    return Array.from(document.querySelectorAll(`input[name="${sectionName}"]:checked`)).length > 0;
-}
-
-/* VERIFICAMOS SI TODAS LAS SECCIONES DE LOS PEDIDOS TIENEN AL MENOS UN CHECKBOX MARCADO */
-function checkSupplyOrdersFiltersState() 
-{
-	//Obtenemos el estado de las secciones:
-	const allSectionsChecked = isAnyCheckedInSection("pCode") && isAnyCheckedInSection("sName");  
-	
-	//Seleccionamos el botón de aplicar filtros:
-	const applyButton = document.getElementById("applyFiltersSOButton");;  
-	
-    //Habilitamos o deshabilitamos el botón según el estado de las secciones:
-	applyButton.disabled = !allSectionsChecked;
-}
-
-/* VERIFICAMOS SI TODAS LAS SECCIONES DE LOS LOTES TIENEN AL MENOS UN CHECKBOX MARCADO */
-function checkLotsFiltersState() 
-{
-	//Obtenemos el estado de la sección:
-	const allSectionsChecked = isAnyCheckedInSection("stockId");  
-	
-	//Seleccionamos el botón de aplicar filtros:
-	const applyButton = document.getElementById("applyFiltersLButton");;  
-	
-    //Habilitamos o deshabilitamos el botón según el estado de la sección:
-	applyButton.disabled = !allSectionsChecked;
-}
-
-/* ALTERAMOS LAS DEMÁS OPCIONES DE UNA SECCIÓN EN BASE AL ESTADO DE LA OPCIÓN "all" */
-function changeStatusOtherOptions(event, sectionName)
-{
-	const isChecked = event.target.checked; //Obtenemos si fue marcado o no.
-
-	//Si está marcada:
-    if(isChecked) 
-    {
-		//Desmarcamos y deshabilitamos todas las opciones menos la de "all":
-        descheckedAndDisableOtherOptions(sectionName);
-    } 
-    else 
-    {
-		//Obtenemos todas las opciones menos la de "all":
-		const options = document.querySelectorAll(`input[name="${sectionName}"]:not([value="all"])`); 
-        
-        //Las habilitamos:
-        options.forEach(option => 
-        {
-            option.disabled = false;
-        });
-    }
-}
-
 /* RESETEAMOS LOS FILTROS DE LOS PEDIDOS Y OBTENEMOS LOS PEDIDOS QUE APLIQUEN A ESA CONFIGURACIÓN */
 function resetSupplyOrdersFilters()
 {
-	const order = getOrderValue("orderSO", "orderDescByAmount"); //Obtenemos el criterio de ordenamiento.
+	const order = getOrderValue(orderSOName, defaultSOOrder); //Obtenemos el criterio de ordenamiento.
 	
 	//Definimos los nuevos valores de filtrado:
 	const filters =
@@ -603,7 +424,7 @@ function resetSupplyOrdersFilters()
 		    descheckedAndDisableOtherOptions("sName");
 		     
 		    //Limpiamos el valor de los inputs de cantidad:
-		    reinicializeSupplyOrdersAmounts();
+		    reinicializeInputs(amountSOInputIds, soButtonIds);
 		}
 		else
 		{
@@ -620,7 +441,7 @@ function resetSupplyOrdersFilters()
 /* RESETEAMOS LOS FILTROS DE LOS LOTES Y OBTENEMOS LOS LOTES QUE APLIQUEN A ESA CONFIGURACIÓN */
 function resetLotsFilters()
 {
-	const order = getOrderValue("orderL", "orderAscByExistingAmount"); //Obtenemos el criterio de ordenamiento.
+	const order = getOrderValue(orderLName, defaultLOrder); //Obtenemos el criterio de ordenamiento.
 	
 	//Definimos los nuevos valores de filtrado:
 	const filters =
@@ -668,10 +489,10 @@ function resetLotsFilters()
 		   	descheckedAndDisableOtherOptions("stockId");
 		     
 		    //Limpiamos el valor de los inputs de fechas:
-		    reinicializeLotsDates();
+		    reinicializeInputs(dateLInputIds, lButtonIds);
 		    
 		    //Limpiamos el valor de los inputs de cantidad:
-		    reinicializeLotsAmounts();
+		    reinicializeInputs(amountLInputIds, lButtonIds);
 		}
 		else
 		{
@@ -685,86 +506,34 @@ function resetLotsFilters()
     });
 };
 
-//Definimos los nombres de las secciones:
-let filtersSupplyOrdersSections = ["pCode", "sName"];
-let filtersLotsSections = ["stockId"];
-
 /* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE CANTIDADES DE LOS PEDIDOS Y DE LOS LOTES */
-//Definimos la configuración para los inputs de los pedidos:
-const amountsSupplyOrdersConfig =
-{
-    inputs: 
-    [
-        { id: "amount", min: 1 },
-        { id: "fAmount", min: 1 },
-        { id: "uAmount", min: 1 },
-        { range: ["rFAmount", "rUAmount"], min: 1 }
-    ],
-    button: "applyFiltersSOButton"
-};
-
-//Definimos la configuración para los inputs de los lotes:
-const amountsLotsConfig =
-{
-    inputs: 
-    [
-        { id: "eAmount", min: 0 },
-        { id: "fEAmount", min: 0 },
-        { id: "uEAmount", min: 0 },
-        { range: ["rFEAmount", "rUEAmount"], min: 0 }
-    ],
-    button: "applyFiltersLButton"
-}
-
-//Unificamos ambas configuraciones:
-const amountsConfig = [amountsSupplyOrdersConfig, amountsLotsConfig];
-
-//Definimos la configuración de los filtros a chequear para habilitar o no el botón:
-const sections = 
-[
-	{
-		names: filtersSupplyOrdersSections,
-		buttonId: "applyFiltersSOButton",
-	},
-	{
-		names: filtersLotsSections,
-		buttonId: "applyFiltersLButton",
-	}
-];
-
 //Cuando carga el DOM asignamos la configuración a los inputs para poder hacer las validaciones:
-import { configAmountValidations } from "/js/amountValidations.js";
 document.addEventListener("DOMContentLoaded", () => configAmountValidations(amountsConfig, sections));
 
 /* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE FECHAS DE LOS LOTES */
-
-//Definimos la configuración de los inputs de las fechas:
-const datesConfig = {rangeFromDateId: "rFRDate", rangeUntilDateId: "rURDate", applyFiltersButtonId: "applyFiltersLButton"};
-
 //Cuando se selecciona una fecha en el input de fecha desde en un rango o en el de fecha hasta de un rango, validamos:
-import { validateDates } from "/js/dateValidations.js";
 document.getElementById(datesConfig.rangeFromDateId).addEventListener("change", () => 
 {
 	validateDates(datesConfig);
-	checkFiltersState(filtersLotsSections, "applyFiltersLButton");	
+	checkFiltersState(filtersLSections, lButtonIds);	
 });
 document.getElementById(datesConfig.rangeUntilDateId).addEventListener("change", () => 
 {
 	validateDates(datesConfig);
-	checkFiltersState(filtersLotsSections, "applyFiltersLButton");		
+	checkFiltersState(filtersLSections, lButtonIds);		
 });
 
 /* ORDENAMOS LOS PEDIDOS */ 
-document.getElementById("applyOrderSOButton").addEventListener("click", () => filterSupplyOrders());
+document.getElementById(applyOrderSOButtonId).addEventListener("click", () => filterSupplyOrders());
 
 /* ORDENAMOS LOS LOTES */ 
-document.getElementById("applyOrderLButton").addEventListener("click", () => filterLots());
+document.getElementById(applyOrderLButtonId).addEventListener("click", () => filterLots());
 
 /* FILTRAMOS LOS PEDIDOS */ 
-document.getElementById("applyFiltersSOButton").addEventListener("click", () => filterSupplyOrders());
+document.getElementById(applyFiltersSOButtonId).addEventListener("click", () => filterSupplyOrders());
 
 /* FILTRAMOS LOS LOTES */ 
-document.getElementById("applyFiltersLButton").addEventListener("click", () => filterLots());
+document.getElementById(applyFiltersLButtonId).addEventListener("click", () => filterLots());
 
 /* RESETEO DE LOS FILTROS DE LOS PEDIDOS */
 document.getElementById("resetAllSOButton").addEventListener("click", () => resetSupplyOrdersFilters());
@@ -793,7 +562,7 @@ document.getElementById("stockId-all").addEventListener("click", (event) => chan
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkSupplyOrdersFiltersState(); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+            checkFiltersState(filtersSOSections, soButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
         }
     });
 });
@@ -808,7 +577,7 @@ sectionContainer.addEventListener("click", (event) =>
     //Si el clic fue en un input dentro de la sección:
     if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
     {
-        checkLotsFiltersState(); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+        checkFiltersState(filtersLSections, lButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
     }
 });
 
@@ -840,7 +609,7 @@ document.getElementById("tbodySupplyOrdersTable").addEventListener("click", (eve
                 //Eliminamos la fila porque ahora el pedido ya generó un lote:
             	row.remove();
             	
-            	const order = getOrderValue("orderSO", "orderDescByAmount"); //Obtenemos el criterio de ordenamiento.
+            	const order = getOrderValue(orderSOName, defaultSOOrder); //Obtenemos el criterio de ordenamiento.
             	const filters = getSupplyOrdersFiltersValues(); //Obtenemos los criterios de filtrado.
             	
             	const filtersData = {order, ...filters}; //Definimos el conjunto de datos para filtrar.

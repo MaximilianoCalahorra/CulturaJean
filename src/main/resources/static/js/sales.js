@@ -1,19 +1,31 @@
 //Importamos las siguientes funciones:
 import { getPurchasesFiltersValues, updatePurchasesFilterOptions, generateHTMLForEmptyPurchases } from "/js/purchases.js";
+
+import 
+{ 
+	applyOrderButtonId,
+	applyFiltersButtonId,
+	buttonIds,
+	orderName,
+	defaultOrder,
+	dateInputIds,
+	timeInputIds,
+	priceInputIds,
+	generateHTMLForSalesOrPurchases 
+} from "/js/purchasesAndSales.js";
+
 import 
 { 
 	getOrderValue, 
-	getSelectedValues, 
-	generateHTMLForSalesOrPurchases, 
-    descheckedAndDisableOtherOptions, 
-	updateCheckboxes, 
-	changeStatusOtherOptions, 
-	reinicializeDates, 
-	reinicializeTimes, 
-  	reinicializePrices
-} from "/js/purchasesAndSales.js";
+	getSelectedValues,
+	descheckedAndDisableOtherOptions, 
+	updateCheckboxes,
+	reinicializeInputs,
+	changeStatusOtherOptions,
+	checkFiltersState
+} from "/js/general.js";
 
-import { isAnyCheckedInSection } from "/js/general.js";
+const filterSections = ["username", "methodOfPay"];
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LAS VENTAS */
 function getSalesFiltersValues()
@@ -76,7 +88,7 @@ function generateHTMLForEmptySales()
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LAS VENTAS Y ACTUALIZAMOS LA VISTA CON LAS QUE APLIQUEN */
 function filterSales()
 {
-	const order = getOrderValue("order"); //Obtenemos el criterio de ordenamiento. 
+	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento. 
 	const filters = getSalesFiltersValues(); //Obtenemos los valores de filtrado.
 	
 	//Cargamos el criterio de ordenamiento y los de filtrado:
@@ -113,31 +125,10 @@ function filterSales()
     });
 }
 
-/* VERIFICAMOS SI TODAS LAS SECCIONES DE LAS VENTAS TIENEN AL MENOS UN CHECKBOX MARCADO */
-function checkSalesFiltersState() 
-{
-	//Obtenemos el estado de la sección:
-	const allSectionsChecked = isAnyCheckedInSection("username") && isAnyCheckedInSection("methodOfPay");
-	
-	//Seleccionamos el botón de aplicar filtros:
-	const applyButton = document.getElementById("applyFiltersButton");  
-	
-	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
-	if(document.querySelectorAll(".error-message").length > 0)
-	{
-		applyButton.disabled = true; //El botón debe permanecer deshabilitado sin importar el estado de los filtros.
-	}
-	else //Por el contrario, si los filtros son válidos:
-	{
-		//Habilitamos o deshabilitamos el botón según el estado de las secciones:
-		applyButton.disabled = !allSectionsChecked;	
-	}
-}
-
 /* RESETEAMOS LOS FILTROS DE LAS VENTAS Y OBTENEMOS LAS QUE APLIQUEN A ESA CONFIGURACIÓN */
 function resetSalesFilters()
 {
-	const order = getOrderValue("order"); //Obtenemos el criterio de ordenamiento.
+	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento.
 	
 	//Definimos los nuevos valores de filtrado:
 	const filters =
@@ -196,9 +187,9 @@ function resetSalesFilters()
 		   	descheckedAndDisableOtherOptions("methodOfPay");
 		     
 		    //Limpiamos el valor de los inputs de fecha, hora y precio:
-		    reinicializeDates();
-		    reinicializeTimes();
-		    reinicializePrices();
+		    reinicializeInputs(dateInputIds, buttonIds);
+		    reinicializeInputs(timeInputIds, buttonIds);
+		    reinicializeInputs(priceInputIds, buttonIds);
 		}
 		else
 		{
@@ -216,10 +207,10 @@ function resetSalesFilters()
 if(document.getElementById("usernameContainer"))
 {
 	/* ORDENAMOS LAS VENTAS */ 
-	document.getElementById("applyOrderButton").addEventListener("click", () => filterSales());
+	document.getElementById(applyOrderButtonId).addEventListener("click", () => filterSales());
 	
 	/* FILTRAMOS LAS VENTAS */ 
-	document.getElementById("applyFiltersButton").addEventListener("click", () => filterSales());
+	document.getElementById(applyFiltersButtonId).addEventListener("click", () => filterSales());
 	
 	/* RESETEO DE LOS FILTROS DE LAS VENTAS */
 	document.getElementById("resetAllButton").addEventListener("click", () => resetSalesFilters());	
@@ -237,7 +228,7 @@ if(document.getElementById("usernameContainer"))
 	    //Si el clic fue en un input dentro de la sección:
 	    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 	    {
-	        checkSalesFiltersState(); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
 	});
 	
@@ -251,7 +242,7 @@ if(document.getElementById("usernameContainer"))
 	    //Si el clic fue en un input dentro de la sección:
 	    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 	    {
-	        checkSalesFiltersState(); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
 	});
 }

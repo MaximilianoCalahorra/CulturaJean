@@ -60,17 +60,21 @@ export const validateDates = (config) =>
 	//Determinamos si la configuración de fechas es válida:
 	const isRangeValid = validateRangeDateInputs(config.rangeFromDateId, config.rangeUntilDateId);
 	
-	//Seleccionamos el botón de aplicar filtros:
-	const button = document.getElementById(config.applyFiltersButtonId);
+	//Seleccionamos el botón de ordenar y el de aplicar filtros:
+	const orderButton = document.getElementById(config.buttonIds[0]);
+	const filterButton = document.getElementById(config.buttonIds[1]);
 	
 	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
 	if(document.querySelectorAll(".error-message").length > 0)
 	{
-		button.disabled = true; //El botón debe permanecer deshabilitado sin importar el estado de los filtros.
+		//Los botones deben permanecer deshabilitados sin importar el estado de los filtros:
+		orderButton.disabled = true;
+		filterButton.disabled = true;
 	}
 	else //Por el contrario, si los filtros son válidos:
 	{
-		//Habilitamos o deshabilitamos el botón según si la configuración de fechas es válida o no, respectivamente:
-		button.disabled = !isRangeValid;	
+		//Habilitamos o deshabilitamos los botones según si la configuración de fechas es válida o no, respectivamente:
+		orderButton.disabled = !isRangeValid;	
+		filterButton.disabled = !isRangeValid;
 	}
 };

@@ -18,7 +18,7 @@ const validateSingleInput = (input, min) =>
     }
 
     //Si no es un número:
-    if (isNaN(value)) 
+    if(isNaN(value)) 
     {
         showError(input, "This field requires a valid number."); //Mostramos el mensaje de error.
         return false;
@@ -110,13 +110,14 @@ const validateRangeInputs = (fromInput, untilInput, min) =>
 };
 
 //Validamos un conjunto de inputs:
-const validateGroup = (group, sectionsFilters, buttonId) => 
+const validateGroup = (group, sectionsFilters) => 
 {
 	//Descomponemos el grupo:
-    const { inputs, button } = group;
+    const { inputs, buttonIds } = group;
     
-    //Seleccionamos el botón de aplicar filtros:
-    const applyButton = document.getElementById(button);
+    //Seleccionamos el botón de ordenar y el de aplicar filtros:
+    const orderButton = document.getElementById(buttonIds[0]);
+    const applyButton = document.getElementById(buttonIds[1]);
 
 	//Suponemos que el dato de cada input es válido:
     let allValid = true;
@@ -157,16 +158,19 @@ const validateGroup = (group, sectionsFilters, buttonId) =>
 	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
 	if(document.querySelectorAll(".error-message").length > 0)
 	{
-		applyButton.disabled = true; //El botón debe permanecer deshabilitado sin importar el estado de los filtros.
+        //Los botones deben permanecer deshabilitados sin importar el estado de los filtros:
+		orderButton.disabled = true;
+        applyButton.disabled = true;
 	}
 	else //Por el contrario, si los filtros son válidos:
 	{
-		//El botón se habilita o deshabilita según si el grupo de inputs es válido o no, respectivamente:
-		applyButton.disabled = !allValid;	
+		//Los botones se habilitan o deshabilitan según si el grupo de inputs es válido o no, respectivamente:
+		orderButton.disabled = !allValid;
+        applyButton.disabled = !allValid;	
 	}
 	
-	//Habilitamos o deshabilitamos el botón según el estado de los checkboxes:
-	checkFiltersState(sectionsFilters, buttonId);
+	//Habilitamos o deshabilitamos los botones según el estado de los checkboxes:
+	checkFiltersState(sectionsFilters, buttonIds);
 };
 
 //Si se ingresa algún caracter que no sea un número, se convierte a "":
@@ -204,17 +208,16 @@ export const configAmountValidations = (config, sections) =>
     config.forEach((group) => 
     {
 		//Obtenemos las secciones a verificar si tienen por lo menos una opción marcada:
-		const sectionsFilters = sections[i].names;
-		const buttonId = sections[i].buttonId;
+		const sectionsFilters = sections[i];
 		
 		//Definimos el compartamiento de cada input de ese grupo:
-		configAmountValidationsGroup(group, sectionsFilters, buttonId);
+		configAmountValidationsGroup(group, sectionsFilters);
 		i++;
     });
 };
 
 //Definimos el comportamiento de cada input para validar según la configuración que se indique de un grupo:
-export const configAmountValidationsGroup = (config, sectionsFilters, buttonId) =>
+export const configAmountValidationsGroup = (config, sectionsFilters) =>
 {
 	//Recorremos cada input del grupo:
     config.inputs.forEach((inputConfig) => 
@@ -224,7 +227,7 @@ export const configAmountValidationsGroup = (config, sectionsFilters, buttonId) 
         {
             const input = document.getElementById(inputConfig.id); //Seleccionamos el input.
             enforceNumericInput(input); //Nos aseguramos que el valor no tome uno que no sea un número o "".
-            input.addEventListener("input", () => validateGroup(config, sectionsFilters, buttonId)); //Definimos que al completarlo se dispare la función de validar el grupo.
+            input.addEventListener("input", () => validateGroup(config, sectionsFilters)); //Definimos que al completarlo se dispare la función de validar el grupo.
         } 
         //Por el contario, si es uno armado para rangos:
         else if(inputConfig.range) 
@@ -238,8 +241,8 @@ export const configAmountValidationsGroup = (config, sectionsFilters, buttonId) 
             enforceNumericInput(untilInput);
 
 			//Definimos que al completar cada uno se dispare la función de validar el grupo:
-            fromInput.addEventListener("input", () => validateGroup(config, sectionsFilters, buttonId));
-            untilInput.addEventListener("input", () => validateGroup(config, sectionsFilters, buttonId));
+            fromInput.addEventListener("input", () => validateGroup(config, sectionsFilters));
+            untilInput.addEventListener("input", () => validateGroup(config, sectionsFilters));
         }
     });
 };

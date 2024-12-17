@@ -24,7 +24,7 @@
 				<h2>My Supply Orders</h2>
 				<form>
 					<label>Choose The Order:
-						<select name="order" required>
+						<select name="order">
 							<option value="orderAscByProductCode" th:selected="${order == 'orderAscByProductCode'}">Ascendent By Product Code</option>
 							<option value="orderDescByProductCode" th:selected="${order == 'orderDescByProductCode'}">Descendent By Product Code</option>
 							<option value="orderAscBySupplierName" th:selected="${order == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>

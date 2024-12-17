@@ -1,17 +1,28 @@
 //Importamos las siguientes funciones:
 import 
 { 
-	getOrderValue, 
-	getSelectedValues,
-	generateHTMLForSalesOrPurchases,  
-	descheckedAndDisableOtherOptions, 
-	updateCheckboxes, 
-	reinicializeDates, 
-	reinicializeTimes, 
-	reinicializePrices 
+	generateHTMLForSalesOrPurchases,
+	applyOrderButtonId,
+	applyFiltersButtonId,
+	buttonIds,
+	orderName,
+	defaultOrder,
+	dateInputIds,
+	timeInputIds,
+	priceInputIds
 } from "/js/purchasesAndSales.js";
 
-import { isAnyCheckedInSection } from "/js/general.js";
+import 
+{ 
+	getOrderValue, 
+	getSelectedValues,
+	descheckedAndDisableOtherOptions, 
+	updateCheckboxes,
+	reinicializeInputs,
+	checkFiltersState
+} from "/js/general.js";
+
+const filterSections = ["methodOfPay"];
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LAS COMPRAS */
 export function getPurchasesFiltersValues()
@@ -105,15 +116,15 @@ export function generateHTMLForEmptyPurchases()
     
     //Reinicializamos los valores de los filtros: 
     document.getElementById("methodOfPay-all").checked = true; //Métodos de pago.
-    reinicializeDates(); //Fechas. 
-    reinicializeTimes(); //Horas. 
-    reinicializePrices(); //Precios. 
+    reinicializeInputs(dateInputIds, buttonIds); //Fechas. 
+    reinicializeInputs(timeInputIds, buttonIds); //Horas. 
+    reinicializeInputs(priceInputIds, buttonIds); //Precios. 
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LAS COMPRAS Y ACTUALIZAMOS LA VISTA CON LAS QUE APLIQUEN */
 function filterPurchases()
 {
-	const order = getOrderValue("order"); //Obtenemos el criterio de ordenamiento. 
+	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento. 
 	const filters = getPurchasesFiltersValues(); //Obtenemos los valores de filtrado.
 	
 	//Cargamos el criterio de ordenamiento y los de filtrado:
@@ -150,31 +161,10 @@ function filterPurchases()
     });
 }
 
-/* VERIFICAMOS SI TODAS LAS SECCIONES DE LAS COMPRAS TIENEN AL MENOS UN CHECKBOX MARCADO */
-function checkPurchasesFiltersState() 
-{
-	//Obtenemos el estado de la sección:
-	const sectionChecked = isAnyCheckedInSection("methodOfPay"); 
-	
-	//Seleccionamos el botón de aplicar filtros:
-	const applyButton = document.getElementById("applyFiltersButton");;  
-	
-    //Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
-	if(document.querySelectorAll(".error-message").length > 0)
-	{
-		applyButton.disabled = true; //El botón debe permanecer deshabilitado sin importar el estado de los filtros.
-	}
-	else //Por el contrario, si los filtros son válidos:
-	{
-		//Habilitamos o deshabilitamos el botón según el estado de la sección:
-		applyButton.disabled = !sectionChecked;	
-	}
-}
-
 /* RESETEAMOS LOS FILTROS DE LAS COMPRAS Y OBTENEMOS LAS QUE APLIQUEN A ESA CONFIGURACIÓN */
 function resetPurchasesFilters()
 {
-	const order = getOrderValue("order"); //Obtenemos el criterio de ordenamiento.
+	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento.
 	
 	//Definimos los nuevos valores de filtrado:
 	const filters =
@@ -225,9 +215,9 @@ function resetPurchasesFilters()
 		   	descheckedAndDisableOtherOptions("methodOfPay");
 		     
 		    //Limpiamos el valor de los inputs de fecha, hora y precio:
-		    reinicializeDates();
-		    reinicializeTimes();
-		    reinicializePrices();
+		    reinicializeInputs(dateInputIds, buttonIds);
+		    reinicializeInputs(timeInputIds, buttonIds);
+		    reinicializeInputs(priceInputIds, buttonIds);
 		}
 		else
 		{
@@ -245,10 +235,10 @@ function resetPurchasesFilters()
 if(!document.getElementById("usernameContainer"))
 {
 	/* ORDENAMOS LAS COMPRAS */ 
-	document.getElementById("applyOrderButton").addEventListener("click", () => filterPurchases());
+	document.getElementById(applyOrderButtonId).addEventListener("click", () => filterPurchases());
 	
 	/* FILTRAMOS LAS COMPRAS */ 
-	document.getElementById("applyFiltersButton").addEventListener("click", () => filterPurchases());
+	document.getElementById(applyFiltersButtonId).addEventListener("click", () => filterPurchases());
 	
 	/* RESETEO DE LOS FILTROS DE LAS COMPRAS */
 	document.getElementById("resetAllButton").addEventListener("click", () => resetPurchasesFilters());
@@ -263,7 +253,7 @@ if(!document.getElementById("usernameContainer"))
 	    //Si el clic fue en un input dentro de la sección:
 	    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 	    {
-	        checkPurchasesFiltersState(); //Habilitamos o deshabilitamos el botón según el estado del filtro.
+	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
 	});
 }
