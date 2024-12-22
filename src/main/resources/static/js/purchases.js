@@ -140,13 +140,13 @@ function filterPurchases()
 		//Seleccionamos el body de la tabla:
 		const tbody = document.getElementById("tbodyDataTable");
 		
-		//Si hay al menos un pedido después del filtro:
+		//Si hay al menos una compra después del filtro:
 		if(data.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
 	        const htmlContent = generateHTMLForSalesOrPurchases(data);
 	
-	        //Actualizamos los pedidos en la vista:
+	        //Actualizamos las compras en la vista:
 	        tbody.innerHTML = htmlContent;	
 		}
 		else
@@ -204,7 +204,7 @@ function resetPurchasesFilters()
 			//Generamos el HTML a partir de los datos obtenidos:
 		    const htmlContent = generateHTMLForSalesOrPurchases(data);
 		        
-			//Actualizamos los pedidos en la vista:
+			//Actualizamos las compras en la vista:
 		    tbody.innerHTML = htmlContent;
 		    
 		    //Tildamos la opción "all" para el filtro de métodos de pago:

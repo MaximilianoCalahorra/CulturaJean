@@ -2,6 +2,7 @@ package com.calahorra.culturaJean.services.implementation;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -526,6 +527,108 @@ public class StockService implements IStockService
 			SupplyOrder supplyOrder = new SupplyOrder(product, member, supplier, supplyOrderAmount, false);
 			supplyOrderService.insert(modelMapper.map(supplyOrder, SupplyOrderDTO.class)); 
 		}
+	}
+	
+	//Filtrar:
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto:
+	public List<StockDTO> filterByActualAmount(List<StockDTO> stocks, int actualAmount)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getActualAmount() != actualAmount) 
+			{
+				iterator.remove(); //En caso de que no tenga una cantidad actual como la del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto mayor o igual a una determinada:
+	public List<StockDTO> filterByFromActualAmount(List<StockDTO> stocks, int fromActualAmount)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getActualAmount() < fromActualAmount) 
+			{
+				iterator.remove(); //En caso de que no tenga una cantidad actual como la del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto menor o igual a una determinada:
+	public List<StockDTO> filterByUntilActualAmount(List<StockDTO> stocks, int untilActualAmount)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getActualAmount() > untilActualAmount) 
+			{
+				iterator.remove(); //En caso de que no tenga una cantidad actual como la del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto entre un rango determinado:
+	public List<StockDTO> filterByRangeActualAmount(List<StockDTO> stocks, int rangeFromActualAmount, int rangeUntilActualAmount)
+	{
+		Iterator<StockDTO> iterator = stocks.iterator(); //Definimos un objeto Iterator para el listado.
+		
+		//Mientras haya un stock por analizar:
+		while(iterator.hasNext())
+		{
+			StockDTO stock = iterator.next(); //Obtenemos ese stock.
+			if (stock.getActualAmount() < rangeFromActualAmount || stock.getActualAmount() > rangeUntilActualAmount) 
+			{
+				iterator.remove(); //En caso de que no tenga una cantidad actual dentro del rango del filtro, lo removemos.
+	        }
+	    }
+		return stocks; //Retornamos los stocks filtrados.
+	}
+	
+	//Aplicamos el filtro seleccionado de la sección cantidad actual:
+	public List<StockDTO> applyFilterTypeActualAmount(List<StockDTO> stocks, String actualAmount, String fromActualAmount, 
+												   String untilActualAmount, String rangeFromActualAmount, String rangeUntilActualAmount)
+	{
+		if(!actualAmount.equals("")) //Filtro por cantidad actual:
+		{
+			int actualAmountNumber = Integer.parseInt(actualAmount); //Convertimos la cadena a número.
+			stocks = filterByActualAmount(stocks, actualAmountNumber); //Nos quedamos con los stocks que cumplan el filtro.
+		}
+		
+		if(!fromActualAmount.equals("")) //Filtro por cantidad actual mayor o igual a una determinada:
+		{
+			int fromActualAmountNumber = Integer.parseInt(fromActualAmount); //Convertimos la cadena a número.
+			stocks = filterByFromActualAmount(stocks, fromActualAmountNumber); //Nos quedamos con los stocks que cumplan el filtro.
+		}
+		
+		if(!untilActualAmount.equals("")) //Filtro por cantidad actual menor o igual a una determinada:
+		{
+			int untilActualAmountNumber = Integer.parseInt(untilActualAmount); //Convertimos la cadena a número.
+			stocks = filterByUntilActualAmount(stocks, untilActualAmountNumber); //Nos quedamos con los stocks que cumplan el filtro.
+		}
+		
+		if(!rangeFromActualAmount.equals("") && !rangeUntilActualAmount.equals("")) //Filtro por cantidad actual dentro de un rango determinado:
+		{
+			int rangeFromActualAmountNumber = Integer.parseInt(rangeFromActualAmount); //Convertimos la cadena a número.
+			int rangeUntilActualAmountNumber = Integer.parseInt(rangeUntilActualAmount); //Convertimos la cadena a número.
+			stocks = filterByRangeActualAmount(stocks, rangeFromActualAmountNumber, rangeUntilActualAmountNumber); //Nos quedamos con los stocks que cumplan el filtro.
+		}
+		
+		return stocks; //Retornamos los stocks filtrados.
 	}
 	
 	//Calcular:

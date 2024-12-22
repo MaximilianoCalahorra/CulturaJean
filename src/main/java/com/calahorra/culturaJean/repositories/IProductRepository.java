@@ -60,23 +60,26 @@ public interface IProductRepository extends JpaRepository<Product, Serializable>
 	public abstract List<Product> findByImageNameAndEnabled(@Param("imageName")String imageName, @Param("enabled")boolean enabled);
 	
 	//Encontramos un producto por cada nombre de imagen:
-	@Query(value = "SELECT p.* FROM product p INNER JOIN (SELECT MIN(product_id) AS product_id FROM product GROUP BY image_name) AS subquery ON p.product_id = subquery.product_id", 
-           nativeQuery = true)
+	@Query(value = "SELECT * FROM product WHERE product_id IN (SELECT MIN(product_id) FROM product GROUP BY image_name)",
+		   nativeQuery = true)
 	public abstract List<Product> findUniqueEachImageName();
-	
+
 	//Encontramos un producto habilitado/deshabilitado por cada nombre de imagen:
-	@Query(value = "SELECT p.* FROM product p INNER JOIN (SELECT MIN(product_id) AS product_id FROM product WHERE enabled = (:enabled) GROUP BY image_name) AS subquery ON p.product_id = subquery.product_id", 
-			nativeQuery = true)
+	@Query(value = "SELECT * FROM product WHERE product_id IN (SELECT MIN(product_id) FROM product WHERE enabled = :enabled GROUP BY image_name)",
+		   nativeQuery = true)
 	public abstract List<Product> findUniqueEnabledEachImageName(@Param("enabled")boolean enabled);
-	
+
 	//Encontramos un producto habilitado/deshabilitado de determinado talle por cada nombre de imagen:
-	@Query(value = "SELECT p.* FROM product p INNER JOIN (SELECT MIN(product_id) AS product_id FROM product WHERE enabled = (:enabled) AND size = (:size) GROUP BY image_name) AS subquery ON p.product_id = subquery.product_id", 
-			nativeQuery = true)
-	public abstract List<Product> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("size")String size);
-	
-	//Encontramos los talles de un producto según el filtro indicado:
-	@Query("SELECT p.size FROM Product p WHERE p.imageName = (:imageName)")
-	public abstract List<String> findUniqueEnabledEachSize(@Param("imageName")String imageName);
+	@Query(value = "SELECT * FROM product WHERE product_id IN (SELECT MIN(product_id) FROM product WHERE enabled = :enabled AND " +
+				   "size IN (:sizes) GROUP BY image_name)",
+		   nativeQuery = true)
+	public abstract List<Product> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, 
+																		@Param("sizes")List<String> sizes);
+
+	//Encontramos por única vez los talles de determinados tipos de productos habilitados/deshabilitados:
+	@Query("SELECT DISTINCT p.size FROM Product p WHERE p.imageName IN (:imageNames) AND p.enabled = :enabled")
+	public abstract List<String> findUniqueEnabledEachSizeForMultipleImages(@Param("imageNames")List<String> imageNames, 
+																			@Param("enabled")boolean enabled);
 
 	//Ordenar:
 	

@@ -160,6 +160,24 @@ public interface IStockService
 	//Agregamos un pedido de aprovisionamiento de un producto de forma automática:
 	public void generateAutomaticSupplyOrder(int productId); 
 	
+	//Filtrar:
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto:
+	public List<StockDTO> filterByActualAmount(List<StockDTO> stocks, int actualAmount);
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto mayor o igual a una determinada:
+	public List<StockDTO> filterByFromActualAmount(List<StockDTO> stocks, int fromActualAmount);
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto menor o igual a una determinada:
+	public List<StockDTO> filterByUntilActualAmount(List<StockDTO> stocks, int untilActualAmount);
+	
+	//Filtramos el listado de stocks por la cantidad actual del producto entre un rango determinado:
+	public List<StockDTO> filterByRangeActualAmount(List<StockDTO> stocks, int rangeFromActualAmount, int rangeUntilActualAmount);
+	
+	//Aplicamos el filtro seleccionado de la sección cantidad actual:
+	public List<StockDTO> applyFilterTypeActualAmount(List<StockDTO> stocks, String actualAmount, String fromActualAmount, 
+												      String untilActualAmount, String rangeFromActualAmount, String rangeUntilActualAmount);
+	
 	//Calcular:
 	
 	//Calculamos la cantidad actual de stock:

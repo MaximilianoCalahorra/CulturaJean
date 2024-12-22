@@ -1,21 +1,27 @@
 package com.calahorra.culturaJean.controllers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.ProductDTO;
+import com.calahorra.culturaJean.dtos.ProductFiltersDataDTO;
 import com.calahorra.culturaJean.dtos.PurchaseItemDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
@@ -42,17 +48,7 @@ public class ProductController
 	
 	//Respondemos a las peticiones de productos para el cliente/visitante:
 	@GetMapping("/products/{role}")
-	public ModelAndView products(@PathVariable("role")String role,
-								 @RequestParam(value = "order", defaultValue = "orderAscByName")String order,
-							     @RequestParam(value = "cat", defaultValue = "all")String category,
-							     @RequestParam(value = "gen", defaultValue = "all")String gender,
-							     @RequestParam(value = "size", defaultValue = "all")String size,
-							     @RequestParam(value = "col", defaultValue = "all")String color,
-							     @RequestParam(value = "sPri", defaultValue = "")String salePrice,
-							     @RequestParam(value = "fSPri", defaultValue = "")String fromSalePrice,
-							     @RequestParam(value = "uSPri", defaultValue = "")String untilSalePrice,
-							     @RequestParam(value = "rFSPri", defaultValue = "")String rangeFromSalePrice,
-							     @RequestParam(value = "rUSPri", defaultValue = "")String rangeUntilSalePrice) 
+	public ModelAndView products(@PathVariable("role")String role) 
 	{
 		ModelAndView modelAndView = new ModelAndView();
 		
@@ -60,17 +56,65 @@ public class ProductController
 		switch(role) 
 		{
 			case "customer": modelAndView.setViewName(ViewRouteHelper.SHOP_CUSTOMER); break; //Al cliente le mostramos su vista.
-			case "visitor": modelAndView.setViewName(ViewRouteHelper.SHOP_VISITOR); break; //Al administrador le mostramos su vista.
+			case "visitor": modelAndView.setViewName(ViewRouteHelper.SHOP_VISITOR); break; //Al visitante le mostramos su vista.
 		}
 		
 		//Instanciamos una lista donde se van a cargar los productos filtrados y ordenados:
-		List<ProductDTO> products = new ArrayList<ProductDTO>();
+		List<ProductDTO> products = productService.getAllInOrderAscByName();
+		
+		//Agregamos la información a la vista:
+		modelAndView.addObject("order", "orderAscByName"); //Adjuntamos el criterio de ordenamiento.
+		modelAndView.addObject("cat", "all"); //Adjuntamos la categoría para el filtro.
+		modelAndView.addObject("gen", "all"); //Adjuntamos el género para el filtro.
+		modelAndView.addObject("size", "all"); //Adjuntamos el talle para el filtro.
+		modelAndView.addObject("col", "all"); //Adjuntamos el color para el filtro.
+		modelAndView.addObject("sPri", ""); //Adjuntamos el precio de venta para el filtro.
+		modelAndView.addObject("fSPri", ""); //Adjuntamos el precio de venta mayor o igual para el filtro.
+		modelAndView.addObject("uSPri", ""); //Adjuntamos el precio de venta menor o igual para el filtro.
+		modelAndView.addObject("rFSPri", ""); //Adjuntamos el precio mayor o igual de un rango para el filtro.
+		modelAndView.addObject("rUSPri", ""); //Adjuntamos el precio menor o igual de un rango para el filtro.
+		modelAndView.addObject("categories", productService.findUniqueEachCategory(products)); //Adjuntamos el listado de categorías de producto.
+		modelAndView.addObject("genders", productService.findUniqueEachGender(products)); //Adjuntamos el listado de géneros de producto.
+		modelAndView.addObject("sizes", productService.findUniqueEnabledEachSize(products, true)); //Adjuntamos el listado de talles de producto.
+		modelAndView.addObject("colors", productService.findUniqueEachColor(products)); //Adjuntamos el listado de colores de producto.
+		modelAndView.addObject("products", products); //Adjuntamos los productos.
+		
+		return modelAndView; //Retornamos la vista con la información obtenida.
+	}
+	
+	//Respondemos a las peticiones de talles únicos de los productos:
+	@PostMapping("/products/unique-sizes")
+	public ResponseEntity<List<String>> getUniqueSizes(@RequestBody List<ProductDTO> products) 
+	{
+	    List<String> uniqueSizes = productService.findUniqueEnabledEachSize(products, true); //Obtenemos los talles únicos.
+	    return ResponseEntity.ok(uniqueSizes); //Retornamos los talles únicos.
+	}
+	
+	//Respondemos a las peticiones de productos ordenados y filtrados para los clientes y visitantes:
+	@PostMapping("/products/filter")
+	public ResponseEntity<List<ProductDTO>> productsFiltered(@RequestBody ProductFiltersDataDTO filtersData) 
+	{
+		//Obtenemos los valores asignados a los filtros:
+		String order = filtersData.getOrder();
+		List<String> categories = filtersData.getCategories();
+		List<String> genders = filtersData.getGenders();
+		List<String> sizes = filtersData.getSizes();
+		List<String> colors = filtersData.getColors();
+		String salePrice = filtersData.getSalePrice();
+		String fromSalePrice = filtersData.getFromSalePrice();
+		String untilSalePrice = filtersData.getUntilSalePrice();
+		String rangeFromSalePrice = filtersData.getRangeFromSalePrice();
+		String rangeUntilSalePrice = filtersData.getRangeUntilSalePrice();
+		
+		//Instanciamos una lista donde se cargarán los productos ordenados y filtrados:
+		List<ProductDTO> products = new ArrayList<>();
 		
 		//Aplicamos el filtro seleccionado de la sección talle:
-		if(!size.equals("all")) //Si se eligió alguno:
+		Set<String> sizesSet = new HashSet<>(sizes);
+		if(!sizesSet.contains("all")) //Si se eligió alguno:
 		{
-			//Obtenemos un producto habilitado por cada nombre de imagen con ese talle:
-			products = productService.findUniqueSizeAndEnabledEachImageName(true, size); 
+			//Obtenemos un producto habilitado por cada nombre de imagen teniendo en cuenta el criterio del filtro de talles:
+			products = productService.findUniqueSizeAndEnabledEachImageName(true, sizes); 
 		}
 		else //Si se eligió todos los talles:
 		{
@@ -78,31 +122,105 @@ public class ProductController
 			products = productService.findUniqueEnabledEachImageName(true);
 		}
 		
-		//Aplicamos los filtros de las secciones categoría, género, color y precio de venta:
-		products = productService.applyFilters(products, category, gender, color, salePrice, fromSalePrice, untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice);
+		//Filtramos los productos por los demás criterios elegidos:
+		products = productService.applyFilters(products, categories, genders, colors, salePrice, fromSalePrice, untilSalePrice,
+											   rangeFromSalePrice, rangeUntilSalePrice);
 		
-		//Aplicamos el criterio de ordenamiento elegido:
+		//Ordenamos los productos por el criterio elegido:
 		products = productService.applyOrder(products, order);
 		
-		//Agregamos la información a la vista:
-		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento.
-		modelAndView.addObject("cat", category); //Adjuntamos la categoría para el filtro.
-		modelAndView.addObject("gen", gender); //Adjuntamos el género para el filtro.
-		modelAndView.addObject("size", size); //Adjuntamos el talle para el filtro.
-		modelAndView.addObject("col", color); //Adjuntamos el color para el filtro.
-		modelAndView.addObject("sPri", salePrice); //Adjuntamos el precio de venta para el filtro.
-		modelAndView.addObject("fSPri", fromSalePrice); //Adjuntamos el precio de venta mayor o igual para el filtro.
-		modelAndView.addObject("uSPri", untilSalePrice); //Adjuntamos el precio de venta menor o igual para el filtro.
-		modelAndView.addObject("rFSPri", rangeFromSalePrice); //Adjuntamos el precio mayor o igual de un rango para el filtro.
-		modelAndView.addObject("rUSPri", rangeUntilSalePrice); //Adjuntamos el precio menor o igual de un rango para el filtro.
-		modelAndView.addObject("categories", productService.findUniqueEachCategory(products)); //Adjuntamos el listado de categorías de producto.
-		modelAndView.addObject("genders", productService.findUniqueEachGender(products)); //Adjuntamos el listado de géneros de producto.
-		modelAndView.addObject("sizes", productService.findUniqueEnabledEachSize(products, size)); //Adjuntamos el listado de talles de producto.
-		modelAndView.addObject("colors", productService.findUniqueEachColor(products)); //Adjuntamos el listado de colores de producto.
-		modelAndView.addObject("products", products); //Adjuntamos los productos.
-		
-		return modelAndView; //Retornamos la vista con la información obtenida.
+		return ResponseEntity.ok(products); //Retornamos los productos.
 	}
+	
+	//Respondemos a las peticiones de productos ordenados y filtrados para el administrador:
+	@PostMapping("/products/admin/filter")
+	public ResponseEntity<List<StockDTO>> productsAdminFiltered(@RequestBody ProductFiltersDataDTO filtersData) 
+	{
+		//Obtenemos los valores asignados a los filtros:
+		String order = filtersData.getOrder();
+		List<String> categories = filtersData.getCategories();
+		List<String> genders = filtersData.getGenders();
+		List<String> sizes = filtersData.getSizes();
+		List<String> colors = filtersData.getColors();
+		String salePrice = filtersData.getSalePrice();
+		String fromSalePrice = filtersData.getFromSalePrice();
+		String untilSalePrice = filtersData.getUntilSalePrice();
+		String rangeFromSalePrice = filtersData.getRangeFromSalePrice();
+		String rangeUntilSalePrice = filtersData.getRangeUntilSalePrice();
+		String actualAmount = filtersData.getActualAmount();
+		String fromActualAmount = filtersData.getFromActualAmount();
+		String untilActualAmount = filtersData.getUntilActualAmount();
+		String rangeFromActualAmount = filtersData.getRangeFromActualAmount();
+		String rangeUntilActualAmount = filtersData.getRangeUntilActualAmount();
+		String state = filtersData.getState();
+		
+		//Una lista inicial donde cargaremos los productos filtrados y ordenados:
+		List<ProductDTO> products = new ArrayList<>();
+		
+		//Evaluamos si hay que filtrar por habilitados/deshabilitados:
+		if(state.equals("all")) 
+		{
+			products = productService.getAllProducts(); //En caso de que no, obtenemos todos los productos.
+		}
+		else //Por el contrario:
+		{
+			boolean enabled = Boolean.parseBoolean(state); //Determinamos si deben ser los habilitados o los deshabilitados.
+			products = productService.findByEnabled(enabled); //Obtenemos los productos en ese estado.
+		}
+				
+		//Filtramos los productos por los demás criterios seleccionados:
+		products = productService.applyFilters(products, categories, genders, sizes, colors, salePrice, fromSalePrice, untilSalePrice,
+											   rangeFromSalePrice, rangeUntilSalePrice);
+		
+		//Instanciamos una lista donde se van a cargar los stocks de los productos filtrados y ordenados:
+		List<StockDTO> stocks = new ArrayList<>();
+		
+		//Obtenemos el stock de cada producto:
+		for(ProductDTO product: products) 
+		{
+			stocks.add(stockService.findByProduct(product.getProductId())); //Agregamos el stock del producto al listado.
+		}
+		
+		//Filtramos los stocks por los criterios seleccionados con respecto a la cantidad actual:
+		stocks = stockService.applyFilterTypeActualAmount(stocks, actualAmount, fromActualAmount, untilActualAmount, rangeFromActualAmount,
+														  rangeUntilActualAmount);
+		
+		//Ordenamos los stocks por el criterio elegido:
+		stocks = stockService.applyOrder(stocks, order);
+		
+		return ResponseEntity.ok(stocks); //Retornamos los stocks.
+	}
+	
+	//Invertimos el estado del producto indicado:
+  	@PostMapping("/changeEnabled/{productId}/{enabled}")
+  	@ResponseBody
+  	public Map<String, Object> changeEnabled(@PathVariable("productId")int productId, @PathVariable("enabled")boolean enabled) 
+  	{
+  		//Definimos un objeto donde guardaremos el resultado de la operación:
+  		Map<String, Object> response = new HashMap<>();
+  		
+  		//Intentamos modificar el producto en la base de datos con su nuevo estado:
+  		try 
+  		{
+  			//Obtenemos el producto al que se le quiere cambiar el estado:
+  	  		ProductDTO product = productService.findDTOByProductId(productId);
+  	  		
+  	  		product.setEnabled(!enabled); //Le seteamos el estado al contrario que tiene.
+  	  		
+  			productService.update(product); //Intentamos persistir el cambio.
+  			
+  			//Adjuntamos la información al JSON:
+  			response.put("success", true);
+  	        response.put("newStatus", !enabled);
+  		} 
+  		catch(Exception e)
+  		{
+  			response.put("success", false);
+  	        response.put("error", e.getMessage());
+  		}
+  		
+  		return response; //Retornamos el JSON para modificar el frontend.
+  	}
 	
 	//Respondemos a la solicitud de agregar un producto presentando una vista con un formulario para ello:
 	@GetMapping("/add")
@@ -230,14 +348,6 @@ public class ProductController
 		}
         
 		return modelAndView; //Retornamos la vista y la información adjunta que corresponda según el resultado de la operación.
-	}
-	
-	//Respondemos a la solicitud de deshabilitar un producto:
-	@GetMapping("/remove/{productId}")
-	public RedirectView remove(@PathVariable("productId")int productId) 
-	{
-		productService.logicalDelete(productId); //Deshabilitamos el producto y guardamos el cambio en la base de datos.
-		return new RedirectView(ViewRouteHelper.REDIRECT_INDEX); //Dirigimos el flujo cargando el listado de productos nuevamente con el cambio.
 	}
 	
 	//Respondemos a la solicitud de un visitante de ver más detalles de un producto determinado: 
