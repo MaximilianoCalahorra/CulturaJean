@@ -62,7 +62,7 @@ public interface IProductService
 	public List<ProductDTO> findUniqueEnabledEachImageName(boolean enabled);
 	
 	//Encontramos un producto habilitado/deshabilitado de determinado talle por cada nombre de imagen:
-	public List<ProductDTO> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("size")String size);
+	public List<ProductDTO> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("sizes")List<String> sizes);
 	
 	//Encontramos un ejemplar de cada categoría de producto:
 	public List<String> findUniqueEachCategory(List<ProductDTO> products);
@@ -73,8 +73,8 @@ public interface IProductService
 	//Encontramos un ejemplar de cada talle de producto:
 	public List<String> findUniqueEachSize(List<ProductDTO> products);
 	
-	//Encontramos un ejemplar de cada talle de producto:
-	public List<String> findUniqueEnabledEachSize(List<ProductDTO> products, String sizeFilter);
+	//Encontramos un ejemplar de cada talle de producto habilitado/deshabilitado:
+	public List<String> findUniqueEnabledEachSize(List<ProductDTO> products, boolean enabled);
 		
 	//Encontramos un ejemplar de cada color de producto:
 	public List<String> findUniqueEachColor(List<ProductDTO> products);
@@ -151,16 +151,16 @@ public interface IProductService
 	//Filtrar:
 	
 	//Filtramos el listado de productos por la categoría del producto:
-	public List<ProductDTO> filterByCategory(List<ProductDTO> products, String category);
+	public List<ProductDTO> filterByCategory(List<ProductDTO> products, List<String> categories);
 		
 	//Filtramos el listado de productos por el género del producto:
-	public List<ProductDTO> filterByGender(List<ProductDTO> products, Character gender);
+	public List<ProductDTO> filterByGender(List<ProductDTO> products, List<Character> genders);
 		
 	//Filtramos el listado de productos por el talle del producto:
-	public List<ProductDTO> filterBySize(List<ProductDTO> products, String size);
+	public List<ProductDTO> filterBySize(List<ProductDTO> products, List<String> sizes);
 		
 	//Filtramos el listado de productos por el color del producto:
-	public List<ProductDTO> filterByColor(List<ProductDTO> products, String color);
+	public List<ProductDTO> filterByColor(List<ProductDTO> products, List<String> colors);
 		
 	//Filtramos el listado de productos por el precio de venta del producto:
 	public List<ProductDTO> filterBySalePrice(List<ProductDTO> products, float salePrice);
@@ -179,12 +179,14 @@ public interface IProductService
 															  String rangeFromSalePrice, String rangeUntilSalePrice);
 		
 	//Aplicamos los filtros seleccionados de las secciones categoría, género,  color y precio de venta del producto:
-	public List<ProductDTO> applyFilters(List<ProductDTO> products, String category, String gender, String color, String salePrice,
-										   String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice);
+	public List<ProductDTO> applyFilters(List<ProductDTO> products, List<String> categories, List<String> genders, List<String> colors,
+										 String salePrice, String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, 
+										 String rangeUntilSalePrice);
 	
 	//Aplicamos los filtros seleccionados de las secciones categoría, género, talle, color y precio de venta del producto:
-	public List<ProductDTO> applyFilters(List<ProductDTO> products, String category, String gender, String size, String color, String salePrice,
-			String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice);
+	public List<ProductDTO> applyFilters(List<ProductDTO> products, List<String> categories, List<String> genders, List<String> sizes,
+										 List<String> colors, String salePrice, String fromSalePrice, String untilSalePrice, 
+										 String rangeFromSalePrice, String rangeUntilSalePrice);
 	
 	//Mapear:
 	

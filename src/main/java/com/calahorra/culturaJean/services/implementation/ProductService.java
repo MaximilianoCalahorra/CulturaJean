@@ -7,8 +7,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -187,9 +189,9 @@ public class ProductService implements IProductService
 	
 	//Encontramos un producto habilitado/deshabilitado de determinado talle por cada nombre de imagen:
 	@Override
-	public List<ProductDTO> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("size")String size)
+	public List<ProductDTO> findUniqueSizeAndEnabledEachImageName(@Param("enabled")boolean enabled, @Param("sizes")List<String> sizes)
 	{
-		return productRepository.findUniqueSizeAndEnabledEachImageName(enabled, size) //Obtenemos un producto en ese estado y de ese talle por cada tipo de imagen.
+		return productRepository.findUniqueSizeAndEnabledEachImageName(enabled, sizes) //Obtenemos un producto en ese estado y de ese talle por cada tipo de imagen.
 				.stream()
 				.map(product -> modelMapper.map(product, ProductDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
@@ -267,54 +269,20 @@ public class ProductService implements IProductService
 		return sizes; //Retornamos el listado de talles de producto.
 	}
 	
-	//Encontramos un ejemplar de cada talle de producto:
-	@Override  
-	public List<String> findUniqueEnabledEachSize(List<ProductDTO> products, String sizeFilter)
+	//Encontramos un ejemplar de cada talle de producto habilitado/deshabilitado:
+	@Override 
+	public List<String> findUniqueEnabledEachSize(List<ProductDTO> products, boolean enabled)
 	{
-		List<String> sizes = new ArrayList<String>(); //Definimos un listado donde se guardarán los talles.
-		
-		//Analizamos cada producto para saber si sus talles se encuentra en el listado:
-		for(ProductDTO product: products) 
-		{
-			//Obtenemos todos los talles del producto:
-			List<String> sizesOfProduct = productRepository.findUniqueEnabledEachSize(product.getImageName()); 
-			
-			//Ahora debemos aplicar el filtro seleccionado y guardar los que cumplan en otra lista:
-			List<String> sizesOfProductFiltered = new ArrayList<String>();
-			
-			//Verificamos si hay que filtrar los talles encontrados por alguno en específico:
-			if(sizeFilter.equals("all")) 
-			{
-				sizesOfProductFiltered = sizesOfProduct; //Como no hay que filtrar, el listado es el inicial.
-			}
-			else 
-			{
-				//En caso de que se haya aplicado un filtro, recorremos los talles:
-				for(String sizeOfProduct: sizesOfProduct) 
-				{
-					//Si el talle es el que indica el filtro:
-					if(sizeOfProduct.equals(sizeFilter)) 
-					{
-						sizesOfProductFiltered.add(sizeOfProduct); //Lo agregamos a la lista de talles filtrados del producto.
-					}
-				}
-			}
-			
-			//Recorremos los talles encontrados para agregar los que no estén en el listado de talles de todos los productos:
-			for(String size: sizesOfProductFiltered)
-			{	
-				//Si el talle no está en el listado:
-				if(!sizes.contains(size)) 
-				{
-					sizes.add(size); //Agregamos el talle.
-				}
-			}
-		}
-		
-		//Ordenamos el listado de talles de forma alfabética:
-		sizes.sort(null);
-		
-		return sizes; //Retornamos el listado de talles de producto.
+	    //Lista de imageNames para la consulta obtenidas analizando los productos:
+	    List<String> imageNames = products.stream()
+	                                      .map(ProductDTO::getImageName)
+	                                      .collect(Collectors.toList());
+
+	    //Obtenemos los talles de todos los productos y luego los ordenamos:
+	    List<String> sizes = productRepository.findUniqueEnabledEachSizeForMultipleImages(imageNames, enabled);
+	    sizes.sort(String::compareTo);
+
+	    return sizes; //Retornamos los talles únicos.
 	}
 		
 	//Encontramos un ejemplar de cada color de producto:
@@ -600,74 +568,74 @@ public class ProductService implements IProductService
 	
 	//Filtramos el listado de productos por la categoría del producto:
 	@Override
-	public List<ProductDTO> filterByCategory(List<ProductDTO> products, String category)
+	public List<ProductDTO> filterByCategory(List<ProductDTO> products, List<String> categories)
 	{
-		Iterator<ProductDTO> iterator = products.iterator(); //Definimos un objeto Iterator para el listado.
+		//Convertimos la lista de categorías a un Set para optimizar la búsqueda:
+	    Set<String> categoriesSet = new HashSet<>(categories);
 		
-		//Mientras haya un producto por analizar:
-		while(iterator.hasNext())
-		{
-			ProductDTO product = iterator.next(); //Obtenemos ese producto.
-			if (!product.getCategory().equals(category)) 
-			{
-				iterator.remove(); //En caso de que no tenga una categoría como la del filtro, lo removemos.
-	        }
+	    //Si se eligió alguna opción de filtro:
+	    if(!categoriesSet.contains("all")) 
+	    {
+	    	//Filtramos los productos cuya categoría esté en el conjunto:
+		    products = products.stream()
+					            .filter(product -> categoriesSet.contains(product.getCategory()))
+					            .collect(Collectors.toList());
 	    }
-		return products; //Retornamos los productos filtrados.
+	    
+		return products; //Retornamos los productos.
 	}
 			
 	//Filtramos el listado de productos por el género del producto:
 	@Override
-	public List<ProductDTO> filterByGender(List<ProductDTO> products, Character gender)
+	public List<ProductDTO> filterByGender(List<ProductDTO> products, List<Character> genders)
 	{
-		Iterator<ProductDTO> iterator = products.iterator(); //Definimos un objeto Iterator para el listado.
+		//Convertimos la lista de géneros a un Set para optimizar la búsqueda:
+	    Set<Character> gendersSet = new HashSet<>(genders);
 		
-		//Mientras haya un producto por analizar:
-		while(iterator.hasNext())
-		{
-			ProductDTO product = iterator.next(); //Obtenemos ese producto.
-			if (!product.getGender().equals(gender)) 
-			{
-				iterator.remove(); //En caso de que no tenga un género como el del filtro, lo removemos.
-	        }
-	    }
-		return products; //Retornamos los productos filtrados.
+	    //Filtramos los productos cuyo género esté en el conjunto:
+		products = products.stream()
+				            .filter(product -> gendersSet.contains(product.getGender()))
+				            .collect(Collectors.toList());
+	    
+		return products; //Retornamos los productos.
 	}
 			
 	//Filtramos el listado de productos por el talle del producto:
 	@Override
-	public List<ProductDTO> filterBySize(List<ProductDTO> products, String size)
+	public List<ProductDTO> filterBySize(List<ProductDTO> products, List<String> sizes)
 	{
-		Iterator<ProductDTO> iterator = products.iterator(); //Definimos un objeto Iterator para el listado.
+		//Convertimos la lista de talles a un Set para optimizar la búsqueda:
+	    Set<String> sizesSet = new HashSet<>(sizes);
 		
-		//Mientras haya un producto por analizar:
-		while(iterator.hasNext())
-		{
-			ProductDTO product = iterator.next(); //Obtenemos ese producto.
-			if (!product.getSize().equals(size)) 
-			{
-				iterator.remove(); //En caso de que no tenga un talle como el del filtro, lo removemos.
-	        }
+	    //Si se eligió alguna opción de filtro:
+	    if(!sizesSet.contains("all")) 
+	    {
+	    	//Filtramos los productos cuyo talle esté en el conjunto:
+		    products = products.stream()
+					            .filter(product -> sizesSet.contains(product.getSize()))
+					            .collect(Collectors.toList());
 	    }
-		return products; //Retornamos los productos filtrados.
+	    
+		return products; //Retornamos los productos.
 	}
 			
 	//Filtramos el listado de productos por el color del producto:
 	@Override
-	public List<ProductDTO> filterByColor(List<ProductDTO> products, String color)
+	public List<ProductDTO> filterByColor(List<ProductDTO> products, List<String> colors)
 	{
-		Iterator<ProductDTO> iterator = products.iterator(); //Definimos un objeto Iterator para el listado.
+		//Convertimos la lista de colores a un Set para optimizar la búsqueda:
+	    Set<String> colorsSet = new HashSet<>(colors);
 		
-		//Mientras haya un producto por analizar:
-		while(iterator.hasNext())
-		{
-			ProductDTO product = iterator.next(); //Obtenemos ese producto.
-			if (!product.getColor().equals(color)) 
-			{
-				iterator.remove(); //En caso de que no tenga un color como el del filtro, lo removemos.
-	        }
+	    //Si se eligió alguna opción de filtro:
+	    if(!colorsSet.contains("all")) 
+	    {
+	    	//Filtramos los productos cuyo color esté en el conjunto:
+		    products = products.stream()
+					            .filter(product -> colorsSet.contains(product.getColor()))
+					            .collect(Collectors.toList());
 	    }
-		return products; //Retornamos los productos filtrados.
+	    
+		return products; //Retornamos los productos.
 	}
 		
 	//Filtramos el listado de productos por el precio de venta del producto:
@@ -777,27 +745,29 @@ public class ProductService implements IProductService
 			
 	//Aplicamos los filtros seleccionados de las secciones categoría, género, color y precio de venta del producto:
 	@Override
-	public List<ProductDTO> applyFilters(List<ProductDTO> products, String category, String gender, String color, String salePrice,
-											   String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice)
+	public List<ProductDTO> applyFilters(List<ProductDTO> products, List<String> categories, List<String> genders, List<String> colors,
+										 String salePrice, String fromSalePrice, String untilSalePrice, String rangeFromSalePrice,
+										 String rangeUntilSalePrice)
 	{
 		//Aplicamos el filtro seleccionado de la sección categoría:
-		if(!category.equals("all")) //Si se eligió alguna de las categorías:
+		products = filterByCategory(products, categories);
+		
+		//Si se indicó algún filtro en la sección géneros:
+		if(genders.indexOf("all") == -1) 
 		{
-			products = filterByCategory(products, category); //Nos quedamos con los productos de la categoría del filtro.
+			//Pasamos cada género en Character a String:
+			List<Character> gendersChar = new ArrayList<>();
+			for(String gender: genders) 
+			{
+				if(!gender.isEmpty()) gendersChar.add(gender.charAt(0));
+			}
+			
+			//Aplicamos el filtro seleccionado de la sección género:
+			products = filterByGender(products, gendersChar);
 		}
-				
-		//Aplicamos el filtro seleccionado de la sección género:
-		if(!gender.equals("all")) //Si se eligió alguno de los géneros:
-		{
-			Character genderChar = gender.charAt(0); //Convertimos la cadena en un caracter.
-			products = filterByGender(products, genderChar); //Nos quedamos con los productos del género del filtro.
-		}
-				
+			
 		//Aplicamos el filtro seleccionado de la sección color:
-		if(!color.equals("all")) //Si se eligió alguno de los colores:
-		{
-			products = filterByColor(products, color); //Nos quedamos con los productos del color del filtro.
-		}
+		products = filterByColor(products, colors);
 				
 		//Aplicamos el filtro seleccionado de la sección precio de venta:
 		products = applyFilterTypeSalePrice(products, salePrice, fromSalePrice, untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice); 
@@ -805,36 +775,34 @@ public class ProductService implements IProductService
 		return products; //Retornamos los productos filtrados.
 	}
 	
-	
 	//Aplicamos los filtros seleccionados de las secciones categoría, género, talle, color y precio de venta del producto:
 	@Override
-	public List<ProductDTO> applyFilters(List<ProductDTO> products, String category, String gender, String size, String color, String salePrice,
-			String fromSalePrice, String untilSalePrice, String rangeFromSalePrice, String rangeUntilSalePrice)
+	public List<ProductDTO> applyFilters(List<ProductDTO> products, List<String> categories, List<String> genders, List<String> sizes,
+										 List<String> colors, String salePrice, String fromSalePrice, String untilSalePrice, 
+										 String rangeFromSalePrice, String rangeUntilSalePrice)
 	{
 		//Aplicamos el filtro seleccionado de la sección categoría:
-		if(!category.equals("all")) //Si se eligió alguna de las categorías:
-		{
-			products = filterByCategory(products, category); //Nos quedamos con los productos de la categoría del filtro.
-		}
+		products = filterByCategory(products, categories);
 		
-		//Aplicamos el filtro seleccionado de la sección género:
-		if(!gender.equals("all")) //Si se eligió alguno de los géneros:
+		//Si se indicó algún filtro en la sección géneros:
+		if(genders.indexOf("all") == -1) 
 		{
-			Character genderChar = gender.charAt(0); //Convertimos la cadena en un caracter.
-			products = filterByGender(products, genderChar); //Nos quedamos con los productos del género del filtro.
+			//Pasamos cada género en Character a String:
+			List<Character> gendersChar = new ArrayList<>();
+			for(String gender: genders) 
+			{
+				if(!gender.isEmpty()) gendersChar.add(gender.charAt(0));
+			}
+			
+			//Aplicamos el filtro seleccionado de la sección género:
+			products = filterByGender(products, gendersChar);
 		}
 		
 		//Aplicamos el filtro seleccionado de la sección talle:
-		if(!size.equals("all")) //Si se eligió alguno de los talles:
-		{
-			products = filterBySize(products, size); //Nos quedamos con los productos del talle del filtro.
-		}
+		products = filterBySize(products, sizes);
 		
 		//Aplicamos el filtro seleccionado de la sección color:
-		if(!color.equals("all")) //Si se eligió alguno de los colores:
-		{
-			products = filterByColor(products, color); //Nos quedamos con los productos del color del filtro.
-		}
+		products = filterByColor(products, colors);
 		
 		//Aplicamos el filtro seleccionado de la sección precio de venta:
 		products = applyFilterTypeSalePrice(products, salePrice, fromSalePrice, untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice); 
