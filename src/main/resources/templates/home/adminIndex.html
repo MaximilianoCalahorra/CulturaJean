@@ -15,19 +15,9 @@
 			</section>
 			<section>
 				<h2>Stock Of Products</h2>
-				<form action="/index" method="get">
-					<input type="hidden" name="cat" th:value="${cat}">
-					<input type="hidden" name="gen" th:value="${gen}">
-					<input type="hidden" name="size" th:value="${size}">
-					<input type="hidden" name="col" th:value="${col}">
-					<input type="hidden" name="sPri" th:value="${sPri}">
-					<input type="hidden" name="fSPri" th:value="${fSPri}">
-					<input type="hidden" name="uSPri" th:value="${uSPri}">
-					<input type="hidden" name="rFSPri" th:value="${rFSPri}">
-					<input type="hidden" name="rUSPri" th:value="${rUSPri}">
-					<input type="hidden" name="ena" th:value="${ena}">
+				<form>
 					<label>Choose The Order:
-						<select name="order" required>
+						<select name="order">
 							<option value="orderAscByDesirableAmount" th:selected="${order == 'orderAscByDesirableAmount'}">Ascendent By Desirable Amount</option>
 							<option value="orderDescByDesirableAmount" th:selected="${order == 'orderDescByDesirableAmount'}">Descendent By Desirable Amount</option>
 							<option value="orderAscByMinimumAmount" th:selected="${order == 'orderAscByMinimumAmount'}">Ascendent By Minimum Amount</option>
@@ -44,72 +34,101 @@
 							<option value="orderDescByProductName" th:selected="${order == 'orderDescByProductName'}">Descendent By Product Name</option>
 						</select>
 					</label>
-					<button type="submit">Apply</button>
+					<button type="button" id="applyOrderButton">Apply</button>
 				</form>
-				<form action="/index" method="get">
-					<input type="hidden" name="order" th:value="${order}">
+				<form>
 					<label>Choose Filters:
-						<details>
-							<summary>Product Category</summary>
-							<select name="cat">
-								<option value="all" th:selected="${cat == 'all'}">All</option>
-								<option th:each="category: ${productCategories}" th:value="${category}" th:text="${category}" th:selected="@{${category == cat}}"></option>
-							</select>	
+						<details id="categoriesContainer">
+							<span id="catMaxValues" th:data-max-values="${productCategories.size()}" hidden></span>
+							<summary>Category</summary>
+							<input type="checkbox" name="cat" value="all" id="cat-all" th:checked="${cat == 'all'}" autocomplete="off">
+							<label for="cat-all">All</label>
+							<div th:each="cat, iterStat : ${productCategories}">
+						        <input type="checkbox" name="cat" th:value="${cat}" th:id="'cat-' + ${iterStat.index}" autocomplete="off" disabled>
+						        <label th:for="'cat-' + ${iterStat.index}" th:text="${cat}"></label>
+						    </div>	
 						</details>
-						<details>
-							<summary>Product Gender</summary>
-							<select name="gen">
-								<option value="all" th:selected="${gen == 'all'}">All</option>
-								<option th:each="gender: ${productGenders}" th:value="${gender}" th:text="${gender}" th:selected="@{${gender == gen}}"></option>
-							</select>
+						<details id="gendersContainer">
+							<span id="genMaxValues" th:data-max-values="${productGenders.size()}" hidden></span>
+							<summary>Gender</summary>
+							<input type="checkbox" name="gen" value="all" id="gen-all" th:checked="${gen == 'all'}" autocomplete="off">
+							<label for="gen-all">All</label>
+							<div th:each="gen, iterStat : ${productGenders}">
+						        <input type="checkbox" name="gen" th:value="${gen}" th:id="'gen-' + ${iterStat.index}" autocomplete="off" disabled>
+						        <label th:for="'gen-' + ${iterStat.index}" th:text="${gen}"></label>
+						    </div>	
 						</details>
-						<details>
-							<summary>Product Size</summary>
-							<select name="size">
-								<option value="all" th:selected="${size == 'all'}">All</option>
-								<option th:each="pSize: ${productSizes}" th:value="${pSize}" th:text="${pSize}" th:selected="@{${pSize == size}}"></option>
-							</select>
+						<details id="sizesContainer">
+							<span id="sizeMaxValues" th:data-max-values="${productSizes.size()}" hidden></span>
+							<summary>Size</summary>
+							<input type="checkbox" name="size" value="all" id="size-all" th:checked="${size == 'all'}" autocomplete="off">
+							<label for="size-all">All</label>
+							<div th:each="size, iterStat : ${productSizes}">
+						        <input type="checkbox" name="size" th:value="${size}" th:id="'size-' + ${iterStat.index}" autocomplete="off" disabled>
+						        <label th:for="'size-' + ${iterStat.index}" th:text="${size}"></label>
+						    </div>	
 						</details>
-						<details>
-							<summary>Product Color</summary>
-							<select name="col">
-								<option value="all" th:selected="${col == 'all'}">All</option>
-								<option th:each="color: ${productColors}" th:value="${color}" th:selected="@{${color == col}}" th:style="'background-color:' + ${color} + ';'" th:text="${color}"></option>
-							</select>
+						<details id="colorsContainer">
+							<span id="colMaxValues" th:data-max-values="${productColors.size()}" hidden></span>
+							<summary>Color</summary>
+							<input type="checkbox" name="col" value="all" id="col-all" th:checked="${col == 'all'}" autocomplete="off">
+							<label for="col-all">All</label>
+							<div th:each="col, iterStat : ${productColors}">
+						        <input type="checkbox" name="col" th:value="${col}" th:id="'col-' + ${iterStat.index}" autocomplete="off" disabled>
+						        <label th:for="'col-' + ${iterStat.index}" th:style="'background-color:' + ${col} + '; color: ' + ${col} + ';'">Color</label>
+						    </div>
 						</details>
-						<details>
-							<summary>Product Sale Price</summary>
-							<details>
+						<details id="salePricesContainer">
+							<summary>Sale Price</summary>
+							<details id="specificSalePriceContainer">
 								<summary>Specific Sale Price</summary>
-								<input type="number" min="1" name="sPri" th:value="${sPri}">
+								<input type="text" inputmode="decimal" name="sPri" th:value="${sPri}" id="sPri">
 							</details>
-							<details>
+							<details id="fromSalePriceContainer">
 								<summary>Greater or Equal To Sale Price</summary>
-								<input type="number" min="1" name="fSPri" th:value="${fSPri}">
+								<input type="text" inputmode="decimal" name="fSPri" th:value="${fSPri}" id="fSPri">
 							</details>
-							<details>
+							<details id="untilSalePriceContainer">
 								<summary>Less or Equal To Sale Price</summary>
-								<input type="number" min="1" name="uSPri" th:value="${uSPri}">
+								<input type="text" inputmode="decimal" name="uSPri" th:value="${uSPri}" id="uSPri">
 							</details>
-							<details>
+							<details id="rangeSalePriceContainer">
 								<summary>Sale Price To Sale Price</summary>
-								<input type="number" min="1" name="rFSPri" th:value="${rFSPri}">
-								<input type="number" min="1" name="rUSPri" th:value="${rUSPri}">
+								<input type="text" inputmode="decimal" name="rFSPri" th:value="${rFSPri}" id="rFSPri">
+								<input type="text" inputmode="decimal" name="rUSPri" th:value="${rUSPri}" id="rUSPri">
 							</details>
 						</details>
-						<details>
-							<summary>State Of Product</summary>
-							<label>All <input type="radio" name="ena" value="all" th:checked="${ena == 'all'}"></label>
-							<label>Enabled <input type="radio" name="ena" value="true" th:checked="${ena == 'true'}"></label>
-							<label>Not Enabled <input type="radio" name="ena" value="false" th:checked="${ena == 'false'}"></label>
+						<details id="actualAmountContainer">
+							<summary>Actual Amount</summary>
+							<details id="specificActualAmountContainer">
+								<summary>Specific Actual Amount</summary>
+								<input type="text" inputmode="decimal" name="amount" th:value="${amount}" id="amount">
+							</details>
+							<details id="fromActualAmountContainer">
+								<summary>Greater or Equal To Actual Amount</summary>
+								<input type="text" inputmode="decimal" name="fAmount" th:value="${fAmount}" id="fAmount">
+							</details>
+							<details id="untilActualAmountContainer">
+								<summary>Less or Equal To Actual Amount</summary>
+								<input type="text" inputmode="decimal" name="uAmount" th:value="${uAmount}" id="uAmount">
+							</details>
+							<details id="rangeActualAmountContainer">
+								<summary>Sale Price To Actual Amount</summary>
+								<input type="text" inputmode="decimal" name="rFAmount" th:value="${rFAmount}" id="rFAmount">
+								<input type="text" inputmode="decimal" name="rUAmount" th:value="${rUAmount}" id="rUAmount">
+							</details>
+						</details>
+						<details id="enabledContainer">
+							<span id="enaMaxValues" th:data-max-values="2" hidden></span>
+							<summary>State</summary>
+							<label>All <input type="radio" name="ena" value="all" th:checked="${ena == 'all'}" id="ena-all"></label>
+					        <label>Enabled <input type="radio" name="ena" value="true" th:checked="${ena == 'true'}" id="ena-true"></label>
+					        <label>Not Enabled <input type="radio" name="ena" value="false" th:checked="${ena == 'false'}" id="ena-false"></label>
 						</details>
 					</label>
-					<button type="submit">Apply</button>
+					<button type="button" id="applyFiltersButton">Apply</button>
 				</form>
-				<form action="/index" method="get">
-					<input type="hidden" name="order" th:value="${order}">
-					<button type="submit">Reset All</button>
-				</form>
+				<button type="button" id="resetAllButton">Reset All</button>
 				<table border="3">
 					 <thead>
 						 <tr>
@@ -130,8 +149,8 @@
 							<th>Actions</th>
 						 </tr>
 			        </thead>
-				    <tbody>
-				         <tr th:each="stock: ${stocks}">
+				    <tbody id="tbody">
+				         <tr th:each="stock: ${stocks}" th:id="'row-' + ${stock.product.productId}">
 						    <td th:text="${stock.product.productId}"></td>
 							<td th:text="${stock.product.code}"></td>
 							<td th:text="${stock.product.category}"></td>
@@ -142,14 +161,14 @@
 							<td th:text="${stock.product.salePrice}"></td>
 							<td th:text="${stock.product.name}"></td>
 							<td th:text="${stock.product.description}"></td>
-							<td th:text="${stock.product.enabled ? 'Yes' : 'No'}"></td>
+							<td th:text="${stock.product.enabled ? 'Yes' : 'No'}" class="enabled-status"></td>
 							<td th:text="${stock.actualAmount}"></td>
 							<td th:text="${stock.desirableAmount}"></td>
 							<td th:text="${stock.minimumAmount}"></td>
 							<td>
-							   <a th:href="@{/product/edit/}+${stock.product.productId}">Edit</a>
-							   <a th:href="@{/product/remove/}+${stock.product.productId}">Remove</a>
-							   <a th:href="@{/supplyOrder/supplyOrderForm/}+${stock.product.productId}">Generate Supply Order</a>
+								<button><a th:href="@{/product/edit/}+${stock.product.productId}">Edit</a></button>
+								<button class="change-status-btn" th:data-product-id="${stock.product.productId}" th:data-current-status="${stock.product.enabled}" th:text="${stock.product.enabled ? 'Remove' : 'Enable'}"></button>
+								<button><a th:href="@{/supplyOrder/supplyOrderForm/}+${stock.product.productId}">Generate Supply Order</a></button>
 						    </td>
 						</tr>
 					</tbody>
@@ -158,4 +177,5 @@
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
+	<script type="module" src="/js/stocks.js"></script>
 </html>
