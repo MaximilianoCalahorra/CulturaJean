@@ -59,8 +59,11 @@ public class ProductController
 			case "visitor": modelAndView.setViewName(ViewRouteHelper.SHOP_VISITOR); break; //Al visitante le mostramos su vista.
 		}
 		
-		//Instanciamos una lista donde se van a cargar los productos filtrados y ordenados:
-		List<ProductDTO> products = productService.getAllInOrderAscByName();
+		//Instanciamos una lista donde se van a cargar los productos filtrados:
+		List<ProductDTO> products = productService.findUniqueEnabledEachImageName(true);
+		
+		//Ordenamos los productos:
+		products = productService.inOrderAscByName(products);
 		
 		//Agregamos la información a la vista:
 		modelAndView.addObject("order", "orderAscByName"); //Adjuntamos el criterio de ordenamiento.
