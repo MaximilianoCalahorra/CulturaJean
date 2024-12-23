@@ -371,15 +371,8 @@ document.getElementById("tbody").addEventListener("click", (event) =>
 					//Eliminamos la fila porque no coincide con el filtro aplicado:
             		row.remove();
             		
-            		//Seleccionamos el cuerpo de la tabla:
-      				const tbody = document.getElementById("tbody");
-            		
-            		//Si se quedó sin productos:
-            		if(!tbody.hasChildNodes())
-            		{
-						//Cargamos el mensaje de que no hay stocks:
-						generateHTMLForEmptyStocks();	
-					}
+            		//Obtenemos los stocks que se adecúan a los filtros y actualizamos las opciones de los filtros:
+            		filterStocks();
 				}
             }
             else
