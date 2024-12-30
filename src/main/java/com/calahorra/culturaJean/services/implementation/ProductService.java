@@ -10,18 +10,27 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.calahorra.culturaJean.dtos.FiltersOptionsProductDTO;
+import com.calahorra.culturaJean.dtos.PaginatedProductDTO;
 import com.calahorra.culturaJean.dtos.ProductDTO;
+import com.calahorra.culturaJean.dtos.ProductFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Product;
 import com.calahorra.culturaJean.repositories.IProductRepository;
+import com.calahorra.culturaJean.repositories.custom.ICustomProductRepository;
 import com.calahorra.culturaJean.services.IProductService;
+import com.calahorra.culturaJean.services.IUtilsService;
 
 ///Clase ProductService:
 @Service("productService")
@@ -29,12 +38,17 @@ public class ProductService implements IProductService
 {
 	//Atributos:
 	private IProductRepository productRepository;
+	private ICustomProductRepository customProductRepository;
+	private IUtilsService utilsService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
-	public ProductService(IProductRepository productRepository) 
+	public ProductService(IProductRepository productRepository, ICustomProductRepository customProductRepository, 
+						  IUtilsService utilsService) 
 	{
 		this.productRepository = productRepository;
+		this.customProductRepository = customProductRepository;
+		this.utilsService = utilsService;
 	}
 	
 	//Encontrar:
@@ -325,7 +339,59 @@ public class ProductService implements IProductService
 		return productRepository.findAll() //Obtenemos cada producto como una entidad.
 				.stream()
 				.map(product -> modelMapper.map(product, ProductDTO.class)) //Convertimos cada entidad en un DTO.
-				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.;
+				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
+	}
+	
+	//Obtenemos los productos filtrados de una página:
+	@Override
+	public PaginatedProductDTO getFilteredProducts(@Param("filters")ProductFiltersDataDTO filters, int page, int size)
+	{
+		//Instanciamos un Pageable con la página y la cantidad de elementos a traer para hacer la query:
+        Pageable pageable = PageRequest.of(page, size);
+
+        //Adaptamos los filtros para poder hacer la consulta:
+        List<String> categories = utilsService.cleanFilter(filters.getCategories());
+        List<Character> genders = utilsService.convertListStringFilterToListCharacter(filters.getGenders());
+        List<String> sizes = utilsService.cleanFilter(filters.getSizes());
+        List<String> colors = utilsService.cleanFilter(filters.getColors());
+        Float salePrice = utilsService.convertStringFilterToFloat(filters.getSalePrice());
+        Float fromSalePrice = utilsService.convertStringFilterToFloat(filters.getFromSalePrice());
+        Float untilSalePrice = utilsService.convertStringFilterToFloat(filters.getUntilSalePrice());
+        Float rangeFromSalePrice = utilsService.convertStringFilterToFloat(filters.getRangeFromSalePrice());
+        Float rangeUntilSalePrice = utilsService.convertStringFilterToFloat(filters.getRangeUntilSalePrice());
+        Boolean state = utilsService.convertStringFilterToBoolean(filters.getState());
+        
+        //Obtenemos el criterio de ordenamiento:
+        String sort = filters.getOrder();
+        
+        //Obtenemos la página de productos según los filtros y el criterio de ordenamiento:
+        Page<Product> productPage = customProductRepository.findFilteredProducts(categories, genders, sizes, colors, salePrice, 
+        																		 fromSalePrice, untilSalePrice, rangeFromSalePrice, 
+        																		 rangeUntilSalePrice, state, sort, pageable);
+
+        //Obtenemos todas las opciones de cada sección de filtro según la configuración de filtros aplicada:
+        List<Map<String, Object>> results = customProductRepository.findFiltersOptions(categories, genders, sizes, colors, salePrice, 
+        																	   		   fromSalePrice, untilSalePrice, rangeFromSalePrice,
+        																	   		   rangeUntilSalePrice, state); 
+        
+        //Desglosamos las opciones y las asignamos a cada parte de nuestro DTO específico de opciones de filtros de productos:
+        FiltersOptionsProductDTO filtersOptionsDTO = new FiltersOptionsProductDTO();
+        for(Map<String, Object> result : results) 
+        { 
+        	filtersOptionsDTO.setCategories(utilsService.convertPostgresArrayToList((String[]) result.get("categories"))); //Categorías.
+        	filtersOptionsDTO.setGenders(utilsService.convertPostgresArrayToList((String[]) result.get("genders"))); //Géneros.
+        	filtersOptionsDTO.setSizes(utilsService.convertPostgresArrayToList((String[]) result.get("sizes"))); //Talles.
+        	filtersOptionsDTO.setColors(utilsService.convertPostgresArrayToList((String[]) result.get("colors"))); //Colores.
+        }
+        
+        //Construimos el objeto paginado con su información:
+        PaginatedProductDTO paginatedDTO = new PaginatedProductDTO();
+        paginatedDTO.setProducts(productPage.map(product -> modelMapper.map(product, ProductDTO.class)).getContent()); //Productos.
+        paginatedDTO.setTotalPages(productPage.getTotalPages()); //Cantidad de páginas.
+        paginatedDTO.setTotalElements(productPage.getTotalElements()); //Cantidad de productos.
+        paginatedDTO.setFiltersOptions(filtersOptionsDTO); //Opciones de cada sección de filtro.
+        
+        return paginatedDTO; //Retornamos el objeto paginado.
 	}
 	
 	//Ordenar:

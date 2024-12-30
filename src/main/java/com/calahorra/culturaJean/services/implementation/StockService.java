@@ -4,12 +4,20 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import com.calahorra.culturaJean.dtos.FiltersOptionsProductDTO;
 import com.calahorra.culturaJean.dtos.LotDTO;
+import com.calahorra.culturaJean.dtos.PaginatedStockDTO;
+import com.calahorra.culturaJean.dtos.ProductFiltersDataDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.entities.Product;
@@ -18,10 +26,12 @@ import com.calahorra.culturaJean.entities.Supplier;
 import com.calahorra.culturaJean.entities.SupplyOrder;
 import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.repositories.IStockRepository;
+import com.calahorra.culturaJean.repositories.custom.ICustomStockRepository;
 import com.calahorra.culturaJean.services.ILotService;
 import com.calahorra.culturaJean.services.IStockService;
 import com.calahorra.culturaJean.services.ISupplierService;
 import com.calahorra.culturaJean.services.ISupplyOrderService;
+import com.calahorra.culturaJean.services.IUtilsService;
 
 ///Clase StockService:
 @Service("stockService")
@@ -29,20 +39,25 @@ public class StockService implements IStockService
 {
 	//Atributos:
 	private IStockRepository stockRepository;
+	private ICustomStockRepository customStockRepository;
 	private ILotService lotService;
 	private ISupplyOrderService supplyOrderService;
 	private ISupplierService supplierService;
+	private IUtilsService utilsService;
 	private MemberService memberService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
-	public StockService(IStockRepository stockRepository, ILotService lotService, ISupplyOrderService supplyOrderService,
-						ISupplierService supplierService, MemberService memberService) 
+	public StockService(IStockRepository stockRepository, ICustomStockRepository customStockRepository, ILotService lotService,
+						ISupplyOrderService supplyOrderService, ISupplierService supplierService, IUtilsService utilsService, 
+						MemberService memberService) 
 	{
 		this.stockRepository = stockRepository;
+		this.customStockRepository = customStockRepository;
 		this.lotService = lotService;
 		this.supplyOrderService = supplyOrderService;
 		this.supplierService = supplierService;
+		this.utilsService = utilsService;
 		this.memberService = memberService;
 	}
 	
@@ -183,6 +198,67 @@ public class StockService implements IStockService
 				.stream()
 				.map(stock -> modelMapper.map(stock, StockDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
+	}
+	
+	//Obtenemos los stocks filtrados de una página:
+	@Override
+	public PaginatedStockDTO getFilteredStocks(@Param("filters")ProductFiltersDataDTO filters, int page, int size) 
+	{
+		//Instanciamos un Pageable con la página y la cantidad de elementos a traer para hacer la query:
+        Pageable pageable = PageRequest.of(page, size);
+
+        //Adaptamos los filtros para poder hacer la consulta:
+        List<String> categories = utilsService.cleanFilter(filters.getCategories());
+        List<Character> genders = utilsService.convertListStringFilterToListCharacter(filters.getGenders());
+        List<String> sizes = utilsService.cleanFilter(filters.getSizes());
+        List<String> colors = utilsService.cleanFilter(filters.getColors());
+        Float salePrice = utilsService.convertStringFilterToFloat(filters.getSalePrice());
+        Float fromSalePrice = utilsService.convertStringFilterToFloat(filters.getFromSalePrice());
+        Float untilSalePrice = utilsService.convertStringFilterToFloat(filters.getUntilSalePrice());
+        Float rangeFromSalePrice = utilsService.convertStringFilterToFloat(filters.getRangeFromSalePrice());
+        Float rangeUntilSalePrice = utilsService.convertStringFilterToFloat(filters.getRangeUntilSalePrice());
+        Integer actualAmount = utilsService.convertStringFilterToInteger(filters.getActualAmount());
+        Integer fromActualAmount = utilsService.convertStringFilterToInteger(filters.getFromActualAmount());
+        Integer untilActualAmount = utilsService.convertStringFilterToInteger(filters.getUntilActualAmount());
+        Integer rangeFromActualAmount = utilsService.convertStringFilterToInteger(filters.getRangeFromActualAmount());
+        Integer rangeUntilActualAmount = utilsService.convertStringFilterToInteger(filters.getRangeUntilActualAmount());
+        Boolean state = utilsService.convertStringFilterToBoolean(filters.getState());
+        
+        //Obtenemos el criterio de ordenamiento:
+        String sort = filters.getOrder();
+        
+        //Obtenemos la página de stocks según los filtros y el criterio de ordenamiento:
+        Page<Stock> stockPage = customStockRepository.findFilteredStocks(categories, genders, sizes, colors, salePrice, fromSalePrice, 
+        														         untilSalePrice, rangeFromSalePrice, rangeUntilSalePrice, 
+        														         actualAmount, fromActualAmount, untilActualAmount, 
+        														         rangeFromActualAmount, rangeUntilActualAmount, state, sort, 
+        														         pageable);
+
+        //Obtenemos todas las opciones de cada sección de filtro según la configuración de filtros aplicada:
+        List<Map<String, Object>> results = customStockRepository.findFiltersOptions(categories, genders, sizes, colors, salePrice, 
+        																	   		 fromSalePrice, untilSalePrice, rangeFromSalePrice,
+        																	   		 rangeUntilSalePrice, actualAmount, fromActualAmount, 
+        																	   		 untilActualAmount, rangeFromActualAmount, 
+        																	   		 rangeUntilActualAmount, state); 
+        
+        //Desglosamos las opciones y las asignamos a cada parte de nuestro DTO específico de opciones de filtros de productos:
+        FiltersOptionsProductDTO filtersOptionsDTO = new FiltersOptionsProductDTO();
+        for(Map<String, Object> result : results) 
+        { 
+        	filtersOptionsDTO.setCategories(utilsService.convertPostgresArrayToList((String[]) result.get("categories"))); //Categorías.
+        	filtersOptionsDTO.setGenders(utilsService.convertPostgresArrayToList((String[]) result.get("genders"))); //Géneros.
+        	filtersOptionsDTO.setSizes(utilsService.convertPostgresArrayToList((String[]) result.get("sizes"))); //Talles.
+        	filtersOptionsDTO.setColors(utilsService.convertPostgresArrayToList((String[]) result.get("colors"))); //Colores.
+        }
+        
+        //Construimos el objeto paginado con su información:
+        PaginatedStockDTO paginatedDTO = new PaginatedStockDTO();
+        paginatedDTO.setStocks(stockPage.map(stock -> modelMapper.map(stock, StockDTO.class)).getContent()); //Stocks.
+        paginatedDTO.setTotalPages(stockPage.getTotalPages()); //Cantidad de páginas.
+        paginatedDTO.setTotalElements(stockPage.getTotalElements()); //Cantidad de stocks.
+        paginatedDTO.setFiltersOptions(filtersOptionsDTO); //Opciones de cada sección de filtro.
+        
+        return paginatedDTO; //Retornamos el objeto paginado.
 	}
 	
 	//Ordenar:

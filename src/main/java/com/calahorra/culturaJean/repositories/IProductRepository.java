@@ -80,7 +80,7 @@ public interface IProductRepository extends JpaRepository<Product, Serializable>
 	@Query("SELECT DISTINCT p.size FROM Product p WHERE p.imageName IN (:imageNames) AND p.enabled = :enabled")
 	public abstract List<String> findUniqueEnabledEachSizeForMultipleImages(@Param("imageNames")List<String> imageNames, 
 																			@Param("enabled")boolean enabled);
-
+	
 	//Ordenar:
 	
 	//Ordenamos los productos por el código de manera alfabética:

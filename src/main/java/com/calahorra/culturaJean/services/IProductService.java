@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.calahorra.culturaJean.dtos.PaginatedProductDTO;
 import com.calahorra.culturaJean.dtos.ProductDTO;
+import com.calahorra.culturaJean.dtos.ProductFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Product;
 
 ///Interfaz IProductService:
@@ -86,6 +88,9 @@ public interface IProductService
 	
 	//Obtenemos todos los productos como DTOs:
 	public List<ProductDTO> getAllProducts();
+
+	//Obtenemos los productos filtrados de una página:
+	public PaginatedProductDTO getFilteredProducts(@Param("filters")ProductFiltersDataDTO filters, int page, int size);
 	
 	//Ordenar:
 	

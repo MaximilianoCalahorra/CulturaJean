@@ -2,10 +2,8 @@ package com.calahorra.culturaJean.controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.calahorra.culturaJean.dtos.PaginatedProductDTO;
+import com.calahorra.culturaJean.dtos.PaginatedStockDTO;
 import com.calahorra.culturaJean.dtos.ProductDTO;
 import com.calahorra.culturaJean.dtos.ProductFiltersDataDTO;
 import com.calahorra.culturaJean.dtos.PurchaseItemDTO;
@@ -59,14 +59,17 @@ public class ProductController
 			case "visitor": modelAndView.setViewName(ViewRouteHelper.SHOP_VISITOR); break; //Al visitante le mostramos su vista.
 		}
 		
-		//Instanciamos una lista donde se van a cargar los productos filtrados:
-		List<ProductDTO> products = productService.findUniqueEnabledEachImageName(true);
+		String defaultOrder = "p.name ASC"; //Definimos el criterio de ordenamiento por defecto.
 		
-		//Ordenamos los productos:
-		products = productService.inOrderAscByName(products);
+		ProductFiltersDataDTO filters = new ProductFiltersDataDTO(); //Definimos todos los filtros en su estado por defecto.
+		filters.setOrder(defaultOrder); //Pasamos el criterio de ordenamiento.
+		int page = 0; //Definimos que es la primera página.
+		int size = 6; //Definimos la cantidad de elementos de la página.
+		
+		PaginatedProductDTO paginated = productService.getFilteredProducts(filters, page, size); //Obtenemos los productos de la página.
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("order", "orderAscByName"); //Adjuntamos el criterio de ordenamiento.
+		modelAndView.addObject("order", defaultOrder); //Adjuntamos el criterio de ordenamiento.
 		modelAndView.addObject("cat", "all"); //Adjuntamos la categoría para el filtro.
 		modelAndView.addObject("gen", "all"); //Adjuntamos el género para el filtro.
 		modelAndView.addObject("size", "all"); //Adjuntamos el talle para el filtro.
@@ -76,122 +79,31 @@ public class ProductController
 		modelAndView.addObject("uSPri", ""); //Adjuntamos el precio de venta menor o igual para el filtro.
 		modelAndView.addObject("rFSPri", ""); //Adjuntamos el precio mayor o igual de un rango para el filtro.
 		modelAndView.addObject("rUSPri", ""); //Adjuntamos el precio menor o igual de un rango para el filtro.
-		modelAndView.addObject("categories", productService.findUniqueEachCategory(products)); //Adjuntamos el listado de categorías de producto.
-		modelAndView.addObject("genders", productService.findUniqueEachGender(products)); //Adjuntamos el listado de géneros de producto.
-		modelAndView.addObject("sizes", productService.findUniqueEnabledEachSize(products, true)); //Adjuntamos el listado de talles de producto.
-		modelAndView.addObject("colors", productService.findUniqueEachColor(products)); //Adjuntamos el listado de colores de producto.
-		modelAndView.addObject("products", products); //Adjuntamos los productos.
+		
+		modelAndView.addObject("categories", paginated.getFiltersOptions().getCategories()); //Adjuntamos el listado de categorías de producto.
+		modelAndView.addObject("genders", paginated.getFiltersOptions().getGenders()); //Adjuntamos el listado de géneros de producto.
+		modelAndView.addObject("sizes", paginated.getFiltersOptions().getSizes()); //Adjuntamos el listado de talles de producto.
+		modelAndView.addObject("colors", paginated.getFiltersOptions().getColors()); //Adjuntamos el listado de colores de producto.
+		
+		modelAndView.addObject("paginated", paginated); //Adjuntamos el paginado.
 		
 		return modelAndView; //Retornamos la vista con la información obtenida.
 	}
 	
-	//Respondemos a las peticiones de talles únicos de los productos:
-	@PostMapping("/products/unique-sizes")
-	public ResponseEntity<List<String>> getUniqueSizes(@RequestBody List<ProductDTO> products) 
-	{
-	    List<String> uniqueSizes = productService.findUniqueEnabledEachSize(products, true); //Obtenemos los talles únicos.
-	    return ResponseEntity.ok(uniqueSizes); //Retornamos los talles únicos.
-	}
-	
 	//Respondemos a las peticiones de productos ordenados y filtrados para los clientes y visitantes:
 	@PostMapping("/products/filter")
-	public ResponseEntity<List<ProductDTO>> productsFiltered(@RequestBody ProductFiltersDataDTO filtersData) 
+	public ResponseEntity<PaginatedProductDTO> productsFiltered(@RequestBody ProductFiltersDataDTO filters, @RequestParam("page")int page,
+															    @RequestParam("size")int size) 
 	{
-		//Obtenemos los valores asignados a los filtros:
-		String order = filtersData.getOrder();
-		List<String> categories = filtersData.getCategories();
-		List<String> genders = filtersData.getGenders();
-		List<String> sizes = filtersData.getSizes();
-		List<String> colors = filtersData.getColors();
-		String salePrice = filtersData.getSalePrice();
-		String fromSalePrice = filtersData.getFromSalePrice();
-		String untilSalePrice = filtersData.getUntilSalePrice();
-		String rangeFromSalePrice = filtersData.getRangeFromSalePrice();
-		String rangeUntilSalePrice = filtersData.getRangeUntilSalePrice();
-		
-		//Instanciamos una lista donde se cargarán los productos ordenados y filtrados:
-		List<ProductDTO> products = new ArrayList<>();
-		
-		//Aplicamos el filtro seleccionado de la sección talle:
-		Set<String> sizesSet = new HashSet<>(sizes);
-		if(!sizesSet.contains("all")) //Si se eligió alguno:
-		{
-			//Obtenemos un producto habilitado por cada nombre de imagen teniendo en cuenta el criterio del filtro de talles:
-			products = productService.findUniqueSizeAndEnabledEachImageName(true, sizes); 
-		}
-		else //Si se eligió todos los talles:
-		{
-			//Obtenemos un producto habilitado por cada nombre de imagen, es decir, de cualquier talle:
-			products = productService.findUniqueEnabledEachImageName(true);
-		}
-		
-		//Filtramos los productos por los demás criterios elegidos:
-		products = productService.applyFilters(products, categories, genders, colors, salePrice, fromSalePrice, untilSalePrice,
-											   rangeFromSalePrice, rangeUntilSalePrice);
-		
-		//Ordenamos los productos por el criterio elegido:
-		products = productService.applyOrder(products, order);
-		
-		return ResponseEntity.ok(products); //Retornamos los productos.
+		return ResponseEntity.ok(productService.getFilteredProducts(filters, page, size)); //Retornamos el paginado.
 	}
 	
-	//Respondemos a las peticiones de productos ordenados y filtrados para el administrador:
+	//Respondemos a las peticiones de stocks ordenados y filtrados para el administrador:
 	@PostMapping("/products/admin/filter")
-	public ResponseEntity<List<StockDTO>> productsAdminFiltered(@RequestBody ProductFiltersDataDTO filtersData) 
+	public ResponseEntity<PaginatedStockDTO> productsAdminFiltered(@RequestBody ProductFiltersDataDTO filters, 
+																   @RequestParam("page")int page, @RequestParam("size")int size) 
 	{
-		//Obtenemos los valores asignados a los filtros:
-		String order = filtersData.getOrder();
-		List<String> categories = filtersData.getCategories();
-		List<String> genders = filtersData.getGenders();
-		List<String> sizes = filtersData.getSizes();
-		List<String> colors = filtersData.getColors();
-		String salePrice = filtersData.getSalePrice();
-		String fromSalePrice = filtersData.getFromSalePrice();
-		String untilSalePrice = filtersData.getUntilSalePrice();
-		String rangeFromSalePrice = filtersData.getRangeFromSalePrice();
-		String rangeUntilSalePrice = filtersData.getRangeUntilSalePrice();
-		String actualAmount = filtersData.getActualAmount();
-		String fromActualAmount = filtersData.getFromActualAmount();
-		String untilActualAmount = filtersData.getUntilActualAmount();
-		String rangeFromActualAmount = filtersData.getRangeFromActualAmount();
-		String rangeUntilActualAmount = filtersData.getRangeUntilActualAmount();
-		String state = filtersData.getState();
-		
-		//Una lista inicial donde cargaremos los productos filtrados y ordenados:
-		List<ProductDTO> products = new ArrayList<>();
-		
-		//Evaluamos si hay que filtrar por habilitados/deshabilitados:
-		if(state.equals("all")) 
-		{
-			products = productService.getAllProducts(); //En caso de que no, obtenemos todos los productos.
-		}
-		else //Por el contrario:
-		{
-			boolean enabled = Boolean.parseBoolean(state); //Determinamos si deben ser los habilitados o los deshabilitados.
-			products = productService.findByEnabled(enabled); //Obtenemos los productos en ese estado.
-		}
-				
-		//Filtramos los productos por los demás criterios seleccionados:
-		products = productService.applyFilters(products, categories, genders, sizes, colors, salePrice, fromSalePrice, untilSalePrice,
-											   rangeFromSalePrice, rangeUntilSalePrice);
-		
-		//Instanciamos una lista donde se van a cargar los stocks de los productos filtrados y ordenados:
-		List<StockDTO> stocks = new ArrayList<>();
-		
-		//Obtenemos el stock de cada producto:
-		for(ProductDTO product: products) 
-		{
-			stocks.add(stockService.findByProduct(product.getProductId())); //Agregamos el stock del producto al listado.
-		}
-		
-		//Filtramos los stocks por los criterios seleccionados con respecto a la cantidad actual:
-		stocks = stockService.applyFilterTypeActualAmount(stocks, actualAmount, fromActualAmount, untilActualAmount, rangeFromActualAmount,
-														  rangeUntilActualAmount);
-		
-		//Ordenamos los stocks por el criterio elegido:
-		stocks = stockService.applyOrder(stocks, order);
-		
-		return ResponseEntity.ok(stocks); //Retornamos los stocks.
+		return ResponseEntity.ok(stockService.getFilteredStocks(filters, page, size)); //Retornamos el paginado.
 	}
 	
 	//Invertimos el estado del producto indicado:
