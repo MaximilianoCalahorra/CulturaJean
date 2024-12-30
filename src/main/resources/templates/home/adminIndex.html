@@ -18,20 +18,20 @@
 				<form>
 					<label>Choose The Order:
 						<select name="order">
-							<option value="orderAscByDesirableAmount" th:selected="${order == 'orderAscByDesirableAmount'}">Ascendent By Desirable Amount</option>
-							<option value="orderDescByDesirableAmount" th:selected="${order == 'orderDescByDesirableAmount'}">Descendent By Desirable Amount</option>
-							<option value="orderAscByMinimumAmount" th:selected="${order == 'orderAscByMinimumAmount'}">Ascendent By Minimum Amount</option>
-							<option value="orderDescByMinimumAmount" th:selected="${order == 'orderDescByMinimumAmount'}">Descendent By Minimum Amount</option>
-							<option value="orderAscByActualAmount" th:selected="${order == 'orderAscByActualAmount'}">Ascendent By Actual Amount</option>
-							<option value="orderDescByActualAmount" th:selected="${order == 'orderDescByActualAmount'}">Descendent By Actual Amount</option>
-							<option value="orderAscByProductCode" th:selected="${order == 'orderAscByProductCode'}">Ascendent By Product Code</option>
-							<option value="orderDescByProductCode" th:selected="${order == 'orderDescByProductCode'}">Descendent By Product Code</option>
-							<option value="orderAscByProductCategory" th:selected="${order == 'orderAscByProductCategory'}">Ascendent By Product Category</option>
-							<option value="orderDescByProductCategory" th:selected="${order == 'orderDescByProductCategory'}">Descendent By Product Category</option>
-							<option value="orderAscByProductSalePrice" th:selected="${order == 'orderAscByProductSalePrice'}">Ascendent By Product Sale Price</option>
-							<option value="orderDescByProductSalePrice" th:selected="${order == 'orderDescByProductSalePrice'}">Descendent By Product Sale Price</option>
-							<option value="orderAscByProductName" th:selected="${order == 'orderAscByProductName'}">Ascendent By Product Name</option>
-							<option value="orderDescByProductName" th:selected="${order == 'orderDescByProductName'}">Descendent By Product Name</option>
+							<option value="s.desirable_amount ASC" th:selected="${order == 's.desirable_amount ASC'}">Ascendent By Desirable Amount</option>
+							<option value="s.desirable_amount DESC" th:selected="${order == 's.desirable_amount DESC'}">Descendent By Desirable Amount</option>
+							<option value="s.minimum_amount ASC" th:selected="${order == 's.minimum_amount ASC'}">Ascendent By Minimum Amount</option>
+							<option value="s.minimum_amount DESC" th:selected="${order == 's.minimum_amount DESC'}">Descendent By Minimum Amount</option>
+							<option value="s.actual_amount ASC" th:selected="${order == 's.actual_amount ASC'}">Ascendent By Actual Amount</option>
+							<option value="s.actual_amount DESC" th:selected="${order == 's.actual_amount DESC'}">Descendent By Actual Amount</option>
+							<option value="p.code ASC" th:selected="${order == 'p.code ASC'}">Ascendent By Code</option>
+							<option value="p.code DESC" th:selected="${order == 'p.code DESC'}">Descendent By Code</option>
+							<option value="p.category ASC" th:selected="${order == 'p.category ASC'}">Ascendent By Category</option>
+							<option value="p.category DESC" th:selected="${order == 'p.category DESC'}">Descendent By Category</option>
+							<option value="p.sale_price ASC" th:selected="${order == 'p.sale_price ASC'}">Ascendent By Sale Price</option>
+							<option value="p.sale_price DESC" th:selected="${order == 'p.sale_price DESC'}">Descendent By Sale Price</option>
+							<option value="p.name ASC" th:selected="${order == 'p.name ASC'}">Ascendent By Name</option>
+							<option value="p.name DESC" th:selected="${order == 'p.name DESC'}">Descendent By Name</option>
 						</select>
 					</label>
 					<button type="button" id="applyOrderButton">Apply</button>
@@ -39,41 +39,41 @@
 				<form>
 					<label>Choose Filters:
 						<details id="categoriesContainer">
-							<span id="catMaxValues" th:data-max-values="${productCategories.size()}" hidden></span>
+							<span id="catMaxValues" th:data-max-values="${categories.size()}" hidden></span>
 							<summary>Category</summary>
 							<input type="checkbox" name="cat" value="all" id="cat-all" th:checked="${cat == 'all'}" autocomplete="off">
 							<label for="cat-all">All</label>
-							<div th:each="cat, iterStat : ${productCategories}">
+							<div th:each="cat, iterStat : ${categories}">
 						        <input type="checkbox" name="cat" th:value="${cat}" th:id="'cat-' + ${iterStat.index}" autocomplete="off" disabled>
 						        <label th:for="'cat-' + ${iterStat.index}" th:text="${cat}"></label>
 						    </div>	
 						</details>
 						<details id="gendersContainer">
-							<span id="genMaxValues" th:data-max-values="${productGenders.size()}" hidden></span>
+							<span id="genMaxValues" th:data-max-values="${genders.size()}" hidden></span>
 							<summary>Gender</summary>
 							<input type="checkbox" name="gen" value="all" id="gen-all" th:checked="${gen == 'all'}" autocomplete="off">
 							<label for="gen-all">All</label>
-							<div th:each="gen, iterStat : ${productGenders}">
+							<div th:each="gen, iterStat : ${genders}">
 						        <input type="checkbox" name="gen" th:value="${gen}" th:id="'gen-' + ${iterStat.index}" autocomplete="off" disabled>
 						        <label th:for="'gen-' + ${iterStat.index}" th:text="${gen}"></label>
 						    </div>	
 						</details>
 						<details id="sizesContainer">
-							<span id="sizeMaxValues" th:data-max-values="${productSizes.size()}" hidden></span>
+							<span id="sizeMaxValues" th:data-max-values="${sizes.size()}" hidden></span>
 							<summary>Size</summary>
 							<input type="checkbox" name="size" value="all" id="size-all" th:checked="${size == 'all'}" autocomplete="off">
 							<label for="size-all">All</label>
-							<div th:each="size, iterStat : ${productSizes}">
+							<div th:each="size, iterStat : ${sizes}">
 						        <input type="checkbox" name="size" th:value="${size}" th:id="'size-' + ${iterStat.index}" autocomplete="off" disabled>
 						        <label th:for="'size-' + ${iterStat.index}" th:text="${size}"></label>
 						    </div>	
 						</details>
 						<details id="colorsContainer">
-							<span id="colMaxValues" th:data-max-values="${productColors.size()}" hidden></span>
+							<span id="colMaxValues" th:data-max-values="${colors.size()}" hidden></span>
 							<summary>Color</summary>
 							<input type="checkbox" name="col" value="all" id="col-all" th:checked="${col == 'all'}" autocomplete="off">
 							<label for="col-all">All</label>
-							<div th:each="col, iterStat : ${productColors}">
+							<div th:each="col, iterStat : ${colors}">
 						        <input type="checkbox" name="col" th:value="${col}" th:id="'col-' + ${iterStat.index}" autocomplete="off" disabled>
 						        <label th:for="'col-' + ${iterStat.index}" th:style="'background-color:' + ${col} + '; color: ' + ${col} + ';'">Color</label>
 						    </div>
@@ -150,7 +150,7 @@
 						 </tr>
 			        </thead>
 				    <tbody id="tbody">
-				         <tr th:each="stock: ${stocks}" th:id="'row-' + ${stock.product.productId}">
+				         <tr th:each="stock: ${paginated.stocks}" th:id="'row-' + ${stock.product.productId}">
 						    <td th:text="${stock.product.productId}"></td>
 							<td th:text="${stock.product.code}"></td>
 							<td th:text="${stock.product.category}"></td>
@@ -173,6 +173,14 @@
 						</tr>
 					</tbody>
 				</table>
+				<div id="pagination">
+					<button th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>

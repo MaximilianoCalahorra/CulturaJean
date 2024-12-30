@@ -89,6 +89,31 @@ export function updateColorCheckboxes(containerId, name, values, selectedValues)
     });
 }
 
+/* ACTUALIZAMOS LOS BOTONES DE PÁGINAS */
+export function updatePagination(totalPages, currentPage) 
+{
+    const pagination = document.getElementById('pagination'); //Seleccionamos el contenedor de los botones.
+    pagination.innerHTML = ''; //Limpiamos los botones de paginación.
+
+	//Por cada página:
+    for(let i = 0; i < totalPages; i++) 
+    {
+        const button = document.createElement('button'); //Creamos un botón.
+        button.textContent = i + 1; //Le damos el número.
+        button.classList.toggle('active', i === currentPage);
+        button.setAttribute("data-page", i);
+
+        pagination.appendChild(button); //Agregamos el botón al contenedor.
+    }
+    
+    //Si por lo menos tenemos una página:
+    if(totalPages > 0)
+    {
+		//Cambiamos el color de fondo del botón de la página que se está mostrando:
+    	document.querySelector(".active").setAttribute("style", "background-color: orange;");
+	}
+}
+
 /* DETECTAMOS CLICS EN EL CHECKBOX "all" DE CATEGORÍAS */
 document.getElementById("cat-all").addEventListener("click", (event) => changeStatusOtherOptions(event, "cat"));
 

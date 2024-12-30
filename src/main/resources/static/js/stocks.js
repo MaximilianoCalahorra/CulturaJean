@@ -16,13 +16,17 @@ import
 	orderName,
 	defaultOrder,
 	priceInputIds,
-	updateColorCheckboxes 
+	updateColorCheckboxes,
+	updatePagination
 } from "/js/productsAndStocks.js";
 
 import { getProductsFiltersValues } from "/js/products.js";
 
 //Names de las secciones de filtros:
 const filterSections = ["cat", "gen", "size", "col"];
+
+//Cantidad de stocks por página:
+const size = 12;
 
 //Ids de los inputs de cantidad:
 const amountInputIds = ["amount", "fAmount", "uAmount", "rFAmount", "rUAmount"];
@@ -42,10 +46,10 @@ function getStocksFiltersValues()
 }
 
 /* OBTENEMOS LOS STOCKS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADAS SEGÚN DETERMINADO CRITERIO */
-async function applyFilterStocks(filtersData)
+async function applyFilterStocks(filtersData, page = 0, size = 12)
 {
 	//Realizamos la consulta para obtener los stocks:
-    return fetch(`/product/products/admin/filter`, {
+    return fetch(`/product/products/admin/filter?page=${page}&size=${size}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(filtersData)
@@ -68,19 +72,13 @@ async function applyFilterStocks(filtersData)
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE STOCKS ACTUAL */
-function updateStocksFilterOptions(stocks, selectedFilters) 
+function updateStocksFilterOptions(filters, selectedFilters) 
 {
-	//Extraemos valores únicos para las siguientes secciones:
-    const categories = [...new Set(stocks.map(item => item.product.category))]; //Categorías de producto.
-    const genders = [...new Set(stocks.map(item => item.product.gender))]; //Géneros de producto.
-    const sizes = [...new Set(stocks.map(item => item.product.size))]; //Talles de producto.
-    const colors = [...new Set(stocks.map(item => item.product.color))]; //Colores de producto.
-    
-    //Actualizamos las secciones de filtros:
-    updateCheckboxes("categoriesContainer", "cat", categories, selectedFilters.categories); 
-    updateCheckboxes("gendersContainer", "gen", genders, selectedFilters.genders); 
-    updateCheckboxes("sizesContainer", "size", sizes, selectedFilters.sizes); 
-    updateColorCheckboxes("colorsContainer", "col", colors, selectedFilters.colors);
+	//Actualizamos las secciones de filtros:
+    updateCheckboxes("categoriesContainer", "cat", filters.categories, selectedFilters.categories); 
+    updateCheckboxes("gendersContainer", "gen", filters.genders, selectedFilters.genders); 
+    updateCheckboxes("sizesContainer", "size", filters.sizes, selectedFilters.sizes); 
+    updateColorCheckboxes("colorsContainer", "col", filters.colors, selectedFilters.colors);
     
     //Cerramos los details de estados, de precios y de cantidades:
     document.getElementById("enabledContainer").removeAttribute("open"); //Contenedor general.
@@ -154,7 +152,7 @@ function generateHTMLForEmptyStocks()
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS STOCKS Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
-function filterStocks()
+function filterStocks(page = 0)
 {
 	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento. 
 	const filters = getStocksFiltersValues(); //Obtenemos los valores de filtrado.
@@ -163,20 +161,20 @@ function filterStocks()
 	const filtersData = {order, ...filters};
 	
 	//Filtramos y ordenamos según la configuración anterior:
-	applyFilterStocks(filtersData)
+	applyFilterStocks(filtersData, page, size)
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-		updateStocksFilterOptions(data, filters);
+		updateStocksFilterOptions(data.filtersOptions, filters);
 		
 		//Seleccionamos el body de la tabla:
 		const tbody = document.getElementById("tbody");
 		
 		//Si hay al menos un producto después del filtro:
-		if(data.length > 0)
+		if(data.stocks.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForStocks(data);
+	        const htmlContent = generateHTMLForStocks(data.stocks);
 	
 	        //Actualizamos los stocks en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -186,6 +184,8 @@ function filterStocks()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyStocks();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page)); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -226,16 +226,16 @@ function resetStocksFilters()
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-		updateStocksFilterOptions(data, filters);
+		updateStocksFilterOptions(data.filtersOptions, filters);
 		
 		//Si hubo resultados luego del filtrado:
-		if(data.length > 0)
+		if(data.stocks.length > 0)
 		{	
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbody");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForStocks(data);
+		    const htmlContent = generateHTMLForStocks(data.stocks);
 		        
 			//Actualizamos los stocks en la vista:
 		    tbody.innerHTML = htmlContent;
@@ -277,6 +277,9 @@ function resetStocksFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyStocks();
 		}
+		
+		//Actualizamos las opciones de páginas:
+		updatePagination(data.totalPages, 0);
     })
     .catch(error => 
     {
@@ -311,6 +314,21 @@ if(document.getElementById("enabledContainer"))
 		        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 		    }
 		});
+	});
+	
+	/* OBTENEMOS LOS STOCKS CORRESPONDIENTES A CADA PÁGINA SEGÚN LOS FILTROS SELECCIONADOS */
+	document.addEventListener("DOMContentLoaded", function () 
+	{
+	    const paginationContainer = document.getElementById("pagination"); //Seleccionamos el contenedor de los botones de las páginas.
+	    paginationContainer.addEventListener("click", function (event) 
+	    {
+	        const button = event.target; //Obtenemos el botón de página clicleado.
+	        if(button.tagName === "BUTTON")
+	        {
+	            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+	            filterStocks(pageNum); //Disparamos la solicitud de los stocks de esa página.
+	        }
+	    });
 	});
 }
 
