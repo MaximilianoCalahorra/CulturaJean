@@ -1,16 +1,13 @@
 package com.calahorra.culturaJean.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.calahorra.culturaJean.dtos.SupplierDTO;
+import com.calahorra.culturaJean.dtos.PaginatedSupplierDTO;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
 import com.calahorra.culturaJean.services.ISupplierService;
 
@@ -35,32 +32,26 @@ public class SupplierController
 		//Definimos la vista a cargar:
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SUPPLIERS);
 		
-		//Obtenemos todos los proveedores ordenados alfabéticamente por nombre:
-		List<SupplierDTO> suppliers = supplierService.getAllInOrderAscByName();
+		String defaultOrder = "s.name ASC"; //Definimos el criterio de ordenamiento por defecto.
+    	
+		int page = 0; //Definimos que es la primera página.
+		int size = 10; //Definimos la cantidad de elementos de la página.
+		
+		//Obtenemos los proveedores de la página:
+		PaginatedSupplierDTO paginated = supplierService.getFilteredSuppliers(defaultOrder, page, size);
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("order", "orderAscByName"); //Indicamos por cuál atributo está ordenado el listado y en qué sentido.
-		modelAndView.addObject("suppliers", suppliers); //Agregamos los proveedores ordenados.
+		modelAndView.addObject("order", defaultOrder); //Indicamos por cuál atributo está ordenado el paginado y en qué sentido.
+		modelAndView.addObject("paginated", paginated); //Agregamos el paginado.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
-	//Respondemos a las solicitudes de filtrado/ordenamiento sobre los proveedores:
-	@GetMapping("/suppliers/{order}")
-	public ResponseEntity<List<SupplierDTO>> orderSuppliers(@PathVariable("order") String order) 
+	//Respondemos a las solicitudes de ordenamiento sobre los proveedores:
+	@GetMapping("/suppliers/order")
+	public ResponseEntity<PaginatedSupplierDTO> orderSuppliers(@RequestParam("order") String order, @RequestParam("page")int page,
+		    												   @RequestParam("size")int size) 
 	{
-		//Instanciamos una lista de proveedores para posteriormente cargarla con los proveedores ordenados:
-		List<SupplierDTO> suppliers = new ArrayList<>(); 
-		
-		//En base al tipo de ordenamiento elegido, obtenemos la lista de proveedores ordenada:
-		switch(order) 
-		{
-			case "orderAscByName": suppliers = supplierService.getAllInOrderAscByName(); break; //Alfabéticamente por nombre.
-			case "orderDescByName": suppliers = supplierService.getAllInOrderDescByName(); break; //Inverso al alfabeto por nombre.
-			case "orderAscBySupplierId": suppliers = supplierService.getAllInOrderAscBySupplierId(); break; //Menor a mayor por id.
-			case "orderDescBySupplierId": suppliers = supplierService.getAllInOrderDescBySupplierId(); break; //Mayor a menor por id.
-		}
-		
-		return ResponseEntity.ok(suppliers); //Retornamos los proveedores ordenados como JSON.
+		return ResponseEntity.ok(supplierService.getFilteredSuppliers(order, page, size)); //Retornamos el paginado.
 	}
 }
