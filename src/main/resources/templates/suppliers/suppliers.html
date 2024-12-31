@@ -14,10 +14,10 @@
 				<form>
 				    <label>Choose The Order:
 				        <select name="order">
-				            <option value="orderAscByName" th:selected="${order == 'orderAscByName'}">Ascendent By Name</option>
-				            <option value="orderDescByName" th:selected="${order == 'orderDescByName'}">Descendent By Name</option>
-				            <option value="orderAscBySupplierId" th:selected="${order == 'orderAscBySupplierId'}">Ascendent By Supplier Id</option>
-				            <option value="orderDescBySupplierId" th:selected="${order == 'orderDescBySupplierId'}">Descendent By Supplier Id</option>
+				            <option value="s.name ASC" th:selected="${order == 's.name ASC'}">Ascendent By Name</option>
+				            <option value="s.name DESC" th:selected="${order == 's.name DESC'}">Descendent By Name</option>
+				            <option value="s.supplier_id ASC" th:selected="${order == 's.supplier_id ASC'}">Ascendent By Supplier Id</option>
+				            <option value="s.supplier_id DESC" th:selected="${order == 's.supplier_id DESC'}">Descendent By Supplier Id</option>
 				        </select>
 				    </label>
 				    <button type="button" id="applyOrderButton">Apply</button>
@@ -33,20 +33,28 @@
 						</tr>
 					</thead>
 					<tbody id="supplierTBodyTable">
-						<tr th:each="supplier: ${suppliers}">
+						<tr th:each="supplier: ${paginated.suppliers}">
 							<td th:text="${supplier.supplierId}"></td>
 							<td th:text="${supplier.name}"></td>
 							<td th:text="${supplier.address}"></td>
 							<td th:text="${supplier.email}"></td>
 							<td th:text="${supplier.phoneNumber}"></td>
 						</tr>
-						<tr th:if="${suppliers.size() == 0}">
+						<tr th:if="${paginated.suppliers.size() == 0}">
 					        <td colspan="5" style="text-align: center; font-style: italic; color: gray;">
 					            No results found.
 					        </td>
 					    </tr>
 					</tbody>
 				</table>
+				<div id="pagination">
+					<button th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>

@@ -38,7 +38,7 @@ public class SupplierController
 		int size = 10; //Definimos la cantidad de elementos de la página.
 		
 		//Obtenemos los proveedores de la página:
-		PaginatedSupplierDTO paginated = supplierService.getFilteredSuppliers(defaultOrder, page, size);
+		PaginatedSupplierDTO paginated = supplierService.getOrderedSuppliers(defaultOrder, page, size);
 		
 		//Agregamos la información a la vista:
 		modelAndView.addObject("order", defaultOrder); //Indicamos por cuál atributo está ordenado el paginado y en qué sentido.
@@ -52,6 +52,6 @@ public class SupplierController
 	public ResponseEntity<PaginatedSupplierDTO> orderSuppliers(@RequestParam("order") String order, @RequestParam("page")int page,
 		    												   @RequestParam("size")int size) 
 	{
-		return ResponseEntity.ok(supplierService.getFilteredSuppliers(order, page, size)); //Retornamos el paginado.
+		return ResponseEntity.ok(supplierService.getOrderedSuppliers(order, page, size)); //Retornamos el paginado.
 	}
 }
