@@ -38,10 +38,10 @@ public class CustomProductRepository implements ICustomProductRepository
     	if(sizes != null) queryBuilder.append(" AND p.size IN :sizes");
     	if(colors != null) queryBuilder.append(" AND p.color IN :colors");
     	if(salePrice != null) queryBuilder.append(" AND p.sale_price = :salePrice");
-    	if(fromSalePrice != null) queryBuilder.append(" AND p.sale_price = :fromSalePrice");
-    	if(untilSalePrice != null) queryBuilder.append(" AND p.sale_price = :untilSalePrice");
-    	if(rangeFromSalePrice != null) queryBuilder.append(" AND p.sale_price = :rangeFromSalePrice");
-    	if(rangeUntilSalePrice != null) queryBuilder.append(" AND p.sale_price = :rangeUntilSalePrice");
+    	if(fromSalePrice != null) queryBuilder.append(" AND p.sale_price >= :fromSalePrice");
+    	if(untilSalePrice != null) queryBuilder.append(" AND p.sale_price <= :untilSalePrice");
+    	if(rangeFromSalePrice != null) queryBuilder.append(" AND p.sale_price >= :rangeFromSalePrice");
+    	if(rangeUntilSalePrice != null) queryBuilder.append(" AND p.sale_price <= :rangeUntilSalePrice");
     	if(state != null) queryBuilder.append(" AND p.enabled = :state");
     	
     	return queryBuilder; //Retornamos el texto de la consulta.

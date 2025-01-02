@@ -40,15 +40,15 @@ public class CustomStockRepository implements ICustomStockRepository
     	if(sizes != null) queryBuilder.append(" AND p.size IN :sizes");
     	if(colors != null) queryBuilder.append(" AND p.color IN :colors");
     	if(salePrice != null) queryBuilder.append(" AND p.sale_price = :salePrice");
-    	if(fromSalePrice != null) queryBuilder.append(" AND p.sale_price = :fromSalePrice");
-    	if(untilSalePrice != null) queryBuilder.append(" AND p.sale_price = :untilSalePrice");
-    	if(rangeFromSalePrice != null) queryBuilder.append(" AND p.sale_price = :rangeFromSalePrice");
-    	if(rangeUntilSalePrice != null) queryBuilder.append(" AND p.sale_price = :rangeUntilSalePrice");
+    	if(fromSalePrice != null) queryBuilder.append(" AND p.sale_price >= :fromSalePrice");
+    	if(untilSalePrice != null) queryBuilder.append(" AND p.sale_price <= :untilSalePrice");
+    	if(rangeFromSalePrice != null) queryBuilder.append(" AND p.sale_price >= :rangeFromSalePrice");
+    	if(rangeUntilSalePrice != null) queryBuilder.append(" AND p.sale_price <= :rangeUntilSalePrice");
     	if(actualAmount != null) queryBuilder.append(" AND s.actual_amount = :actualAmount");
-    	if(fromActualAmount != null) queryBuilder.append(" AND s.actual_amount = :fromActualAmount");
-    	if(untilActualAmount != null) queryBuilder.append(" AND s.actual_amount = :untilActualAmount");
-    	if(rangeFromActualAmount != null) queryBuilder.append(" AND s.actual_amount = :rangeFromActualAmount");
-    	if(rangeUntilActualAmount != null) queryBuilder.append(" AND s.actual_amount = :rangeUntilActualAmount");
+    	if(fromActualAmount != null) queryBuilder.append(" AND s.actual_amount >= :fromActualAmount");
+    	if(untilActualAmount != null) queryBuilder.append(" AND s.actual_amount <= :untilActualAmount");
+    	if(rangeFromActualAmount != null) queryBuilder.append(" AND s.actual_amount >= :rangeFromActualAmount");
+    	if(rangeUntilActualAmount != null) queryBuilder.append(" AND s.actual_amount <= :rangeUntilActualAmount");
     	if(state != null) queryBuilder.append(" AND p.enabled = :state");
     	
     	return queryBuilder; //Retornamos el texto de la consulta.
