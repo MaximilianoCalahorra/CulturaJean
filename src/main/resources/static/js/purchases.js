@@ -19,9 +19,17 @@ import
 	descheckedAndDisableOtherOptions, 
 	updateCheckboxes,
 	reinicializeInputs,
-	checkFiltersState
+	checkFiltersState,
+	updatePagination
 } from "/js/general.js";
 
+//Cantidad de compras por página:
+const size = 6;
+
+//Username del cliente:
+const usernames = [document.getElementById("username").dataset.username];
+
+//Name de la sección de filtro:
 const filterSections = ["methodOfPay"];
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LAS COMPRAS */
@@ -38,18 +46,18 @@ export function getPurchasesFiltersValues()
 		rangeFromTime: document.getElementById("rFTime").value || "", //Hora posterior o igual a dentro de un rango.
 		rangeUntilTime: document.getElementById("rUTime").value || "", //Hora anterior o igual a dentro de un rango.
 		methodsOfPay: getSelectedValues("methodOfPay"), //Métodos de pago.
-		fromPrice: document.getElementById("fPrice").value || "-1", //Fecha posterior o igual a.
-		untilPrice: document.getElementById("uPrice").value || "-1", //Fecha anterior o igual a.
-		rangeFromPrice: document.getElementById("rFPrice").value || "-1", //Fecha posterior o igual a dentro de un rango.
-		rangeUntilPrice: document.getElementById("rUPrice").value || "-1" //Fecha anterior o igual a dentro de un rango.
+		fromPrice: document.getElementById("fPrice").value || "", //Fecha posterior o igual a.
+		untilPrice: document.getElementById("uPrice").value || "", //Fecha anterior o igual a.
+		rangeFromPrice: document.getElementById("rFPrice").value || "", //Fecha posterior o igual a dentro de un rango.
+		rangeUntilPrice: document.getElementById("rUPrice").value || "" //Fecha anterior o igual a dentro de un rango.
 	};
 }
 
 /* OBTENEMOS LAS COMPRAS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADAS SEGÚN DETERMINADO CRITERIO */
-async function applyFilterPurchases(filtersData)
+async function applyFilterPurchases(filtersData, page = 0, size = 6)
 {
 	//Realizamos la consulta para obtener las compras:
-    return fetch(`/myAccount/customer/filter`, {
+    return fetch(`/myAccount/customer/filter?page=${page}&size=${size}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(filtersData)
@@ -72,13 +80,10 @@ async function applyFilterPurchases(filtersData)
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE COMPRAS ACTUAL */
-export function updatePurchasesFilterOptions(purchases, selectedFilters) 
+export function updatePurchasesFilterOptions(filters, selectedFilters) 
 {
-	//Extraemos valores únicos para los métodos de pago:
-    const methodsOfPay = [...new Set(purchases.map(item => item.methodOfPay))];
-	
 	//Actualizamos la sección de filtros:
-    updateCheckboxes("methodOfPayContainer", "methodOfPay", methodsOfPay, selectedFilters.methodsOfPay); 
+    updateCheckboxes("methodOfPayContainer", "methodOfPay", filters.methodsOfPay, selectedFilters.methodsOfPay); 
     
     //Cerramos los details de fechas:
     document.getElementById("datesContainer").removeAttribute("open"); //Contenedor general.
@@ -94,10 +99,10 @@ export function updatePurchasesFilterOptions(purchases, selectedFilters)
     document.getElementById("rangeTimeContainer").removeAttribute("open"); //Contenedor hora dentro de un rango.
     
     //Cerramos los details de precios:
-    document.getElementById("salePricesContainer").removeAttribute("open"); //Contenedor general.
-    document.getElementById("fromSalePriceContainer").removeAttribute("open"); //Contenedor precio mayor o igual a.
-    document.getElementById("untilSalePriceContainer").removeAttribute("open"); //Contenedor precio menor o igual a.
-    document.getElementById("rangeSalePriceContainer").removeAttribute("open"); //Contenedor precio dentro de un rango.
+    document.getElementById("pricesContainer").removeAttribute("open"); //Contenedor general.
+    document.getElementById("fromPriceContainer").removeAttribute("open"); //Contenedor precio mayor o igual a.
+    document.getElementById("untilPriceContainer").removeAttribute("open"); //Contenedor precio menor o igual a.
+    document.getElementById("rangePriceContainer").removeAttribute("open"); //Contenedor precio dentro de un rango.
 }
 
 /* GENERAMOS DETERMINADO HTML PARA CUANDO NO HAY COMPRAS ENCONTRADAS */
@@ -122,29 +127,29 @@ export function generateHTMLForEmptyPurchases()
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LAS COMPRAS Y ACTUALIZAMOS LA VISTA CON LAS QUE APLIQUEN */
-function filterPurchases()
+function filterPurchases(page = 0)
 {
 	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento. 
 	const filters = getPurchasesFiltersValues(); //Obtenemos los valores de filtrado.
 	
 	//Cargamos el criterio de ordenamiento y los de filtrado:
-	const filtersData = {order, ...filters};
+	const filtersData = {order, ...filters, usernames};
 	
 	//Filtramos y ordenamos según la configuración anterior:
-	applyFilterPurchases(filtersData)
+	applyFilterPurchases(filtersData, page, size)
 	.then(data => 
 	{
-		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-		updatePurchasesFilterOptions(data, filters);
-		
-		//Seleccionamos el body de la tabla:
-		const tbody = document.getElementById("tbodyDataTable");
-		
 		//Si hay al menos una compra después del filtro:
-		if(data.length > 0)
+		if(data.purchases.length > 0)
 		{
+			//Seleccionamos el body de la tabla:
+			const tbody = document.getElementById("tbodyDataTable");
+			
+			//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
+			updatePurchasesFilterOptions(data.filtersOptions, filters);
+			
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForSalesOrPurchases(data);
+	        const htmlContent = generateHTMLForSalesOrPurchases(data.purchases);
 	
 	        //Actualizamos las compras en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -154,6 +159,8 @@ function filterPurchases()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyPurchases();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page)); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -179,33 +186,33 @@ function resetPurchasesFilters()
 		rangeFromTime: "",
 		rangeUntilTime: "",
 		methodsOfPay: ["all"],
-		fromPrice: "-1",
-		untilPrice: "-1",
-		rangeFromPrice: "-1",
-		rangeUntilPrice: "-1"
+		fromPrice: "",
+		untilPrice: "",
+		rangeFromPrice: "",
+		rangeUntilPrice: ""
 	};
 	
 	//Definimos el conjunto de los nuevos valores de filtrado:
-	const filtersData = {order, ...filters};
+	const filtersData = {order, ...filters, usernames};
 	
 	//Filtramos y ordenamos según la configuración anterior:
 	applyFilterPurchases(filtersData)
 	.then(data => 
 	{
-		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-		updatePurchasesFilterOptions(data, filters);
-		
 		//Si hubo resultados luego del filtrado:
-		if(data.length > 0)
+		if(data.purchases.length > 0)
 		{	
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbodyDataTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForSalesOrPurchases(data);
+		    const htmlContent = generateHTMLForSalesOrPurchases(data.purchases);
 		        
 			//Actualizamos las compras en la vista:
 		    tbody.innerHTML = htmlContent;
+		    
+		    //Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
+			updatePurchasesFilterOptions(data.filtersOptions, filters);
 		    
 		    //Tildamos la opción "all" para el filtro de métodos de pago:
 		    const allOptionMethodsOfPay = document.getElementById("methodOfPay-all");
@@ -224,6 +231,9 @@ function resetPurchasesFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyPurchases();
 		}
+		
+		//Actualizamos las opciones de páginas:
+		updatePagination(data.totalPages, 0);
     })
     .catch(error => 
     {
@@ -255,5 +265,20 @@ if(!document.getElementById("usernameContainer"))
 	    {
 	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
+	});
+	
+	/* OBTENEMOS LAS COMPRAS CORRESPONDIENTES A CADA PÁGINA SEGÚN LOS FILTROS SELECCIONADOS */
+	document.addEventListener("DOMContentLoaded", function () 
+	{
+	    const paginationContainer = document.getElementById("pagination"); //Seleccionamos el contenedor de los botones de las páginas.
+	    paginationContainer.addEventListener("click", function (event) 
+	    {
+	        const button = event.target; //Obtenemos el botón de página clicleado.
+	        if(button.tagName === "BUTTON")
+	        {
+	            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+	            filterPurchases(pageNum); //Disparamos la solicitud de las compras de esa página.
+	        }
+	    });
 	});
 }

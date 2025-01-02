@@ -13,7 +13,7 @@
 			<section>
 				<h2>My Profile</h2>
 				<div>
-					<p>Username: <span th:text="${member.username}"></span></p>
+					<p>Username: <span id="username" th:data-username="${member.username}" th:text="${member.username}"></span></p>
 					<p>Name: <span th:text="${member.name}"></span></p>
 					<p>Last Name: <span th:text="${member.lastName}"></span></p>
 					<p>Email: <span th:text="${member.email}"></span></p>
@@ -25,14 +25,12 @@
 				<form>
 					<label>Choose The Order:
 						<select name="order">
-							<option value="orderAscByDateTime" th:selected="${order == 'orderAscByDateTime'}">Ascendent By DateTime</option>
-							<option value="orderDescByDateTime" th:selected="${order == 'orderDescByDateTime'}">Descendent By DateTime</option>
-							<option value="orderAscByUsername" th:selected="${order == 'orderAscByUsername'}">Ascendent By Username</option>
-							<option value="orderDescByUsername" th:selected="${order == 'orderDescByUsername'}">Descendent By Username</option>
-							<option value="orderAscByMethodOfPay" th:selected="${order == 'orderAscByMethodOfPay'}">Ascendent By Method Of Pay</option>
-							<option value="orderDescByMethodOfPay" th:selected="${order == 'orderDescByMethodOfPay'}">Descendent By Method Of Pay</option>
-							<option value="orderAscByPurchasePrice" th:selected="${order == 'orderAscByPurchasePrice'}">Ascendent By Purchase Price</option>
-							<option value="orderDescByPurchasePrice" th:selected="${order == 'orderDescByPurchasePrice'}">Descendent By Purchase Price</option>
+							<option value="p.date_time ASC" th:selected="${order == 'p.date_time ASC'}">Ascendent By DateTime</option>
+							<option value="p.date_time DESC" th:selected="${order == 'p.date_time DESC'}">Descendent By DateTime</option>
+							<option value="p.method_of_pay ASC" th:selected="${order == 'p.method_of_pay ASC'}">Ascendent By Method Of Pay</option>
+							<option value="p.method_of_pay DESC" th:selected="${order == 'p.method_of_pay DESC'}">Descendent By Method Of Pay</option>
+						 	<option value="p.total_price ASC" th:selected="${order == 'p.total_price ASC'}">Ascendent By Purchase Price</option>
+							<option value="p.total_price DESC" th:selected="${order == 'p.total_price DESC'}">Descendent By Purchase Price</option>
 						</select>
 					</label>
 					<button id="applyOrderButton" type="button">Apply</button>
@@ -76,33 +74,29 @@
 							</details>
 						</details>
 						<details id="methodOfPayContainer">
-							<span id="methodOfPayMaxValues" th:data-max-values="2" hidden></span>
+							<span id="methodOfPayMaxValues" th:data-max-values="${methodsOfPay.size()}" hidden></span>
 							<summary>Method Of Pay</summary>
 							<input type="checkbox" name="methodOfPay" value="all" id="methodOfPay-all" th:checked="${methodOfPay == 'all'}">
-							<label for="methodOfPay-all">All</label>	
-							<div>
-								<input type="checkbox" name="methodOfPay" value="Debit" id="methodOfPay-1" th:checked="${methodOfPay == 'Debit'}" disabled>
-								<label for="methodOfPay-1">Debit</label>	
-							</div>
-							<div>
-								<input type="checkbox" name="methodOfPay" value="Credit" id="methodOfPay-2" th:checked="${methodOfPay == 'Credit'}" disabled>
-								<label for="methodOfPay-2">Credit</label>
-							</div>	
+							<label for="methodOfPay-all">All</label>
+							<div th:each="method, iterStat : ${methodsOfPay}">
+						        <input type="checkbox" name="methodOfPay" th:value="${method}" th:id="'methodOfPay-' + ${iterStat.index}" autocomplete="off" disabled>
+						        <label th:for="'methodOfPay-' + ${iterStat.index}" th:text="${method}"></label>
+						    </div>	
 						</details>
-						<details id="salePricesContainer">
-							<summary>Sale Price</summary>
-							<details id="fromSalePriceContainer">
+						<details id="pricesContainer">
+							<summary>Price</summary>
+							<details id="fromPriceContainer">
 								<summary>Greater Or Equal To Price</summary>
-								<input type="text" inputmode="decimal" name="fromSalePrice" th:value="${fromSalePrice}" id="fPrice">
+								<input type="text" inputmode="decimal" name="fromPrice" th:value="${fromPrice}" id="fPrice">
 							</details>
-							<details id="untilSalePriceContainer">
+							<details id="untilPriceContainer">
 								<summary>Less or Equal To Price</summary>
-								<input type="text" inputmode="decimal" name="untilSalePrice" th:value="${untilSalePrice}" id="uPrice">
+								<input type="text" inputmode="decimal" name="untilPrice" th:value="${untilPrice}" id="uPrice">
 							</details>
-							<details id="rangeSalePriceContainer">
+							<details id="rangePriceContainer">
 								<summary>Price To Price</summary>
-								<input type="text" inputmode="decimal" name="rangeFromSalePrice" th:value="${rangeFromSalePrice}" id="rFPrice">
-								<input type="text" inputmode="decimal" name="rangeUntilSalePrice" th:value="${rangeUntilSalePrice}" id="rUPrice">
+								<input type="text" inputmode="decimal" name="rangeFromPrice" th:value="${rangeFromPrice}" id="rFPrice">
+								<input type="text" inputmode="decimal" name="rangeUntilPrice" th:value="${rangeUntilPrice}" id="rUPrice">
 							</details>
 						</details>
 					</label>
@@ -120,7 +114,7 @@
 			            </tr>
 			        </thead>
 			        <tbody id="tbodyDataTable">
-			            <tr th:each="purchase: ${purchases}">
+			            <tr th:each="purchase: ${paginated.purchases}">
 			                <td>
 			                    <details>
 			                        <summary th:text="${purchase.purchaseId}"></summary>
@@ -139,7 +133,7 @@
 			                                    <td th:text="${purchaseItem.purchaseItemId}"></td>
 			                                    <td th:text="${purchaseItem.product.code}"></td>
 			                                    <td th:text="${purchaseItem.amount}"></td>
-			                                    <td th:text="${purchaseItem.calculateSubtotalSale()}"></td>
+			                                    <td th:text="${purchaseItem.totalPrice}"></td>
 			                                </tr>
 			                            </tbody>
 			                        </table>
@@ -148,15 +142,23 @@
 			                <td th:text="${purchase.member.username}"></td>
 			                <td th:text="${purchase.methodOfPay}"></td>
 			                <td th:text="${purchase.dateTime}"></td>
-			                <td th:text="${purchase.calculateTotalSale()}"></td>
+			                <td th:text="${purchase.totalPrice}"></td>
 			            </tr>
-						<tr th:if="${purchases.size() == 0}">
+						<tr th:if="${paginated.purchases.size() == 0}">
 							<td colspan="5" style="text-align: center; font-style: italic; color: gray;">
 					            No results found.
 					        </td>
 						</tr>
 			        </tbody>
 			    </table>
+				<div id="pagination">
+					<button th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>

@@ -53,22 +53,12 @@ const pricesConfig =
     buttonIds: buttonIds
 };
 
-//Función para calcular el subtotal de un ítem:
-const calculateSubtotal = (amount, price) => amount * price;
-
-//Función para calcular el total de la compra:
-const calculateTotalSale = (purchaseItems) => 
-{
-    return purchaseItems.reduce((total, item) => total + calculateSubtotal(item.amount, item.product.salePrice), 0);
-};
-
 /* GENERAMOS EL HTML CON LOS DATOS DE LAS VENTAS/COMPRAS OBTENIDAS */
 export function generateHTMLForSalesOrPurchases(purchases) 
 {
     let html = '';
     purchases.forEach(purchase => 
     {
-        const totalSale = calculateTotalSale(purchase.purchaseItems);
         html += `<tr>
                 	<td>
                     	<details>
@@ -87,12 +77,11 @@ export function generateHTMLForSalesOrPurchases(purchases)
                                 
         purchase.purchaseItems.forEach(purchaseItem => 
         {
-            const subtotal = calculateSubtotal(purchaseItem.amount, purchaseItem.product.salePrice);
             html += `<tr>
                         <td>${purchaseItem.purchaseItemId}</td>
                         <td>${purchaseItem.product.code}</td>
                         <td>${purchaseItem.amount}</td>
-                        <td>${subtotal.toFixed(2)}</td>
+                        <td>${purchaseItem.totalPrice}</td>
                     </tr>`;
         });
 
@@ -103,7 +92,7 @@ export function generateHTMLForSalesOrPurchases(purchases)
                 <td>${purchase.member.username}</td>
                 <td>${purchase.methodOfPay}</td>
                 <td>${purchase.dateTime}</td>
-                <td>${totalSale.toFixed(2)}</td>
+                <td>${purchase.totalPrice}</td>
             </tr>`;
     });
     return html;
