@@ -48,10 +48,10 @@ public class CustomPurchaseRepository implements ICustomPurchaseRepository
     	if(untilDate != null) queryBuilder.append(" AND DATE(p.date_time) <= :untilDate");
     	if(rangeFromDate != null) queryBuilder.append(" AND DATE(p.date_time) >= :rangeFromDate"); 
     	if(rangeUntilDate != null) queryBuilder.append(" AND DATE(p.date_time) <= :rangeUntilDate");
-    	if(fromTime != null) queryBuilder.append(" AND TIME(p.date_time) >= :fromTime");
-    	if(untilTime != null) queryBuilder.append(" AND TIME(p.date_time) <= :untilTime");
-    	if(rangeFromTime != null) queryBuilder.append(" AND TIME(p.date_time) >= :rangeFromTime");
-    	if(rangeUntilTime != null) queryBuilder.append(" AND TIME(p.date_time) <= :rangeUntilTime");
+    	if(fromTime != null) queryBuilder.append(" AND p.date_time::time >= :fromTime");
+    	if(untilTime != null) queryBuilder.append(" AND p.date_time::time <= :untilTime");
+    	if(rangeFromTime != null) queryBuilder.append(" AND p.date_time::time >= :rangeFromTime");
+    	if(rangeUntilTime != null) queryBuilder.append(" AND p.date_time::time <= :rangeUntilTime");
     	if(methodsOfPay != null) queryBuilder.append(" AND p.method_of_pay IN :methodsOfPay");
     	if(usernames != null) queryBuilder.append(" AND m.username IN :usernames");
     	if(fromPrice != null) queryBuilder.append(" AND p.total_price >= :fromPrice");
@@ -100,7 +100,7 @@ public class CustomPurchaseRepository implements ICustomPurchaseRepository
     	String baseQuery = """
     	SELECT 
     		ARRAY_AGG(DISTINCT p.method_of_pay)::TEXT[] AS methodsOfPay,
-    		ARRAY_AGG(DISTINCT m.username)::TEXT[] AS usernames
+		    ARRAY_AGG(DISTINCT m.username)::TEXT[] AS usernames
 	    FROM purchase p
 	    INNER JOIN member m ON p.member_id = m.member_id
 	    WHERE 1=1		
@@ -110,8 +110,6 @@ public class CustomPurchaseRepository implements ICustomPurchaseRepository
     	StringBuilder queryBuilder = buildTextOfQuery(date, fromDate, untilDate, rangeFromDate, rangeUntilDate, fromTime, untilTime, 
     												  rangeFromTime, rangeUntilTime, methodsOfPay, usernames, fromPrice, untilPrice,
     												  rangeFromPrice, rangeUntilPrice, baseQuery);
-    	
-    	queryBuilder.append(" GROUP BY p.purchase_id"); //Devolvemos una vez cada compra con todos sus ítems asociados.
     	
     	//Instanciamos un objeto Query con la consulta definida:
     	Query query = entityManager.createNativeQuery(queryBuilder.toString());

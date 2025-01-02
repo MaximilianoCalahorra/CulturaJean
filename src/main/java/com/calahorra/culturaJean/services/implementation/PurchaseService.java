@@ -288,6 +288,9 @@ public class PurchaseService implements IPurchaseService
         { 
         	//Métodos de pago:
         	filtersOptionsDTO.setMethodsOfPay(utilsService.convertPostgresArrayToList((String[]) result.get("methodsOfPay")));
+        	
+        	//Usernames:
+        	filtersOptionsDTO.setUsernames(utilsService.convertPostgresArrayToList((String[]) result.get("usernames")));
         }
         
         //Construimos el objeto paginado con su información:
