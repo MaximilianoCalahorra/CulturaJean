@@ -7,8 +7,7 @@ import
 	orderName,
 	defaultOrder,
 	priceInputIds,
-	updateColorCheckboxes,
-	updatePagination
+	updateColorCheckboxes
 } from "/js/productsAndStocks.js";
 
 import 
@@ -18,11 +17,9 @@ import
 	descheckedAndDisableOtherOptions, 
 	updateCheckboxes,
 	reinicializeInputs,
-	checkFiltersState
+	checkFiltersState,
+	updatePagination
 } from "/js/general.js";
-
-//Obtenemos si el usuario es cliente o visitante:
-const role = document.getElementById("role").dataset.role;
 
 //Names de las secciones de filtros:
 const filterSections = ["cat", "gen", "size", "col"];
@@ -261,6 +258,9 @@ function resetProductsFilters(role)
 //Agregamos los oyentes de eventos solo si se trata de la página de productos:
 if(!document.getElementById("enabledContainer"))
 {
+	//Obtenemos si el usuario es cliente o visitante:
+	const role = document.getElementById("role").dataset.role;
+
 	/* ORDENAMOS LOS PRODUCTOS */ 
 	document.getElementById(applyOrderButtonId).addEventListener("click", () => filterProducts(role));
 	

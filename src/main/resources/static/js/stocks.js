@@ -5,7 +5,8 @@ import
 	updateCheckboxes, 
 	descheckedAndDisableOtherOptions, 
 	reinicializeInputs,
-	checkFiltersState 
+	checkFiltersState,
+	updatePagination
 } from "/js/general.js";
 
 import 
@@ -16,8 +17,7 @@ import
 	orderName,
 	defaultOrder,
 	priceInputIds,
-	updateColorCheckboxes,
-	updatePagination
+	updateColorCheckboxes
 } from "/js/productsAndStocks.js";
 
 import { getProductsFiltersValues } from "/js/products.js";

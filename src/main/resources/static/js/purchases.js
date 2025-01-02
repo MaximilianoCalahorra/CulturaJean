@@ -139,14 +139,14 @@ function filterPurchases(page = 0)
 	applyFilterPurchases(filtersData, page, size)
 	.then(data => 
 	{
+		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
+		updatePurchasesFilterOptions(data.filtersOptions, filters);
+		
 		//Si hay al menos una compra después del filtro:
 		if(data.purchases.length > 0)
 		{
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbodyDataTable");
-			
-			//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-			updatePurchasesFilterOptions(data.filtersOptions, filters);
 			
 			//Generamos el HTML a partir de los datos obtenidos:
 	        const htmlContent = generateHTMLForSalesOrPurchases(data.purchases);
@@ -199,6 +199,9 @@ function resetPurchasesFilters()
 	applyFilterPurchases(filtersData)
 	.then(data => 
 	{
+		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
+		updatePurchasesFilterOptions(data.filtersOptions, filters);
+		
 		//Si hubo resultados luego del filtrado:
 		if(data.purchases.length > 0)
 		{	
@@ -210,9 +213,6 @@ function resetPurchasesFilters()
 		        
 			//Actualizamos las compras en la vista:
 		    tbody.innerHTML = htmlContent;
-		    
-		    //Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-			updatePurchasesFilterOptions(data.filtersOptions, filters);
 		    
 		    //Tildamos la opción "all" para el filtro de métodos de pago:
 		    const allOptionMethodsOfPay = document.getElementById("methodOfPay-all");
