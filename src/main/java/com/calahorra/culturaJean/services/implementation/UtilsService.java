@@ -1,5 +1,7 @@
 package com.calahorra.culturaJean.services.implementation;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -86,6 +88,32 @@ public class UtilsService implements IUtilsService
 		if(cleanFilter != null) booleanFilter = Boolean.parseBoolean(cleanFilter);
 		
 		return booleanFilter; //Retornamos el filtro con el tipo de dato apropiado.
+	}
+	
+	//Convertimos el valor de un filtro de String a LocalDate o null según corresponda:
+	@Override
+	public LocalDate convertStringFilterToLocalDate(String filter) 
+	{
+		LocalDate localDateFilter = null; //Valor por defecto.
+		String cleanFilter = cleanFilter(filter); //Adecuamos el filtro en su versión String.
+		
+		//Si la versión adecuada no es null, entonces parseamos su valor a LocalDate para asignarlo al filtro LocalDate:
+		if(cleanFilter != null) localDateFilter = LocalDate.parse(cleanFilter);
+		
+		return localDateFilter; //Retornamos el filtro con el tipo de dato apropiado.
+	}
+		
+	//Convertimos el valor de un filtro de String a LocalTime o null según corresponda:
+	@Override
+	public LocalTime convertStringFilterToLocalTime(String filter) 
+	{
+		LocalTime localTimeFilter = null; //Valor por defecto.
+		String cleanFilter = cleanFilter(filter); //Adecuamos el filtro en su versión String.
+		
+		//Si la versión adecuada no es null, entonces parseamos su valor a LocalTime para asignarlo al filtro LocalTime:
+		if(cleanFilter != null) localTimeFilter = LocalTime.parse(cleanFilter);
+		
+		return localTimeFilter; //Retornamos el filtro con el tipo de dato apropiado.
 	}
 	
 	//Convertimos el valor de un filtro de List<String> a List<Character> o null según corresponda:

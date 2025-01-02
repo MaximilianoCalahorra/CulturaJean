@@ -9,16 +9,26 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import com.calahorra.culturaJean.dtos.FiltersOptionsPurchaseDTO;
+import com.calahorra.culturaJean.dtos.PaginatedPurchaseDTO;
 import com.calahorra.culturaJean.dtos.PurchaseDTO;
+import com.calahorra.culturaJean.dtos.PurchaseFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Purchase;
 import com.calahorra.culturaJean.repositories.IPurchaseRepository;
+import com.calahorra.culturaJean.repositories.custom.ICustomPurchaseRepository;
 import com.calahorra.culturaJean.services.IPurchaseService;
+import com.calahorra.culturaJean.services.IUtilsService;
 
 ///Clase PurchaseService:
 @Service("purchaseService")
@@ -26,12 +36,17 @@ public class PurchaseService implements IPurchaseService
 {
 	//Atributos:
 	private IPurchaseRepository purchaseRepository;
+	private ICustomPurchaseRepository customPurchaseRepository;
+	private IUtilsService utilsService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
-	public PurchaseService(IPurchaseRepository purchaseRepository) 
+	public PurchaseService(IPurchaseRepository purchaseRepository, ICustomPurchaseRepository customPurchaseRepository, 
+						   IUtilsService utilsService) 
 	{
 		this.purchaseRepository = purchaseRepository;
+		this.customPurchaseRepository = customPurchaseRepository;
+		this.utilsService = utilsService;
 	}
 	
 	//Encontrar:
@@ -226,6 +241,65 @@ public class PurchaseService implements IPurchaseService
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
 	}
 	
+	//Obtenemos las compras filtradas de una página:
+	@Override
+	public PaginatedPurchaseDTO getFilteredPurchases(@Param("filters")PurchaseFiltersDataDTO filters, int page, int size) 
+	{
+		//Instanciamos un Pageable con la página y la cantidad de elementos a traer para hacer la query:
+        Pageable pageable = PageRequest.of(page, size);
+
+        //Adaptamos los filtros para poder hacer la consulta:
+        LocalDate date = utilsService.convertStringFilterToLocalDate(filters.getDate());
+        LocalDate fromDate = utilsService.convertStringFilterToLocalDate(filters.getFromDate());
+        LocalDate untilDate = utilsService.convertStringFilterToLocalDate(filters.getUntilDate());
+        LocalDate rangeFromDate = utilsService.convertStringFilterToLocalDate(filters.getRangeFromDate());
+        LocalDate rangeUntilDate = utilsService.convertStringFilterToLocalDate(filters.getRangeUntilDate());
+        LocalTime fromTime = utilsService.convertStringFilterToLocalTime(filters.getFromTime());
+        LocalTime untilTime = utilsService.convertStringFilterToLocalTime(filters.getUntilTime());
+        LocalTime rangeFromTime = utilsService.convertStringFilterToLocalTime(filters.getRangeFromTime());
+        LocalTime rangeUntilTime = utilsService.convertStringFilterToLocalTime(filters.getRangeUntilTime());
+        List<String> methodsOfPay = utilsService.cleanFilter(filters.getMethodsOfPay());
+        List<String> usernames = utilsService.cleanFilter(filters.getUsernames());
+        Float fromPrice = utilsService.convertStringFilterToFloat(filters.getFromPrice());
+        Float untilPrice = utilsService.convertStringFilterToFloat(filters.getUntilPrice());
+        Float rangeFromPrice = utilsService.convertStringFilterToFloat(filters.getRangeFromPrice());
+        Float rangeUntilPrice = utilsService.convertStringFilterToFloat(filters.getRangeUntilPrice());
+        
+        //Obtenemos el criterio de ordenamiento:
+        String sort = filters.getOrder();
+        
+        //Obtenemos la página de compras según los filtros y el criterio de ordenamiento:
+        Page<PurchaseDTO> purchasePage = customPurchaseRepository.findFilteredPurchases(date, fromDate, untilDate, rangeFromDate, 
+        																				rangeUntilDate, fromTime, untilTime, 
+        																				rangeFromTime, rangeUntilTime, methodsOfPay, 
+        																				usernames, fromPrice, untilPrice, rangeFromPrice, 
+        																				rangeUntilPrice, sort, pageable);
+
+        //Obtenemos todas las opciones de cada sección de filtro según la configuración de filtros aplicada:
+        List<Map<String, Object>> results = customPurchaseRepository.findFiltersOptions(date, fromDate, untilDate, rangeFromDate,
+        																				rangeUntilDate, fromTime, untilTime, 
+        																				rangeFromTime, rangeUntilTime, methodsOfPay, 
+        																				usernames, fromPrice, untilPrice, rangeFromPrice, 
+        																				rangeUntilPrice); 
+        
+        //Desglosamos las opciones y las asignamos a cada parte de nuestro DTO específico de opciones de filtros de compras:
+        FiltersOptionsPurchaseDTO filtersOptionsDTO = new FiltersOptionsPurchaseDTO();
+        for(Map<String, Object> result : results) 
+        { 
+        	//Métodos de pago:
+        	filtersOptionsDTO.setMethodsOfPay(utilsService.convertPostgresArrayToList((String[]) result.get("methodsOfPay")));
+        }
+        
+        //Construimos el objeto paginado con su información:
+        PaginatedPurchaseDTO paginatedDTO = new PaginatedPurchaseDTO();
+        paginatedDTO.setPurchases(purchasePage.getContent()); //Compras.
+        paginatedDTO.setTotalPages(purchasePage.getTotalPages()); //Cantidad de páginas.
+        paginatedDTO.setTotalElements(purchasePage.getTotalElements()); //Cantidad de compras.
+        paginatedDTO.setFiltersOptions(filtersOptionsDTO); //Opciones de cada sección de filtro.
+        
+        return paginatedDTO; //Retornamos el objeto paginado.
+	}
+	
 	//Ordernar:
 	
 	//Ordenamos las compras por método de pago de manera alfabética:
@@ -340,7 +414,7 @@ public class PurchaseService implements IPurchaseService
 	@Override
 	public List<PurchaseDTO> inOrderAscByPurchasePrice(List<PurchaseDTO> purchases)
 	{
-		purchases.sort(Comparator.comparingDouble(PurchaseDTO::calculateTotalSale));
+		purchases.sort(Comparator.comparingDouble(PurchaseDTO::getTotalPrice));
 		return purchases;
 	}
 	
@@ -348,7 +422,7 @@ public class PurchaseService implements IPurchaseService
 	@Override
 	public List<PurchaseDTO> inOrderDescByPurchasePrice(List<PurchaseDTO> purchases)
 	{
-		purchases.sort(Comparator.comparingDouble(PurchaseDTO::calculateTotalSale).reversed());
+		purchases.sort(Comparator.comparingDouble(PurchaseDTO::getTotalPrice).reversed());
 		return purchases;
 	}
 	
@@ -678,7 +752,7 @@ public class PurchaseService implements IPurchaseService
 		while(iterator.hasNext())
 		{
 			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
-			if (purchase.calculateTotalSale() < fromPurchasePrice) 
+			if (purchase.getTotalPrice() < fromPurchasePrice) 
 			{
 				iterator.remove(); //En caso de que no tenga un precio mayor o igual al mínimo del filtro, la removemos.
 	        }
@@ -696,7 +770,7 @@ public class PurchaseService implements IPurchaseService
 		while(iterator.hasNext())
 		{
 			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
-			if (purchase.calculateTotalSale() > untilPurchasePrice) 
+			if (purchase.getTotalPrice() > untilPurchasePrice) 
 			{
 				iterator.remove(); //En caso de que no tenga un precio menor o igual al mínimo del filtro, la removemos.
 	        }
@@ -714,7 +788,7 @@ public class PurchaseService implements IPurchaseService
 		while(iterator.hasNext())
 		{
 			PurchaseDTO purchase = iterator.next(); //Obtenemos esa compra.
-			if (purchase.calculateTotalSale() < rangeFromPurchasePrice || purchase.calculateTotalSale() > rangeUntilPurchasePrice) 
+			if (purchase.getTotalPrice() < rangeFromPurchasePrice || purchase.getTotalPrice() > rangeUntilPurchasePrice) 
 			{
 				iterator.remove(); //En caso de que no tenga un precio entre las del rango del filtro, la removemos.
 	        }

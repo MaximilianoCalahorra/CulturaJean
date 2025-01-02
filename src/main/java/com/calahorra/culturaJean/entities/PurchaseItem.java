@@ -42,6 +42,9 @@ public class PurchaseItem
 	@Column(name="amount", nullable=false)
 	private int amount;
 	
+	@Column(name="total_price", nullable=false)
+	private float totalPrice;
+	
 	@CreationTimestamp
 	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime createdAt;

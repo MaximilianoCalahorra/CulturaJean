@@ -44,6 +44,9 @@ public class Purchase
 	@Column(name="method_of_pay", nullable=false, length=20)
 	private String methodOfPay;
 	
+	@Column(name="total_price", nullable=false)
+	private float totalPrice;
+	
 	@CreationTimestamp
 	@Column(columnDefinition = "TIMESTAMP(0)")
 	private LocalDateTime dateTime;

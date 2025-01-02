@@ -134,7 +134,7 @@ public class CustomProductRepository implements ICustomProductRepository
     	//Agregamos el agrupamiento por nombre de imagen para traer solo un producto por tipo:
     	queryBuilder.append(" GROUP BY p.image_name)");
     	
-    	String orderBy = " ORDER BY " + sort; //Construímos dinámicamente el criterio de ordenamiento según lo envíado:
+    	String orderBy = " ORDER BY " + sort; //Construímos dinámicamente el criterio de ordenamiento según lo envíado.
     	
     	queryBuilder.append(orderBy); //Agregamos el criterio de ordenamiento a la consulta.
     	
@@ -164,7 +164,7 @@ public class CustomProductRepository implements ICustomProductRepository
 		return new PageImpl<>(products, pageable, totalProducts);
 	}
     
-    //Obtenemos la cantidad de stocks que cumplen con los filtros:
+    //Obtenemos la cantidad de productos que cumplen con los filtros:
     @Override
 	public Long getTotalCount(List<String> categories, List<Character> genders, List<String> sizes, List<String> colors, Float salePrice, 
 							  Float fromSalePrice, Float untilSalePrice, Float rangeFromSalePrice, Float rangeUntilSalePrice, 

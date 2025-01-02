@@ -1,5 +1,7 @@
 package com.calahorra.culturaJean.services;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 ///Interfaz IUtilsService:
@@ -24,6 +26,12 @@ public interface IUtilsService
 	
 	//Convertimos el valor de un filtro de String a Boolean o null según corresponda:
 	public Boolean convertStringFilterToBoolean(String filter);
+	
+	//Convertimos el valor de un filtro de String a LocalDate o null según corresponda:
+	public LocalDate convertStringFilterToLocalDate(String filter);
+	
+	//Convertimos el valor de un filtro de String a LocalTime o null según corresponda:
+	public LocalTime convertStringFilterToLocalTime(String filter);
 	
 	//Convertimos el valor de un filtro de List<String> a List<Character> o null según corresponda:
 	public List<Character> convertListStringFilterToListCharacter(List<String> filters);
