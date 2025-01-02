@@ -26,8 +26,12 @@ import
 //Cantidad de compras por página:
 const size = 6;
 
-//Username del cliente:
-const usernames = [document.getElementById("username").dataset.username];
+let usernames;
+if(!document.getElementById("usernameContainer"))
+{
+	//Username del cliente:
+	usernames = [document.getElementById("username").dataset.username];	
+}
 
 //Name de la sección de filtro:
 const filterSections = ["methodOfPay"];

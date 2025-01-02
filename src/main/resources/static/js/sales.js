@@ -22,9 +22,14 @@ import
 	updateCheckboxes,
 	reinicializeInputs,
 	changeStatusOtherOptions,
-	checkFiltersState
+	checkFiltersState,
+	updatePagination
 } from "/js/general.js";
 
+//Cantidad de ventas por página:
+const size = 6;
+
+//Names de las secciones de filtro:
 const filterSections = ["username", "methodOfPay"];
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LAS VENTAS */
@@ -37,10 +42,10 @@ function getSalesFiltersValues()
 }
 
 /* OBTENEMOS LAS VENTAS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADAS SEGÚN DETERMINADO CRITERIO */
-async function applyFilterSales(filtersData)
+async function applyFilterSales(filtersData, page = 0, size = 6)
 {
 	//Realizamos la consulta para obtener las ventas:
-    return fetch(`/sale/sales/filter`, {
+    return fetch(`/sale/sales/filter?page=${page}&size=${size}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(filtersData)
@@ -63,16 +68,13 @@ async function applyFilterSales(filtersData)
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE VENTAS ACTUAL */
-function updateSalesFilterOptions(sales, selectedFilters) 
+function updateSalesFilterOptions(filters, selectedFilters) 
 {
-    //Extraemos valores únicos para los usernames:
-    const usernames = [...new Set(sales.map(item => item.member.username))];
-	
-	//Actualizamos la sección de filtros:
-    updateCheckboxes("usernameContainer", "username", usernames, selectedFilters.usernames);
+    //Actualizamos la sección de filtros:
+    updateCheckboxes("usernameContainer", "username", filters.usernames, selectedFilters.usernames);
     
     //Actualizamos las demás secciones:
-    updatePurchasesFilterOptions(sales, selectedFilters); 
+    updatePurchasesFilterOptions(filters, selectedFilters); 
 }
 
 /* GENERAMOS DETERMINADO HTML PARA CUANDO NO HAY VENTAS ENCONTRADAS */
@@ -86,7 +88,7 @@ function generateHTMLForEmptySales()
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LAS VENTAS Y ACTUALIZAMOS LA VISTA CON LAS QUE APLIQUEN */
-function filterSales()
+function filterSales(page = 0)
 {
 	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento. 
 	const filters = getSalesFiltersValues(); //Obtenemos los valores de filtrado.
@@ -95,20 +97,20 @@ function filterSales()
 	const filtersData = {order, ...filters};
 	
 	//Filtramos y ordenamos según la configuración anterior:
-	applyFilterSales(filtersData)
+	applyFilterSales(filtersData, page, size)
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-		updateSalesFilterOptions(data, filters);
+		updateSalesFilterOptions(data.filtersOptions, filters);
 		
 		//Seleccionamos el body de la tabla:
 		const tbody = document.getElementById("tbodyDataTable");
 		
 		//Si hay al menos un pedido después del filtro:
-		if(data.length > 0)
+		if(data.purchases.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForSalesOrPurchases(data); 
+	        const htmlContent = generateHTMLForSalesOrPurchases(data.purchases); 
 	
 	        //Actualizamos los pedidos en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -118,6 +120,8 @@ function filterSales()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptySales();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page)); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -144,10 +148,10 @@ function resetSalesFilters()
 		rangeUntilTime: "",
 		usernames: ["all"],
 		methodsOfPay: ["all"],
-		fromPrice: "-1",
-		untilPrice: "-1",
-		rangeFromPrice: "-1",
-		rangeUntilPrice: "-1"
+		fromPrice: "",
+		untilPrice: "",
+		rangeFromPrice: "",
+		rangeUntilPrice: ""
 	};
 	
 	//Definimos el conjunto de los nuevos valores de filtrado:
@@ -158,16 +162,16 @@ function resetSalesFilters()
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-		updateSalesFilterOptions(data, filters);
+		updateSalesFilterOptions(data.filtersOptions, filters);
 		
 		//Si hubo resultados luego del filtrado:
-		if(data.length > 0)
+		if(data.purchases.length > 0)
 		{	
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbodyDataTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForSalesOrPurchases(data);
+		    const htmlContent = generateHTMLForSalesOrPurchases(data.purchases);
 		        
 			//Actualizamos los pedidos en la vista:
 		    tbody.innerHTML = htmlContent;
@@ -196,6 +200,9 @@ function resetSalesFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptySales();
 		}
+		
+		//Actualizamos las opciones de páginas:
+		updatePagination(data.totalPages, 0);
     })
     .catch(error => 
     {
@@ -244,5 +251,20 @@ if(document.getElementById("usernameContainer"))
 	    {
 	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
+	});
+	
+	/* OBTENEMOS LAS VENTAS CORRESPONDIENTES A CADA PÁGINA SEGÚN LOS FILTROS SELECCIONADOS */
+	document.addEventListener("DOMContentLoaded", function () 
+	{
+	    const paginationContainer = document.getElementById("pagination"); //Seleccionamos el contenedor de los botones de las páginas.
+	    paginationContainer.addEventListener("click", function (event) 
+	    {
+	        const button = event.target; //Obtenemos el botón de página clicleado.
+	        if(button.tagName === "BUTTON")
+	        {
+	            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+	            filterSales(pageNum); //Disparamos la solicitud de las ventas de esa página.
+	        }
+	    });
 	});
 }
