@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.calahorra.culturaJean.dtos.MemberDTO;
+import com.calahorra.culturaJean.dtos.PaginatedSupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.ProductDTO;
 import com.calahorra.culturaJean.dtos.SupplierDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
@@ -58,71 +59,53 @@ public class SupplyOrderController
     	//Definimos la vista a cargar:
     	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.SUPPLY_ORDERS);
     	
-    	//Obtenemos los pedidos de aprovisionamiento sin entregar:
-		List<SupplyOrderDTO> undeliveredSupplyOrders = supplyOrderService.findByDelivered(false);
+		String defaultOrder = "p.code ASC"; //Definimos el criterio de ordenamiento por defecto.
 		
-		//Los ordenamos por código de producto de forma alfabética:
-		String orderUndelivered = "orderAscByProductCode";
-		undeliveredSupplyOrders = supplyOrderService.applyOrder(undeliveredSupplyOrders, orderUndelivered);
+		int page = 0; //Definimos que es la primera página.
+		int size = 10; //Definimos la cantidad de elementos de la página.
 		
-		//Obtenemos los pedidos de aprovisionamiento entregados:
-		List<SupplyOrderDTO> deliveredSupplyOrders = supplyOrderService.findByDelivered(true);
+		SupplyOrderFiltersDataDTO filters = new SupplyOrderFiltersDataDTO(); //Definimos todos los filtros en su estado por defecto.
+		filters.setOrder(defaultOrder); //Pasamos el criterio de ordenamiento.
+		filters.setDelivered("false"); //Queremos los no entregados.
 		
-		//Los ordenamos por código de producto de forma alfabética:
-		String orderDelivered = "orderAscByProductCode";
-		deliveredSupplyOrders = supplyOrderService.applyOrder(deliveredSupplyOrders, orderDelivered);
+		//Obtenemos los pedidos de aprovisionamiento no entregados de la página:
+		PaginatedSupplyOrderDTO uPaginated = supplyOrderService.getFilteredSupplyOrders(filters, page, size);
+		
+		filters.setDelivered("true"); //Queremos los entregados.
+		
+		//Obtenemos los pedidos de aprovisionamiento no entregados de la página:
+		PaginatedSupplyOrderDTO dPaginated = supplyOrderService.getFilteredSupplyOrders(filters, page, size);
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("undeliveredSupplyOrders", undeliveredSupplyOrders); //Adjuntamos los pedidos de aprovisionamiento sin entregar.
-		modelAndView.addObject("orderU", orderUndelivered); //Adjuntamos el criterio de ordenamiento de los pedidos de aprovisionamiento no entregados.
+		modelAndView.addObject("uPaginated", uPaginated); //Adjuntamos el paginado de los pedidos de aprovisionamiento sin entregar.
+		modelAndView.addObject("orderU", defaultOrder); //Adjuntamos el criterio de ordenamiento de los pedidos de aprovisionamiento no entregados.
 		modelAndView.addObject("pCodeU", "all"); //Adjuntamos el criterio aplicado para el filtro de códigos de producto.
 		modelAndView.addObject("sNameU", "all"); //Adjuntamos el criterio aplicado para el filtro de nombres de proveedor.
 		modelAndView.addObject("usernameU", "all"); //Adjuntamos el criterio aplicado para el filtro de usernames de administrador.
 		
-		modelAndView.addObject("deliveredSupplyOrders", deliveredSupplyOrders); //Adjuntamos los pedidos de aprovisionamiento entregados.
-		modelAndView.addObject("orderD", orderDelivered); //Adjuntamos el criterio de ordenamiento de los pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("dPaginated", dPaginated); //Adjuntamos el paginado de los pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("orderD", defaultOrder); //Adjuntamos el criterio de ordenamiento de los pedidos de aprovisionamiento entregados.
 		modelAndView.addObject("pCodeD", "all"); //Adjuntamos el criterio aplicado para el filtro de códigos de producto.
 		modelAndView.addObject("sNameD", "all"); //Adjuntamos el criterio aplicado para el filtro de nombres de proveedor.
 		modelAndView.addObject("usernameD", "all"); //Adjuntamos el criterio aplicado para el filtro de usernames de administrador.
 		
-		modelAndView.addObject("productCodesU", supplyOrderService.findUniqueEachProductCode(undeliveredSupplyOrders)); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento no entregados.
-		modelAndView.addObject("supplierNamesU", supplyOrderService.findUniqueEachSupplierName(undeliveredSupplyOrders)); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento no entregados.
-		modelAndView.addObject("adminUsernamesU", supplyOrderService.findUniqueEachAdminUsername(undeliveredSupplyOrders)); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento no entregados.
+		modelAndView.addObject("productCodesU", uPaginated.getFiltersOptions().getProductCodes()); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento no entregados.
+		modelAndView.addObject("supplierNamesU", uPaginated.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento no entregados.
+		modelAndView.addObject("adminUsernamesU", uPaginated.getFiltersOptions().getAdminUsernames()); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento no entregados.
 		
-		modelAndView.addObject("productCodesD", supplyOrderService.findUniqueEachProductCode(deliveredSupplyOrders)); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento entregados.
-		modelAndView.addObject("supplierNamesD", supplyOrderService.findUniqueEachSupplierName(deliveredSupplyOrders)); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento entregados.
-		modelAndView.addObject("adminUsernamesD", supplyOrderService.findUniqueEachAdminUsername(deliveredSupplyOrders)); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("productCodesD", uPaginated.getFiltersOptions().getProductCodes()); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("supplierNamesD", uPaginated.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("adminUsernamesD", uPaginated.getFiltersOptions().getAdminUsernames()); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento entregados.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
     }
     
     //Respondemos a las solicitudes de filtrado/ordenamiento sobre los pedidos de aprovisionamiento entregados/no entregados:
     @PostMapping("/supplyOrders/filter")
-    public ResponseEntity<List<SupplyOrderDTO>> filteredSupplyOrders(@RequestBody SupplyOrderFiltersDataDTO filtersData) 
+    public ResponseEntity<PaginatedSupplyOrderDTO> filteredSupplyOrders(@RequestBody SupplyOrderFiltersDataDTO filters, 
+    																    @RequestParam("page") int page, @RequestParam("size") int size) 
     {
-    	//Obtenemos los valores seleccionados para hacer el filtrado y ordenamiento:
-    	String order = filtersData.getOrder();
-    	List<String> productCodes = filtersData.getProductCodes();
-    	List<String> supplierNames = filtersData.getSupplierNames();
-    	List<String> adminUsernames = filtersData.getAdminUsernames();
-    	int amount = Integer.parseInt(filtersData.getAmount());
-    	int fromAmount = Integer.parseInt(filtersData.getFromAmount());
-    	int untilAmount = Integer.parseInt(filtersData.getUntilAmount());
-    	int rangeFromAmount = Integer.parseInt(filtersData.getRangeFromAmount());
-    	int rangeUntilAmount = Integer.parseInt(filtersData.getRangeUntilAmount());
-    	boolean delivered = Boolean.parseBoolean(filtersData.getDelivered());
-    	
-    	//Obtenemos los pedidos de aprovisionamiento entregados/no entregados sin filtrar ni ordenar:
-		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByDelivered(delivered);
-		
-		//Aplicamos los filtros seleccionados:	
-		supplyOrders = supplyOrderService.applyFilters(supplyOrders, productCodes, supplierNames, adminUsernames, amount, fromAmount, 
-													   untilAmount, rangeFromAmount, rangeUntilAmount);
-	
-		//Aplicamos el ordenamiento seleccionado:
-		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
-		
-        return ResponseEntity.ok(supplyOrders); //Retornamos los pedidos filtrados y ordenados como JSON.
+    	return ResponseEntity.ok(supplyOrderService.getFilteredSupplyOrders(filters, page, size)); //Retornamos el paginado.
     }
 	
 	//Respondemos a las petición de registrar como entregado un pedido de aprovisionamiento:

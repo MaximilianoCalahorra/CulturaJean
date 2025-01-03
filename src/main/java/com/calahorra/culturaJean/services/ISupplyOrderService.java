@@ -2,7 +2,11 @@ package com.calahorra.culturaJean.services;
 
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
+import com.calahorra.culturaJean.dtos.PaginatedSupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
+import com.calahorra.culturaJean.dtos.SupplyOrderFiltersDataDTO;
 import com.calahorra.culturaJean.entities.SupplyOrder;
 
 ///Interfaz ISupplyOrderService:
@@ -53,6 +57,9 @@ public interface ISupplyOrderService
 	
 	//Obtenemos todos los pedidos de aprovisionamiento:
 	public List<SupplyOrderDTO> getAll();
+	
+	//Obtenemos los pedidos de aprovisionamiento filtrados de una página:
+	public PaginatedSupplyOrderDTO getFilteredSupplyOrders(@Param("filters")SupplyOrderFiltersDataDTO filters, int page, int size);
 	
 	//Ordernar:
 	
