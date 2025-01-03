@@ -107,7 +107,6 @@
 			        <thead>
 			            <tr>
 			                <th>Purchase Id</th>
-			                <th>Username</th>
 			                <th>Method Of Pay</th>
 			                <th>Date Time</th>
 			                <th>Total Purchase</th>
@@ -139,13 +138,12 @@
 			                        </table>
 			                    </details>
 			                </td>
-			                <td th:text="${purchase.member.username}"></td>
 			                <td th:text="${purchase.methodOfPay}"></td>
 			                <td th:text="${purchase.dateTime}"></td>
 			                <td th:text="${purchase.totalPrice}"></td>
 			            </tr>
 						<tr th:if="${paginated.purchases.size() == 0}">
-							<td colspan="5" style="text-align: center; font-style: italic; color: gray;">
+							<td colspan="4" style="text-align: center; font-style: italic; color: gray;">
 					            No results found.
 					        </td>
 						</tr>

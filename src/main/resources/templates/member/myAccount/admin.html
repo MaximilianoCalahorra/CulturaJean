@@ -92,8 +92,7 @@
 					<thead>
 						<tr>
 							<th>Supply Order Id</th>
-							<th>Product Code</th>
-							<th>Username</th>				
+							<th>Product Code</th>		
 							<th>Supplier Name</th>
 							<th>Amount</th>
 							<th>Delivered</th>
@@ -103,13 +102,12 @@
 						<tr th:each="supplyOrder: ${supplyOrders}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
 							<td th:text="${supplyOrder.supplyOrderId}"></td>
 							<td th:text="${supplyOrder.product.code}"></td>
-							<td th:text="${supplyOrder.member.username}"></td>
 							<td th:text="${supplyOrder.supplier.name}"></td>
 							<td th:text="${supplyOrder.amount}"></td>
 							<td th:text="${supplyOrder.delivered ? 'Yes' : 'No'}"></td>
 						</tr>
-						<tr th:if="${supplyOrders.size() == 259}">
-						    <td colspan="6" style="text-align: center; font-style: italic; color: gray;">
+						<tr th:if="${supplyOrders.size() == 0}">
+						    <td colspan="5" style="text-align: center; font-style: italic; color: gray;">
 						        No results found.
 						    </td>
 						</tr>

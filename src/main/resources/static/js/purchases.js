@@ -1,7 +1,6 @@
 //Importamos las siguientes funciones:
 import 
 { 
-	generateHTMLForSalesOrPurchases,
 	applyOrderButtonId,
 	applyFiltersButtonId,
 	buttonIds,
@@ -109,8 +108,52 @@ export function updatePurchasesFilterOptions(filters, selectedFilters)
     document.getElementById("rangePriceContainer").removeAttribute("open"); //Contenedor precio dentro de un rango.
 }
 
+/* GENERAMOS EL HTML CON LOS DATOS DE LAS COMPRAS OBTENIDAS */
+function generateHTMLForPurchases(purchases) 
+{
+    let html = '';
+    purchases.forEach(purchase => 
+    {
+        html += `<tr>
+                	<td>
+                    	<details>
+                            <summary>${purchase.purchaseId}</summary>
+                            <summary>Details Of The Sale</summary>
+                            <table border="3">
+                                <thead>
+                                    <tr>
+                                        <th>Sale Item Id</th>
+                                        <th>Product Code</th>
+                                        <th>Amount</th>
+                                        <th>Subtotal Sale</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                                
+        purchase.purchaseItems.forEach(purchaseItem => 
+        {
+            html += `<tr>
+                        <td>${purchaseItem.purchaseItemId}</td>
+                        <td>${purchaseItem.product.code}</td>
+                        <td>${purchaseItem.amount}</td>
+                        <td>${purchaseItem.totalPrice}</td>
+                    </tr>`;
+        });
+
+        html += `       </tbody>
+                        </table>
+                    </details>
+                </td>
+                <td>${purchase.methodOfPay}</td>
+                <td>${purchase.dateTime}</td>
+                <td>${purchase.totalPrice}</td>
+            </tr>`;
+    });
+    return html;
+}
+
 /* GENERAMOS DETERMINADO HTML PARA CUANDO NO HAY COMPRAS ENCONTRADAS */
-export function generateHTMLForEmptyPurchases()
+function generateHTMLForEmptyPurchases()
 {
 	//Obtenemos el body de la tabla:
 	const tbody = document.getElementById("tbodyDataTable");
@@ -118,7 +161,7 @@ export function generateHTMLForEmptyPurchases()
 	//Definimos una única fila con el mensaje de que no se encontraron resultados:
 	tbody.innerHTML = 
 	`<tr>
-		<td colspan="5" style="text-align: center; font-style: italic; color: gray;">
+		<td colspan="4" style="text-align: center; font-style: italic; color: gray;">
             No results found.
         </td>
 	</tr>`;	
@@ -153,7 +196,7 @@ function filterPurchases(page = 0)
 			const tbody = document.getElementById("tbodyDataTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForSalesOrPurchases(data.purchases);
+	        const htmlContent = generateHTMLForPurchases(data.purchases);
 	
 	        //Actualizamos las compras en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -213,7 +256,7 @@ function resetPurchasesFilters()
 			const tbody = document.getElementById("tbodyDataTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForSalesOrPurchases(data.purchases);
+		    const htmlContent = generateHTMLForPurchases(data.purchases);
 		        
 			//Actualizamos las compras en la vista:
 		    tbody.innerHTML = htmlContent;

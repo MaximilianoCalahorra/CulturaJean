@@ -180,9 +180,9 @@ export function reinicializeInputs(inputIds, buttonIds)
 }
 
 /* ACTUALIZAMOS LOS BOTONES DE PÁGINAS */
-export function updatePagination(totalPages, currentPage) 
+export function updatePagination(totalPages, currentPage, endPaginationContainerId = "") 
 {
-    const pagination = document.getElementById('pagination'); //Seleccionamos el contenedor de los botones.
+    const pagination = document.getElementById('pagination' + endPaginationContainerId); //Seleccionamos el contenedor de los botones.
     pagination.innerHTML = ''; //Limpiamos los botones de paginación.
 
 	//Por cada página:
@@ -200,7 +200,7 @@ export function updatePagination(totalPages, currentPage)
     if(totalPages > 0)
     {
 		//Cambiamos el color de fondo del botón de la página que se está mostrando:
-    	document.querySelector(".active").setAttribute("style", "background-color: orange;");
+    	pagination.querySelector(".active").setAttribute("style", "background-color: orange;");
 	}
 	else
 	{

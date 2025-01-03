@@ -110,7 +110,6 @@ function generateHTMLForSupplyOrders(supplyOrders)
         html += `<tr id="row-${supplyOrder.supplyOrderId}">
         			<td>${supplyOrder.supplyOrderId}</td>
                     <td>${supplyOrder.product.code}</td>
-                    <td>${supplyOrder.member.username}</td>
                     <td>${supplyOrder.supplier.name}</td>
                     <td>${supplyOrder.amount}</td>
                     <td>${delivered}</td>
@@ -150,7 +149,7 @@ function generateHTMLForEmptyResults()
 	//Definimos una única fila con el mensaje de que no se encontraron resultados:
 	tbody.innerHTML = 
 	`<tr>
-        <td colspan="6" style="text-align: center; font-style: italic; color: gray;">
+        <td colspan="5" style="text-align: center; font-style: italic; color: gray;">
             No results found.
         </td>
     </tr>`;	

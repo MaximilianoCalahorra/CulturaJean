@@ -53,51 +53,6 @@ const pricesConfig =
     buttonIds: buttonIds
 };
 
-/* GENERAMOS EL HTML CON LOS DATOS DE LAS VENTAS/COMPRAS OBTENIDAS */
-export function generateHTMLForSalesOrPurchases(purchases) 
-{
-    let html = '';
-    purchases.forEach(purchase => 
-    {
-        html += `<tr>
-                	<td>
-                    	<details>
-                            <summary>${purchase.purchaseId}</summary>
-                            <summary>Details Of The Sale</summary>
-                            <table border="3">
-                                <thead>
-                                    <tr>
-                                        <th>Sale Item Id</th>
-                                        <th>Product Code</th>
-                                        <th>Amount</th>
-                                        <th>Subtotal Sale</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-                                
-        purchase.purchaseItems.forEach(purchaseItem => 
-        {
-            html += `<tr>
-                        <td>${purchaseItem.purchaseItemId}</td>
-                        <td>${purchaseItem.product.code}</td>
-                        <td>${purchaseItem.amount}</td>
-                        <td>${purchaseItem.totalPrice}</td>
-                    </tr>`;
-        });
-
-        html += `       </tbody>
-                        </table>
-                    </details>
-                </td>
-                <td>${purchase.member.username}</td>
-                <td>${purchase.methodOfPay}</td>
-                <td>${purchase.dateTime}</td>
-                <td>${purchase.totalPrice}</td>
-            </tr>`;
-    });
-    return html;
-}
-
 /* DETECTAMOS CLICS EN EL CHECKBOX "all" DE MÉTODOS DE PAGO */
 document.getElementById("methodOfPay-all").addEventListener("click", (event) => changeStatusOtherOptions(event, "methodOfPay"));
 

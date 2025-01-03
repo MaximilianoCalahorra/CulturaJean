@@ -1,5 +1,5 @@
 //Importamos las siguientes funciones:
-import { getPurchasesFiltersValues, updatePurchasesFilterOptions, generateHTMLForEmptyPurchases } from "/js/purchases.js";
+import { getPurchasesFiltersValues, updatePurchasesFilterOptions } from "/js/purchases.js";
 
 import 
 { 
@@ -10,8 +10,7 @@ import
 	defaultOrder,
 	dateInputIds,
 	timeInputIds,
-	priceInputIds,
-	generateHTMLForSalesOrPurchases 
+	priceInputIds
 } from "/js/purchasesAndSales.js";
 
 import 
@@ -77,13 +76,71 @@ function updateSalesFilterOptions(filters, selectedFilters)
     updatePurchasesFilterOptions(filters, selectedFilters); 
 }
 
+/* GENERAMOS EL HTML CON LOS DATOS DE LAS VENTAS OBTENIDAS */
+function generateHTMLForSales(sales) 
+{
+    let html = '';
+    sales.forEach(sale => 
+    {
+        html += `<tr>
+                	<td>
+                    	<details>
+                            <summary>${sale.purchaseId}</summary>
+                            <summary>Details Of The Sale</summary>
+                            <table border="3">
+                                <thead>
+                                    <tr>
+                                        <th>Sale Item Id</th>
+                                        <th>Username</th>
+                                        <th>Product Code</th>
+                                        <th>Amount</th>
+                                        <th>Subtotal Sale</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                                
+        sale.purchaseItems.forEach(purchaseItem => 
+        {
+            html += `<tr>
+                        <td>${purchaseItem.purchaseItemId}</td>
+                        <td>${purchaseItem.product.code}</td>
+                        <td>${purchaseItem.amount}</td>
+                        <td>${purchaseItem.totalPrice}</td>
+                    </tr>`;
+        });
+
+        html += `       </tbody>
+                        </table>
+                    </details>
+                </td>
+                <td>${sale.member.username}</td>
+                <td>${sale.methodOfPay}</td>
+                <td>${sale.dateTime}</td>
+                <td>${sale.totalPrice}</td>
+            </tr>`;
+    });
+    return html;
+}
+
 /* GENERAMOS DETERMINADO HTML PARA CUANDO NO HAY VENTAS ENCONTRADAS */
 function generateHTMLForEmptySales()
 {
-	//Generamos el HTML y reinicializamos los otros filtros:
-	generateHTMLForEmptyPurchases();
+	//Obtenemos el body de la tabla:
+	const tbody = document.getElementById("tbodyDataTable");
 	
-	//Reinicializamos los valores del filtro de usernames: 
+	//Definimos una única fila con el mensaje de que no se encontraron resultados:
+	tbody.innerHTML = 
+	`<tr>
+		<td colspan="5" style="text-align: center; font-style: italic; color: gray;">
+            No results found.
+        </td>
+	</tr>`;	
+    
+    //Reinicializamos los valores de los filtros: 
+    document.getElementById("methodOfPay-all").checked = true; //Métodos de pago.
+    reinicializeInputs(dateInputIds, buttonIds); //Fechas. 
+    reinicializeInputs(timeInputIds, buttonIds); //Horas. 
+    reinicializeInputs(priceInputIds, buttonIds); //Precios.
     document.getElementById("username-all").checked = true; //Usernames.
 }
 
@@ -110,7 +167,7 @@ function filterSales(page = 0)
 		if(data.purchases.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForSalesOrPurchases(data.purchases); 
+	        const htmlContent = generateHTMLForSales(data.purchases); 
 	
 	        //Actualizamos los pedidos en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -171,7 +228,7 @@ function resetSalesFilters()
 			const tbody = document.getElementById("tbodyDataTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForSalesOrPurchases(data.purchases);
+		    const htmlContent = generateHTMLForSales(data.purchases);
 		        
 			//Actualizamos los pedidos en la vista:
 		    tbody.innerHTML = htmlContent;
