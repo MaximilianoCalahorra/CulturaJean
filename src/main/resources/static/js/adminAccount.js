@@ -7,10 +7,14 @@ import
 	updateCheckboxes, 
 	changeStatusOtherOptions, 
 	checkFiltersState, 
-	reinicializeInputs 
+	reinicializeInputs,
+	updatePagination
 } from "/js/general.js";
 
 import { configAmountValidationsGroup } from "/js/amountValidations.js";
+
+//Cantidad de pedidos de aprovisionamiento por página:
+const size = 10;
 
 //Ids de los botones de ordenar y aplicar filtros:
 const applyOrderButtonId = "applyOrderButton";
@@ -18,7 +22,7 @@ const applyFiltersButtonId = "applyFilterButton";
 const buttonIds = [applyOrderButtonId, applyFiltersButtonId];
 
 //Valor de ordenamiento por defecto:
-const defaultOrder = "orderAscByProductCode";
+const defaultOrder = "p.code ASC";
 
 //Name de la etiqueta para seleccionar el orden:
 const orderName = "order";
@@ -55,21 +59,21 @@ function getFiltersValues()
 		productCodes: getSelectedValues("pCode"), //Códigos de producto.
 		supplierNames: getSelectedValues("sName"), //Nombre de proveedor.
 		adminUsernames: getAdminUsernameValue(), //Username del administrador.
-		amount: document.querySelector('input[name="amount"]').value || "-1", //Cantidad.
-		fromAmount: document.querySelector('input[name="fAmount"]').value || "-1", //Cantidad mayor o igual a.
-		untilAmount: document.querySelector('input[name="uAmount"]').value || "-1", //Cantidad menor o igual a.
-		rangeFromAmount: document.querySelector('input[name="rFAmount"]').value || "-1", //Cantidad mayor o igual a dentro de un rango.
-		rangeUntilAmount: document.querySelector('input[name="rUAmount"]').value || "-1", //Cantidad menor o igual a dentro de un rango.
+		amount: document.querySelector('input[name="amount"]').value || "", //Cantidad.
+		fromAmount: document.querySelector('input[name="fAmount"]').value || "", //Cantidad mayor o igual a.
+		untilAmount: document.querySelector('input[name="uAmount"]').value || "", //Cantidad menor o igual a.
+		rangeFromAmount: document.querySelector('input[name="rFAmount"]').value || "", //Cantidad mayor o igual a dentro de un rango.
+		rangeUntilAmount: document.querySelector('input[name="rUAmount"]').value || "", //Cantidad menor o igual a dentro de un rango.
 		delivered: document.querySelector('input[name="delivered"]:checked') ? 
 				   document.querySelector('input[name="delivered"]:checked').value : 'all' //Estado de los pedidos.
 	};
 }
 
 /* OBTENEMOS LOS PEDIDOS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADOS SEGÚN DETERMINADO CRITERIO */
-async function applyFilterSupplyOrders(filtersData)
+async function applyFilterSupplyOrders(filtersData, page = 0, size = 10)
 {
 	//Realizamos la consulta para obtener los pedidos:
-    return fetch(`/myAccount/admin/filter`, {
+    return fetch(`/myAccount/admin/filter?page=${page}&size=${size}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(filtersData)
@@ -119,15 +123,11 @@ function generateHTMLForSupplyOrders(supplyOrders)
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE PEDIDOS ENTREGADOS/NO ENTREGADOS ACTUAL */
-function updateFilterOptions(data, selectedFilters) 
+function updateFilterOptions(filters, selectedFilters) 
 {
-    //Extraemos valores únicos para cada filtro del listado devuelto:
-    const productCodes = [...new Set(data.map(item => item.product.code))]; //Opciones de código de producto.
-    const supplierNames = [...new Set(data.map(item => item.supplier.name))]; //Opciones de nombres de proveedor.
-	
 	//Actualizar cada sección de filtros:
-    updateCheckboxes("pCodeContainer", "pCode", productCodes, selectedFilters.productCodes);
-    updateCheckboxes("sNameContainer", "sName", supplierNames, selectedFilters.supplierNames);
+    updateCheckboxes("pCodeContainer", "pCode", filters.productCodes, selectedFilters.productCodes);
+    updateCheckboxes("sNameContainer", "sName", filters.supplierNames, selectedFilters.supplierNames);
     
     //Cerramos los details de cantidades:
     document.getElementById("amountsContainer").removeAttribute("open"); //Contenedor general.
@@ -157,13 +157,12 @@ function generateHTMLForEmptyResults()
     //Reinicializamos los valores de los filtros: 
     document.getElementById("pCode-all").checked = true; //Códigos de producto.
     document.getElementById("sName-all").checked = true; //Nombres de proveedor.
-    //reinicializeAmounts(); //Cantidades.
     reinicializeInputs(amountInputIds, buttonIds); //Cantidades.
     document.getElementById("delivered-all").checked = true; //Estado de los pedidos.
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS PEDIDOS Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
-function filterSupplyOrders()
+function filterSupplyOrders(page = 0)
 {
 	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento.
 	const filters = getFiltersValues(); //Obtenemos los valores de filtrado.
@@ -172,20 +171,20 @@ function filterSupplyOrders()
 	const filtersData = {order, ...filters};
 	
 	//Filtramos y ordenamos según la configuración anterior:
-	applyFilterSupplyOrders(filtersData)
+	applyFilterSupplyOrders(filtersData, page, size)
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-		updateFilterOptions(data, filters);
+		updateFilterOptions(data.filtersOptions, filters);
 		
 		//Seleccionamos el body de la tabla:
 		const tbody = document.getElementById("tbodySupplyOrdersTable");
 		
 		//Si hay al menos un pedido después del filtro:
-		if(data.length > 0)
+		if(data.supplyOrders.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForSupplyOrders(data);
+	        const htmlContent = generateHTMLForSupplyOrders(data.supplyOrders);
 	
 	        //Actualizamos los pedidos en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -195,6 +194,8 @@ function filterSupplyOrders()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyResults();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page)); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -210,14 +211,14 @@ function resetFilters()
 	//Definimos los nuevos valores de filtrado:
 	const filters =
 	{
-		productCodes: [],
-		supplierNames: [],
-		adminUsernames: [],
-		amount: "-1",
-		fromAmount: "-1",
-		untilAmount: "-1",
-		rangeFromAmount: "-1",
-		rangeUntilAmount: "-1",
+		productCodes: ["all"],
+		supplierNames: ["all"],
+		adminUsernames: getAdminUsernameValue(),
+		amount: "",
+		fromAmount: "",
+		untilAmount: "",
+		rangeFromAmount: "",
+		rangeUntilAmount: "",
 		delivered: "all"
 	};
 	
@@ -229,16 +230,16 @@ function resetFilters()
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-	    updateFilterOptions(data, filters);
+	    updateFilterOptions(data.filtersOptions, filters);
 		
 		//Si hubo resultados luego del filtrado:
-		if(data.length > 0)
+		if(data.supplyOrders.length > 0)
 		{	
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbodySupplyOrdersTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForSupplyOrders(data);
+		    const htmlContent = generateHTMLForSupplyOrders(data.supplyOrders);
 		        
 			//Actualizamos los pedidos en la vista:
 		    tbody.innerHTML = htmlContent;
@@ -269,6 +270,9 @@ function resetFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyResults();
 		}
+		
+		//Actualizamos las opciones de páginas:
+		updatePagination(data.totalPages, 0);
     })
     .catch(error => 
     {
@@ -308,6 +312,21 @@ document.getElementById("sName-all").addEventListener("click", (event) => change
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
             checkFiltersState(sectionsFilters, buttonIds); //Habilitamos o deshabilitamos los botones según el estado de los filtros.
+        }
+    });
+});
+
+/* OBTENEMOS LOS PEDIDOS DE APROVISIONAMIENTO CORRESPONDIENTES A CADA PÁGINA SEGÚN LOS FILTROS SELECCIONADOS */
+document.addEventListener("DOMContentLoaded", function () 
+{
+    const paginationContainer = document.getElementById("pagination"); //Seleccionamos el contenedor de los botones de las páginas.
+    paginationContainer.addEventListener("click", function (event) 
+    {
+        const button = event.target; //Obtenemos el botón de página clicleado.
+        if(button.tagName === "BUTTON")
+        {
+            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+            filterSupplyOrders(pageNum); //Disparamos la solicitud de los pedidos de aprovisionamiento de esa página.
         }
     });
 });

@@ -25,12 +25,12 @@
 				<form>
 					<label>Choose The Order:
 						<select name="order">
-							<option value="orderAscByProductCode" th:selected="${order == 'orderAscByProductCode'}">Ascendent By Product Code</option>
-							<option value="orderDescByProductCode" th:selected="${order == 'orderDescByProductCode'}">Descendent By Product Code</option>
-							<option value="orderAscBySupplierName" th:selected="${order == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
-							<option value="orderDescBySupplierName" th:selected="${order == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
-							<option value="orderAscByAmount" th:selected="${order == 'orderAscByAmount'}">Ascendent By Amount</option>
-							<option value="orderDescByAmount" th:selected="${order == 'orderDescByAmount'}">Descendent By Amount</option>
+							<option value="p.code ASC" th:selected="${order == 'p.code ASC'}">Ascendent By Product Code</option>
+							<option value="p.code DESC" th:selected="${order == 'p.code DESC'}">Descendent By Product Code</option>
+							<option value="s.name ASC" th:selected="${order == 's.name ASC'}">Ascendent By Supplier Name</option>
+							<option value="s.name DESC" th:selected="${order == 's.name DESC'}">Descendent By Supplier Name</option>
+							<option value="so.amount ASC" th:selected="${order == 'so.amount ASC'}">Ascendent By Amount</option>
+							<option value="so.amount DESC" th:selected="${order == 'so.amount DESC'}">Descendent By Amount</option>
 						</select>
 					</label>
 					<button type="button" id="applyOrderButton">Apply</button>
@@ -99,20 +99,28 @@
 						</tr>
 					</thead>
 					<tbody id="tbodySupplyOrdersTable">
-						<tr th:each="supplyOrder: ${supplyOrders}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
+						<tr th:each="supplyOrder: ${paginated.supplyOrders}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
 							<td th:text="${supplyOrder.supplyOrderId}"></td>
 							<td th:text="${supplyOrder.product.code}"></td>
 							<td th:text="${supplyOrder.supplier.name}"></td>
 							<td th:text="${supplyOrder.amount}"></td>
 							<td th:text="${supplyOrder.delivered ? 'Yes' : 'No'}"></td>
 						</tr>
-						<tr th:if="${supplyOrders.size() == 0}">
+						<tr th:if="${paginated.supplyOrders.size() == 0}">
 						    <td colspan="5" style="text-align: center; font-style: italic; color: gray;">
 						        No results found.
 						    </td>
 						</tr>
 					</tbody>
 				</table>
+				<div id="pagination">
+					<button th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
