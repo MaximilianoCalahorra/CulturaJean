@@ -1,8 +1,6 @@
 package com.calahorra.culturaJean.controllers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,8 +19,8 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.MemberDTO;
 import com.calahorra.culturaJean.dtos.PaginatedPurchaseDTO;
+import com.calahorra.culturaJean.dtos.PaginatedSupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.PurchaseFiltersDataDTO;
-import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.entities.UserRole;
@@ -147,7 +145,6 @@ public class MemberController
 		//Obtenemos el DTO del cliente:
 		MemberDTO member = memberService.findByUsername(user.getUsername());
 	
-		
 		String defaultOrder = "p.date_time DESC"; //Definimos el criterio de ordenamiento por defecto.
 		
 		PurchaseFiltersDataDTO filters = new PurchaseFiltersDataDTO(); //Definimos todos los filtros en su estado por defecto.
@@ -193,66 +190,36 @@ public class MemberController
 		//Obtenemos el DTO del administrador:
 		MemberDTO member = memberService.findByUsername(user.getUsername());
 		
-		//Obtenemos los pedidos de aprovisionamiento del administrador:
-		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByMember(member.getUsername());
+		String defaultOrder = "p.code ASC"; //Definimos el criterio de ordenamiento por defecto.
 		
-		//Definimos el tipo de ordenamiento por defecto:
-		String order = "orderAscByProductCode";
+		SupplyOrderFiltersDataDTO filters = new SupplyOrderFiltersDataDTO(); //Definimos todos los filtros en su estado por defecto.
+		filters.setOrder(defaultOrder); //Pasamos el criterio de ordenamiento.
+		filters.setAdminUsernames(Arrays.asList(member.getUsername())); //Pasamos el username del administrador.
+		int page = 0; //Definimos que es la primera página.
+		int size = 10; //Definimos la cantidad de elementos de la página.
 		
-		//Aplicamos el ordenamiento:
-		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
+		 //Obtenemos los pedidos de aprovisionamiento de la página:
+		PaginatedSupplyOrderDTO paginated = supplyOrderService.getFilteredSupplyOrders(filters, page, size);
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento.
+		modelAndView.addObject("order", defaultOrder); //Adjuntamos el criterio de ordenamiento.
 		modelAndView.addObject("pCode", "all"); //Adjuntamos el código del producto del filtro.
 		modelAndView.addObject("sName", "all"); //Adjuntamos el nombre del proveedor del filtro.
 		modelAndView.addObject("delivered", "all"); //Adjuntamos el filtro de estado de entrega.
 		modelAndView.addObject("member", member); //Adjuntamos el administrador.
-		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
-		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode(supplyOrders)); //Adjuntamos los códigos de los productos.
-		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrders)); //Adjuntamos los nombres de los proveedores.
+		modelAndView.addObject("paginated", paginated); //Adjuntamos el paginado.
+		modelAndView.addObject("productCodes", paginated.getFiltersOptions().getProductCodes()); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", paginated.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
 	//Respondemos a las peticiones de filtrado y/u ordenamiento de los pedidos generados por el administrador:
 	@PostMapping("/myAccount/admin/filter")
-	public ResponseEntity<List<SupplyOrderDTO>> filteredSupplyOrders(@RequestBody SupplyOrderFiltersDataDTO filtersData) 
+	public ResponseEntity<PaginatedSupplyOrderDTO> filteredSupplyOrders(@RequestBody SupplyOrderFiltersDataDTO filters,
+																	 @RequestParam("page")int page, @RequestParam("size")int size) 
 	{	
-		//Obtenemos los criterios para filtrar y ordenar:
-		String order = filtersData.getOrder();
-		List<String> productCodes = filtersData.getProductCodes();
-		List<String> supplierNames = filtersData.getSupplierNames();
-		List<String> adminUsernames = filtersData.getAdminUsernames(); //Va a ser solo uno, el administrador que está en su cuenta.
-		int amount = Integer.parseInt(filtersData.getAmount());
-    	int fromAmount = Integer.parseInt(filtersData.getFromAmount());
-    	int untilAmount = Integer.parseInt(filtersData.getUntilAmount());
-    	int rangeFromAmount = Integer.parseInt(filtersData.getRangeFromAmount());
-    	int rangeUntilAmount = Integer.parseInt(filtersData.getRangeUntilAmount());
-    	String delivered = filtersData.getDelivered();
-		
-    	//Definimos un listado donde cargaremos los pedidos:
-    	List<SupplyOrderDTO> supplyOrders = new ArrayList<>();
-    	
-    	//Si se pidió solamente los entregados/no entregados:
-    	if(!delivered.equals("all")) 
-    	{
-    		boolean deliveredBoolean = Boolean.parseBoolean(delivered); //Obtenemos el valor booleano para saber cuáles pedidos se piden.
-    		supplyOrders = supplyOrderService.findByDelivered(deliveredBoolean); //Obtenemos los pedidos en ese estado.
-    	}
-    	else //Por el contrario, si se solicitaron todos los pedidos:
-    	{
-    		supplyOrders = supplyOrderService.getAll(); //Obtenemos todos.
-    	}
-    	
-    	//Aplicamos los filtros seleccionados:
-    	supplyOrders = supplyOrderService.applyFilters(supplyOrders, productCodes, supplierNames, adminUsernames, amount, fromAmount, 
-    												   untilAmount, rangeFromAmount, rangeUntilAmount);
-		
-		//Aplicamos el ordenamiento seleccionado:
-		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
-		
-		return ResponseEntity.ok(supplyOrders); //Retornamos los pedidos.
+		return ResponseEntity.ok(supplyOrderService.getFilteredSupplyOrders(filters, page, size)); //Retornamos el paginado.
 	}
 	
 	//Respondemos a la solicitud de modificación del perfil con una vista que tiene un formulario para ello:
