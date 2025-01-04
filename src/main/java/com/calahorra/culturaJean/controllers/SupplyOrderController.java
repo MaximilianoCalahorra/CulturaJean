@@ -93,9 +93,9 @@ public class SupplyOrderController
 		modelAndView.addObject("supplierNamesU", uPaginated.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento no entregados.
 		modelAndView.addObject("adminUsernamesU", uPaginated.getFiltersOptions().getAdminUsernames()); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento no entregados.
 		
-		modelAndView.addObject("productCodesD", uPaginated.getFiltersOptions().getProductCodes()); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento entregados.
-		modelAndView.addObject("supplierNamesD", uPaginated.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento entregados.
-		modelAndView.addObject("adminUsernamesD", uPaginated.getFiltersOptions().getAdminUsernames()); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("productCodesD", dPaginated.getFiltersOptions().getProductCodes()); //Adjuntamos los códigos de los productos de pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("supplierNamesD", dPaginated.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores de pedidos de aprovisionamiento entregados.
+		modelAndView.addObject("adminUsernamesD", dPaginated.getFiltersOptions().getAdminUsernames()); //Adjuntamos los nombres de usuario de los administradores con pedidos de aprovisionamiento entregados.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
     }

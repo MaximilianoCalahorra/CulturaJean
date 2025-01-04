@@ -14,7 +14,7 @@ import
 import { configAmountValidations } from "/js/amountValidations.js";
 
 //Cantidad de pedidos de aprovisionamiento por página:
-const size = 12;
+const size = 10;
 
 //Ids de las etiquetas para seleccionar el criterio de ordenamiento de los pedidos entregados y de los no entregados:
 const uOrderName = "orderU";
@@ -226,22 +226,22 @@ function updateFilterOptions(filters, delivered, selectedFilters)
 /* GENERAMOS DETERMINADO HTML PARA CUANDO NO HAY RESULTADOS ENCONTRADOS */
 function generateHTMLForEmptyResults(delivered)
 {
-		//Configuración para los pedidos no entregados:
-		let idTBody = "undeliveredSupplyOrderTBodyTable";
-		let colspan = 6;
-		let pCodeAll = "pCodeU-all";
-		let sNameAll = "sNameU-all";
-		let usernameAll = "usernameU-all";
-		
-		//Si se trata de pedidos entregados la modificamos:
-		if(delivered)
-		{
-			idTBody = "deliveredSupplyOrderTBodyTable";
-			colspan = 5;
-			pCodeAll = "pCodeD-all";
-			sNameAll = "sNameD-all";
-			usernameAll = "usernameD-all";
-		}
+	//Configuración para los pedidos no entregados:
+	let idTBody = "undeliveredSupplyOrderTBodyTable";
+	let colspan = 6;
+	let pCodeAll = "pCodeU-all";
+	let sNameAll = "sNameU-all";
+	let usernameAll = "usernameU-all";
+	
+	//Si se trata de pedidos entregados la modificamos:
+	if(delivered)
+	{
+		idTBody = "deliveredSupplyOrderTBodyTable";
+		colspan = 5;
+		pCodeAll = "pCodeD-all";
+		sNameAll = "sNameD-all";
+		usernameAll = "usernameD-all";
+	}
 	
 	//Obtenemos el body de la tabla:
 	const tbody = document.getElementById(idTBody);
@@ -260,16 +260,19 @@ function generateHTMLForEmptyResults(delivered)
     document.getElementById(usernameAll).checked = true; //Usernames de administrador.
     
     let amountInputIds = [];
+    let buttonIds = []; 
     if(delivered)
     {
-		amountInputIds = ["amountD", "fAmountD", "uAmountD", "rFAmountD", "rUAmountD"];	
+		amountInputIds = ["amountD", "fAmountD", "uAmountD", "rFAmountD", "rUAmountD"];
+		buttonIds = dButtonIds;	
 	}
 	else
 	{
 		amountInputIds = ["amountU", "fAmountU", "uAmountU", "rFAmountU", "rUAmountU"];
+		buttonIds = uButtonIds;
 	}
-    
-    reinicializeInputs(amountInputIds); //Cantidades.
+	
+	reinicializeInputs(amountInputIds, buttonIds); //Cantidades.
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS PEDIDOS ENTREGADOS/NO ENTREGADOS Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
