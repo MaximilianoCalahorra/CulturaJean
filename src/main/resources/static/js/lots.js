@@ -7,12 +7,17 @@ import
  	descheckedAndDisableOtherOptions,
  	updateCheckboxes,
  	changeStatusOtherOptions,
- 	reinicializeInputs
+ 	reinicializeInputs,
+ 	updatePagination
 } from "/js/general.js";
 
 import { configAmountValidations } from "/js/amountValidations.js";
 
 import { validateDates } from "/js/dateValidations.js";
+
+//Definimos los tamaños de las páginas:
+const sizeSO = 10;
+const sizeL = 10;
 
 //Ids de los botones de ordenar y aplicar filtros de los pedidos:
 const applyOrderSOButtonId = "applyOrderSOButton";
@@ -25,8 +30,8 @@ const applyFiltersLButtonId = "applyFiltersLButton";
 const lButtonIds = [applyOrderLButtonId, applyFiltersLButtonId];
 
 //Criterios de ordenamiento por defecto de los pedidos y los lotes:
-const defaultSOOrder = "orderDescByAmount";
-const defaultLOrder = "orderAscByExistingAmount";
+const defaultSOOrder = "so.amount DESC";
+const defaultLOrder = "l.existing_amount ASC";
 
 //Name de la etiqueta que permite seleccionar el ordenamiento de los pedidos y de los lotes:
 const orderSOName = "orderSO";
@@ -85,11 +90,11 @@ function getSupplyOrdersFiltersValues()
 		productCodes: getSelectedValues("pCode"), //Códigos de producto.
 		supplierNames: getSelectedValues("sName"), //Nombre de proveedor.
 		adminUsernames: [],
-		amount: document.querySelector('input[name="amount"]').value || "-1", //Cantidad.
-		fromAmount: document.querySelector('input[name="fAmount"]').value || "-1", //Cantidad mayor o igual a.
-		untilAmount: document.querySelector('input[name="uAmount"]').value || "-1", //Cantidad menor o igual a.
-		rangeFromAmount: document.querySelector('input[name="rFAmount"]').value || "-1", //Cantidad mayor o igual a dentro de un rango.
-		rangeUntilAmount: document.querySelector('input[name="rUAmount"]').value || "-1" //Cantidad menor o igual a dentro de un rango.
+		amount: document.querySelector('input[name="amount"]').value || "", //Cantidad.
+		fromAmount: document.querySelector('input[name="fAmount"]').value || "", //Cantidad mayor o igual a.
+		untilAmount: document.querySelector('input[name="uAmount"]').value || "", //Cantidad menor o igual a.
+		rangeFromAmount: document.querySelector('input[name="rFAmount"]').value || "", //Cantidad mayor o igual a dentro de un rango.
+		rangeUntilAmount: document.querySelector('input[name="rUAmount"]').value || "" //Cantidad menor o igual a dentro de un rango.
 	};
 }
 
@@ -103,19 +108,19 @@ function getLotsFiltersValues()
 		untilReceptionDate: document.querySelector('input[name="uRDate"]').value || "", //Fecha de recepción anterior o igual a.
 		rangeFromReceptionDate: document.querySelector('input[name="rFRDate"]').value || "", //Fecha de recepción posterior o igual a dentro de un rango.
 		rangeUntilReceptionDate: document.querySelector('input[name="rURDate"]').value || "", //Fecha de recepción anterior o igual a dentro de un rango.
-		amount: document.querySelector('input[name="eAmount"]').value || "-1", //Cantidad.
-		fromAmount: document.querySelector('input[name="fEAmount"]').value || "-1", //Cantidad mayor o igual a.
-		untilAmount: document.querySelector('input[name="uEAmount"]').value || "-1", //Cantidad menor o igual a.
-		rangeFromAmount: document.querySelector('input[name="rFEAmount"]').value || "-1", //Cantidad mayor o igual a dentro de un rango.
-		rangeUntilAmount: document.querySelector('input[name="rUEAmount"]').value || "-1" //Cantidad menor o igual a dentro de un rango.
+		existingAmount: document.querySelector('input[name="eAmount"]').value || "", //Cantidad.
+		fromExistingAmount: document.querySelector('input[name="fEAmount"]').value || "", //Cantidad mayor o igual a.
+		untilExistingAmount: document.querySelector('input[name="uEAmount"]').value || "", //Cantidad menor o igual a.
+		rangeFromExistingAmount: document.querySelector('input[name="rFEAmount"]').value || "", //Cantidad mayor o igual a dentro de un rango.
+		rangeUntilExistingAmount: document.querySelector('input[name="rUEAmount"]').value || "" //Cantidad menor o igual a dentro de un rango.
 	};
 }
 
 /* OBTENEMOS LOS PEDIDOS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADOS SEGÚN DETERMINADO CRITERIO */
-async function applyFilterSupplyOrders(filtersData)
+async function applyFilterSupplyOrders(filtersData, page = 0, size = 10)
 {
 	//Realizamos la consulta para obtener los pedidos:
-    return fetch(`/lot/lots/supplyOrdersToLots/filter`, {
+    return fetch(`/lot/lots/supplyOrdersToLots/filter?page=${page}&size=${size}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(filtersData)
@@ -138,10 +143,10 @@ async function applyFilterSupplyOrders(filtersData)
 }
 
 /* OBTENEMOS LOS LOTES QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADOS SEGÚN DETERMINADO CRITERIO */
-async function applyFilterLots(filtersData)
+async function applyFilterLots(filtersData, page = 0, size = 10)
 {
 	//Realizamos la consulta para obtener los lotes:
-    return fetch(`/lot/lots/filter`, {
+    return fetch(`/lot/lots/filter?page=${page}&size=${size}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(filtersData)
@@ -207,15 +212,11 @@ function generateHTMLForLots(lots)
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE PEDIDOS ACTUAL */
-function updateSupplyOrdersFilterOptions(data, selectedFilters) 
+function updateSupplyOrdersFilterOptions(filters, selectedFilters) 
 {
-    //Extraemos valores únicos para cada filtro del listado devuelto:
-    const productCodes = [...new Set(data.map(item => item.product.code))]; //Opciones de código de producto.
-    const supplierNames = [...new Set(data.map(item => item.supplier.name))]; //Opciones de nombres de proveedor.
-	
-	//Actualizar cada sección de filtros:
-    updateCheckboxes("pCodeContainer", "pCode", productCodes, selectedFilters.productCodes);
-    updateCheckboxes("sNameContainer", "sName", supplierNames, selectedFilters.supplierNames);
+    //Actualizar cada sección de filtros:
+    updateCheckboxes("pCodeContainer", "pCode", filters.productCodes, selectedFilters.productCodes);
+    updateCheckboxes("sNameContainer", "sName", filters.supplierNames, selectedFilters.supplierNames);
     
     //Cerramos los details de cantidades:
     document.getElementById("amountsContainer").removeAttribute("open"); //Contenedor general.
@@ -226,13 +227,10 @@ function updateSupplyOrdersFilterOptions(data, selectedFilters)
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE LOTES ACTUAL */
-function updateLotsFilterOptions(data, selectedFilters) 
+function updateLotsFilterOptions(filters, selectedFilters) 
 {
-    //Extraemos valores únicos para el filtro de ids de stock del listado devuelto:
-    const stockIds = [...new Set(data.map(item => item.stock.stockId))]; //Opciones de id de stock.
-	
-	//Actualizar la sección de filtro:
-    updateCheckboxes("stockIdContainer", "stockId", stockIds, selectedFilters.stockIds);
+    //Actualizar la sección de filtro:
+    updateCheckboxes("stockIdContainer", "stockId", filters.stockIds, selectedFilters.stockIds);
     
     //Cerramos los details de fechas:
     document.getElementById("datesContainer").removeAttribute("open"); //Contenedor general.
@@ -290,7 +288,7 @@ function generateHTMLForEmptyLots()
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS PEDIDOS Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
-function filterSupplyOrders()
+function filterSupplyOrders(page = 0)
 {
 	const order = getOrderValue(orderSOName, defaultSOOrder); //Obtenemos el criterio de ordenamiento.
 	const filters = getSupplyOrdersFiltersValues(); //Obtenemos los valores de filtrado.
@@ -299,20 +297,20 @@ function filterSupplyOrders()
 	const filtersData = {order, ...filters};
 	
 	//Filtramos y ordenamos según la configuración anterior:
-	applyFilterSupplyOrders(filtersData)
+	applyFilterSupplyOrders(filtersData, page, sizeSO)
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-		updateSupplyOrdersFilterOptions(data, filters);
+		updateSupplyOrdersFilterOptions(data.filtersOptions, filters);
 		
 		//Seleccionamos el body de la tabla:
 		const tbody = document.getElementById("tbodySupplyOrdersTable");
 		
 		//Si hay al menos un pedido después del filtro:
-		if(data.length > 0)
+		if(data.supplyOrders.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForSupplyOrders(data);
+	        const htmlContent = generateHTMLForSupplyOrders(data.supplyOrders);
 	
 	        //Actualizamos los pedidos en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -322,6 +320,8 @@ function filterSupplyOrders()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptySupplyOrders();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page), "SO"); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -330,7 +330,7 @@ function filterSupplyOrders()
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS LOTES Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
-function filterLots()
+function filterLots(page = 0)
 {
 	const order = getOrderValue(orderLName, defaultLOrder); //Obtenemos el criterio de ordenamiento.
 	const filters = getLotsFiltersValues(); //Obtenemos los valores de filtrado.
@@ -339,20 +339,20 @@ function filterLots()
 	const filtersData = {order, ...filters};
 	
 	//Filtramos y ordenamos según la configuración anterior:
-	applyFilterLots(filtersData)
+	applyFilterLots(filtersData, page, sizeL)
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-		updateLotsFilterOptions(data, filters);
+		updateLotsFilterOptions(data.filtersOptions, filters);
 		
 		//Seleccionamos el body de la tabla:
 		const tbody = document.getElementById("tbodyLotsTable");
 		
 		//Si hay al menos un lote después del filtro:
-		if(data.length > 0)
+		if(data.lots.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForLots(data);
+	        const htmlContent = generateHTMLForLots(data.lots);
 	
 	        //Actualizamos los pedidos en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -362,6 +362,8 @@ function filterLots()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyLots();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page), "L"); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -377,14 +379,14 @@ function resetSupplyOrdersFilters()
 	//Definimos los nuevos valores de filtrado:
 	const filters =
 	{
-		productCodes: [],
-		supplierNames: [],
-		adminUsernames: [],
-		amount: "-1",
-		fromAmount: "-1",
-		untilAmount: "-1",
-		rangeFromAmount: "-1",
-		rangeUntilAmount: "-1"
+		productCodes: ["all"],
+		supplierNames: ["all"],
+		adminUsernames: ["all"],
+		amount: "",
+		fromAmount: "",
+		untilAmount: "",
+		rangeFromAmount: "",
+		rangeUntilAmount: ""
 	};
 	
 	//Definimos el conjunto de los nuevos valores de filtrado:
@@ -395,16 +397,16 @@ function resetSupplyOrdersFilters()
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-		updateSupplyOrdersFilterOptions(data, filters);
+		updateSupplyOrdersFilterOptions(data.filtersOptions, filters);
 		
 		//Si hubo resultados luego del filtrado:
-		if(data.length > 0)
+		if(data.supplyOrders.length > 0)
 		{	
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbodySupplyOrdersTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForSupplyOrders(data);
+		    const htmlContent = generateHTMLForSupplyOrders(data.supplyOrders);
 		        
 			//Actualizamos los pedidos en la vista:
 		    tbody.innerHTML = htmlContent;
@@ -431,6 +433,8 @@ function resetSupplyOrdersFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptySupplyOrders();
 		}
+		
+		updatePagination(data.totalPages, 0, "SO"); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -446,17 +450,17 @@ function resetLotsFilters()
 	//Definimos los nuevos valores de filtrado:
 	const filters =
 	{
-		stockIds: [],
+		stockIds: ["all"],
 		receptionDate: "",
 		fromReceptionDate: "",
 		untilReceptionDate: "",
 		rangeFromReceptionDate: "",
 		rangeUntilReceptionDate: "",
-		amount: "-1",
-		fromAmount: "-1",
-		untilAmount: "-1",
-		rangeFromAmount: "-1",
-		rangeUntilAmount: "-1"
+		existingAmount: "",
+		fromExistingAmount: "",
+		untilExistingAmount: "",
+		rangeFromExistingAmount: "",
+		rangeUntilExistingAmount: ""
 	};
 	
 	//Definimos el conjunto de los nuevos valores de filtrado:
@@ -467,16 +471,16 @@ function resetLotsFilters()
 	.then(data => 
 	{	
 	    //Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-	    updateLotsFilterOptions(data, filters);
+	    updateLotsFilterOptions(data.filtersOptions, filters);
 		
 		//Si hubo resultados luego del filtrado:
-		if(data.length > 0)
+		if(data.lots.length > 0)
 		{	
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbodyLotsTable");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForLots(data);
+		    const htmlContent = generateHTMLForLots(data.lots);
 		        
 			//Actualizamos los pedidos en la vista:
 		    tbody.innerHTML = htmlContent;
@@ -499,6 +503,8 @@ function resetLotsFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyLots();
 		}
+		
+		updatePagination(data.totalPages, 0, "L"); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -603,44 +609,9 @@ document.getElementById("tbodySupplyOrdersTable").addEventListener("click", (eve
 			//Si no hubo errores:
             if(data.success) 
             {   
-				//Obtenemos la fila del pedido:
-				const row = document.getElementById(`row-${supplyOrderId}`);
-                
-                //Eliminamos la fila porque ahora el pedido ya generó un lote:
-            	row.remove();
-            	
-            	const order = getOrderValue(orderSOName, defaultSOOrder); //Obtenemos el criterio de ordenamiento.
-            	const filters = getSupplyOrdersFiltersValues(); //Obtenemos los criterios de filtrado.
-            	
-            	const filtersData = {order, ...filters}; //Definimos el conjunto de datos para filtrar.
-            
-            	applyFilterSupplyOrders(filtersData)
-            	.then(supplyOrders => 
-            	{
-					//Obtenemos los valores seleccionados para filtrar:
-	            	const selectedValues =
-	            	{
-						productCodes: getSelectedValues("pCode"),
-						supplierNames: getSelectedValues("sName")
-					};
-					
-					//Actualizamos las opciones según el listado resultante y las opciones seleccionadas:
-					updateSupplyOrdersFilterOptions(supplyOrders, selectedValues);
-					
-					//Si no se encontraron pedidos que puedan dar de alta lotes:
-					if(supplyOrders.length <= 0)
-					{
-						//Generamos el HTML acorde a no haber encontrado resultados:
-						generateHTMLForEmptySupplyOrders();
-					}					
-				})
-            	.catch(error => 
-			    {
-			        console.error("There was an error applying the filters:", error);
-			    });
-            	
-            	//Aplicamos los filtros y ordenamientos de los lotes y actualizamos la vista con los que apliquen:
-            	filterLots();
+				//Consultamos nuevamente a la base de datos para obtener los pedidos de aprovisionamiento y los lotes producto de la alta:
+				filterSupplyOrders();
+				filterLots();
             }
             else
             {
@@ -649,4 +620,30 @@ document.getElementById("tbodySupplyOrdersTable").addEventListener("click", (eve
         })
         .catch(error => console.error("Error in the Fetch request:", error));
     }
+});
+
+/* OBTENEMOS LOS PEDIDOS DE APROVISIONAMIENTO/LOTES CORRESPONDIENTES A CADA PÁGINA SEGÚN LOS FILTROS SELECCIONADOS */
+document.addEventListener("DOMContentLoaded", function () 
+{
+    const paginationSOContainer = document.getElementById("paginationSO"); //Seleccionamos el contenedor de los botones de las páginas.
+    paginationSOContainer.addEventListener("click", function (event) 
+    {
+        const button = event.target; //Obtenemos el botón de página clicleado.
+        if(button.tagName === "BUTTON")
+        {
+            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+            filterSupplyOrders(pageNum); //Disparamos la solicitud de los pedidos de aprovisionamiento de esa página.
+        }
+    });
+    
+    const paginationLContainer = document.getElementById("paginationL"); //Seleccionamos el contenedor de los botones de las páginas.
+    paginationLContainer.addEventListener("click", function (event) 
+    {
+        const button = event.target; //Obtenemos el botón de página clicleado.
+        if(button.tagName === "BUTTON")
+        {
+            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+            filterLots(pageNum); //Disparamos la solicitud de los lotes de esa página.
+        }
+    });
 });
