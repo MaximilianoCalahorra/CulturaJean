@@ -35,4 +35,7 @@ public interface IUtilsService
 	
 	//Convertimos el valor de un filtro de List<String> a List<Character> o null según corresponda:
 	public List<Character> convertListStringFilterToListCharacter(List<String> filters);
+	
+	//Convertimos el valor de un filtro de List<String> a List<Integer> o null según corresponda:
+	public List<Integer> convertListStringFilterToListInteger(List<String> filters);
 }

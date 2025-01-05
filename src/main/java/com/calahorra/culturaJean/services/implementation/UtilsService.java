@@ -50,7 +50,7 @@ public class UtilsService implements IUtilsService
 		if(postgresArray != null) return Arrays.asList(postgresArray); //Si hay algo para convertir.
 		return new ArrayList<>(); //Si no hay nada para convertir.
 	}
-	
+
 	//Convertimos el valor de un filtro de String a Float o null según corresponda:
 	@Override
 	public Float convertStringFilterToFloat(String filter) 
@@ -127,5 +127,18 @@ public class UtilsService implements IUtilsService
         if(filterClean != null && !filterClean.isEmpty()) listCharacterFilter = filterClean.stream().map(i -> i.charAt(0)).toList();
         
         return listCharacterFilter; //Retornamos el filtro con el tipo de dato apropiado.
+	}
+	
+	//Convertimos el valor de un filtro de List<String> a List<Integer> o null según corresponda:
+	@Override
+	public List<Integer> convertListStringFilterToListInteger(List<String> filters)
+	{
+		List<Integer> listIntegerFilter = null; //Valor por defecto.
+        List<String> filterClean = cleanFilter(filters); //Adecuamos el filtro en su versión List<String>.
+        
+        //Si la versión adecuada no es null, entonces parseamos el valor de cada elemento a Integer para asignarlo al filtro List<Integer>:
+        if(filterClean != null && !filterClean.isEmpty()) listIntegerFilter = filterClean.stream().map(i -> Integer.parseInt(i)).toList();
+        
+        return listIntegerFilter; //Retornamos el filtro con el tipo de dato apropiado.
 	}
 }

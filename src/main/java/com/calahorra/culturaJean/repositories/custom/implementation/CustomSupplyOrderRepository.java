@@ -69,24 +69,11 @@ public class CustomSupplyOrderRepository implements ICustomSupplyOrderRepository
     @Override
     public List<Map<String, Object>> findFiltersOptions(List<String> productCodes, List<String> supplierNames, List<String> adminUsernames,
     													Integer amount, Integer fromAmount, Integer untilAmount, Integer rangeFromAmount, 
-    													Integer rangeUntilAmount, Boolean delivered) 
+    													Integer rangeUntilAmount, Boolean delivered, String findOptionsQueryBase) 
     {
-    	//Definimos el principio de la consulta:
-    	String baseQuery = """
-    	SELECT 
-            ARRAY_AGG(DISTINCT p.code)::TEXT[] AS productCodes,
-            ARRAY_AGG(DISTINCT s.name)::TEXT[] AS supplierNames,
-            ARRAY_AGG(DISTINCT m.username)::TEXT[] AS adminUsernames
-	    FROM supply_order so
-	    INNER JOIN product p ON so.product_id = p.product_id
-	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
-	    INNER JOIN member m ON so.member_id = m.member_id
-	    WHERE 1=1		
-    	""";
-    	
     	//Unimos el principio de la consulta con la fila de cada filtro que corresponda:
     	StringBuilder queryBuilder = buildTextOfQuery(productCodes, supplierNames, adminUsernames, amount, fromAmount, untilAmount,
-    												  rangeFromAmount, rangeUntilAmount, delivered, baseQuery);
+    												  rangeFromAmount, rangeUntilAmount, delivered, findOptionsQueryBase);
     	
     	//Instanciamos un objeto Query con la consulta definida:
     	Query query = entityManager.createNativeQuery(queryBuilder.toString());
@@ -114,21 +101,12 @@ public class CustomSupplyOrderRepository implements ICustomSupplyOrderRepository
     @Override
     public Page<SupplyOrder> findFilteredSupplyOrders(List<String> productCodes, List<String> supplierNames, List<String> adminUsernames, 
     												  Integer amount, Integer fromAmount, Integer untilAmount, Integer rangeFromAmount, 
-    												  Integer rangeUntilAmount, Boolean delivered, String sort, Pageable pageable) 
+    												  Integer rangeUntilAmount, Boolean delivered, String sort, Pageable pageable,
+    												  String findSOQueryBase, String countSOQueryBase) 
     {
-    	//Definimos el principio de la consulta:
-    	String baseQuery = """
-    	SELECT so.*
-	    FROM supply_order so
-	    INNER JOIN product p ON so.product_id = p.product_id
-	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
-	    INNER JOIN member m ON so.member_id = m.member_id
-	    WHERE 1=1	
-    	""";
-    	
     	//Unimos el principio de la consulta con la fila de cada filtro que corresponda:
     	StringBuilder queryBuilder = buildTextOfQuery(productCodes, supplierNames, adminUsernames, amount, fromAmount, untilAmount,
-				  									  rangeFromAmount, rangeUntilAmount, delivered, baseQuery);
+				  									  rangeFromAmount, rangeUntilAmount, delivered, findSOQueryBase);
     	
     	String orderBy = " ORDER BY " + sort; //Construímos dinámicamente el criterio de ordenamiento según lo envíado:
     	
@@ -154,7 +132,7 @@ public class CustomSupplyOrderRepository implements ICustomSupplyOrderRepository
 		
 		//Obtenemos la cantidad de pedidos de aprovisionamiento que cumplen con los filtros:
 		Long totalSupplyOrders = getTotalCount(productCodes, supplierNames, adminUsernames, amount, fromAmount, untilAmount, 
-											   rangeFromAmount, rangeUntilAmount, delivered);
+											   rangeFromAmount, rangeUntilAmount, delivered, countSOQueryBase);
 		
 		//Retornamos el paginado con la información adjunta:
 		return new PageImpl<>(supplyOrders, pageable, totalSupplyOrders);
@@ -164,21 +142,11 @@ public class CustomSupplyOrderRepository implements ICustomSupplyOrderRepository
     @Override
 	public Long getTotalCount(List<String> productCodes, List<String> supplierNames, List<String> adminUsernames, Integer amount, 
 							  Integer fromAmount, Integer untilAmount, Integer rangeFromAmount, Integer rangeUntilAmount, 
-							  Boolean delivered) 
+							  Boolean delivered, String countSOQueryBase) 
     {
-    	//Definimos el principio de la consulta:
-    	String baseQuery = """
-    	SELECT COUNT(*)
-	    FROM supply_order so
-	    INNER JOIN product p ON so.product_id = p.product_id
-	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
-	    INNER JOIN member m ON so.member_id = m.member_id
-	    WHERE 1=1	
-    	""";
-    	
     	//Unimos el principio de la consulta con la fila de cada filtro que corresponda:
     	StringBuilder queryBuilder = buildTextOfQuery(productCodes, supplierNames, adminUsernames, amount, fromAmount, untilAmount,
-				  									  rangeFromAmount, rangeUntilAmount, delivered, baseQuery);
+				  									  rangeFromAmount, rangeUntilAmount, delivered, countSOQueryBase);
     	
     	//Instanciamos un objeto Query con la consulta definida:
     	Query query = entityManager.createNativeQuery(queryBuilder.toString());

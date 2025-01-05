@@ -15,16 +15,17 @@ public interface ICustomSupplyOrderRepository
 	public abstract List<Map<String, Object>> findFiltersOptions(List<String> productCodes, List<String> supplierNames, 
 																 List<String> adminUsernames, Integer amount, Integer fromAmount, 
 																 Integer untilAmount, Integer rangeFromAmount, Integer rangeUntilAmount,
-																 Boolean delivered);
+																 Boolean delivered, String findOptionsQueryBase);
 	
 	//Obtenemos los pedidos de aprovisionamiento que cumplen con los filtros dentro de una página:
 	public abstract Page<SupplyOrder> findFilteredSupplyOrders(List<String> productCodes, List<String> supplierNames, 
 															   List<String> adminUsernames, Integer amount, Integer fromAmount, 
 															   Integer untilAmount, Integer rangeFromAmount, Integer rangeUntilAmount, 
-															   Boolean delivered, String sort, Pageable pageable);
+															   Boolean delivered, String sort, Pageable pageable, String findSOQueryBase,
+															   String countSOQueryBase);
 	
 	//Obtenemos la cantidad de pedidos de aprovisionamiento que cumplen con los filtros:
 	public abstract Long getTotalCount(List<String> productCodes, List<String> supplierNames, List<String> adminUsernames, Integer amount, 
 									   Integer fromAmount, Integer untilAmount, Integer rangeFromAmount, Integer rangeUntilAmount, 
-									   Boolean delivered);
+									   Boolean delivered, String countSOQueryBase);
 }

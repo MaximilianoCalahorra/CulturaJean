@@ -61,6 +61,9 @@ public interface ISupplyOrderService
 	//Obtenemos los pedidos de aprovisionamiento filtrados de una página:
 	public PaginatedSupplyOrderDTO getFilteredSupplyOrders(@Param("filters")SupplyOrderFiltersDataDTO filters, int page, int size);
 	
+	//Obtenemos los pedidos de aprovisionamiento que pueden dar de alta un lote filtrados de una página:
+	public PaginatedSupplyOrderDTO getFilteredSupplyOrdersToLots(@Param("filters")SupplyOrderFiltersDataDTO filters, int page, int size); 
+	
 	//Ordernar:
 	
 	//Ordenamos los pedidos de aprovisionamiento por el código del producto asociado de forma ascendente:

@@ -11,13 +11,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import com.calahorra.culturaJean.dtos.FiltersOptionsLotDTO;
 import com.calahorra.culturaJean.dtos.LotDTO;
+import com.calahorra.culturaJean.dtos.LotFiltersDataDTO;
+import com.calahorra.culturaJean.dtos.PaginatedLotDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.entities.Lot;
 import com.calahorra.culturaJean.repositories.ILotRepository;
+import com.calahorra.culturaJean.repositories.custom.ICustomLotRepository;
 import com.calahorra.culturaJean.services.ILotService;
+import com.calahorra.culturaJean.services.IUtilsService;
 
 ///Clase LotService:
 @Service("lotService")
@@ -25,12 +34,16 @@ public class LotService implements ILotService
 {
 	//Atributos:
 	private ILotRepository lotRepository;
+	private ICustomLotRepository customLotRepository;
+	private IUtilsService utilsService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
-	public LotService(ILotRepository lotRepository) 
+	public LotService(ILotRepository lotRepository, ICustomLotRepository customLotRepository, IUtilsService utilsService) 
 	{
 		this.lotRepository = lotRepository;
+		this.customLotRepository = customLotRepository;
+		this.utilsService = utilsService;
 	}
 	
 	//Encontrar:
@@ -279,6 +292,55 @@ public class LotService implements ILotService
 				.stream()
 				.map(lot -> modelMapper.map(lot, LotDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.
+	}
+	
+	//Obtenemos los lotes filtrados de una página:
+	@Override
+	public PaginatedLotDTO getFilteredLots(@Param("filters")LotFiltersDataDTO filters, int page, int size) 
+	{
+		//Instanciamos un Pageable con la página y la cantidad de elementos a traer para hacer la query:
+        Pageable pageable = PageRequest.of(page, size);
+
+        //Adaptamos los filtros para poder hacer la consulta:
+        List<Integer> stockIds = utilsService.convertListStringFilterToListInteger(filters.getStockIds());
+        LocalDate receptionDate = utilsService.convertStringFilterToLocalDate(filters.getReceptionDate());
+        LocalDate fromReceptionDate = utilsService.convertStringFilterToLocalDate(filters.getFromReceptionDate());
+        LocalDate untilReceptionDate = utilsService.convertStringFilterToLocalDate(filters.getUntilReceptionDate());
+        LocalDate rangeFromReceptionDate = utilsService.convertStringFilterToLocalDate(filters.getRangeFromReceptionDate());
+        LocalDate rangeUntilReceptionDate = utilsService.convertStringFilterToLocalDate(filters.getRangeUntilReceptionDate());
+        Integer existingAmount = utilsService.convertStringFilterToInteger(filters.getExistingAmount());
+        Integer fromExistingAmount = utilsService.convertStringFilterToInteger(filters.getFromExistingAmount());
+        Integer untilExistingAmount = utilsService.convertStringFilterToInteger(filters.getUntilExistingAmount());
+        Integer rangeFromExistingAmount = utilsService.convertStringFilterToInteger(filters.getRangeFromExistingAmount());
+        Integer rangeUntilExistingAmount = utilsService.convertStringFilterToInteger(filters.getRangeUntilExistingAmount());
+        
+        //Obtenemos el criterio de ordenamiento:
+        String sort = filters.getOrder();
+        
+        //Obtenemos la página de lotes según los filtros y el criterio de ordenamiento:
+        Page<Lot> lotPage = customLotRepository.findFilteredLots(stockIds, receptionDate, fromReceptionDate, untilReceptionDate,
+        														 rangeFromReceptionDate, rangeUntilReceptionDate, existingAmount,
+        														 fromExistingAmount, untilExistingAmount, rangeFromExistingAmount,
+        														 rangeUntilExistingAmount, sort, pageable);
+
+        //Obtenemos todas las opciones de cada sección de filtro según la configuración de filtros aplicada:
+        List<String> result = customLotRepository.findFiltersOptions(stockIds, receptionDate, fromReceptionDate, untilReceptionDate, 
+        															 rangeFromReceptionDate, rangeUntilReceptionDate, existingAmount,
+        															 fromExistingAmount, untilExistingAmount, rangeFromExistingAmount, 
+        															 rangeUntilExistingAmount); 
+        
+        //Asignamos las opciones a cada parte de nuestro DTO específico de opciones de filtros de lotes:
+        FiltersOptionsLotDTO filtersOptionsDTO = new FiltersOptionsLotDTO();
+        filtersOptionsDTO.setStockIds(result); //Ids de stock.
+        
+        //Construimos el objeto paginado con su información:
+        PaginatedLotDTO paginatedDTO = new PaginatedLotDTO();
+        paginatedDTO.setLots(lotPage.map(stock -> modelMapper.map(stock, LotDTO.class)).getContent()); //Lotes.
+        paginatedDTO.setTotalPages(lotPage.getTotalPages()); //Cantidad de páginas.
+        paginatedDTO.setTotalElements(lotPage.getTotalElements()); //Cantidad de lotes.
+        paginatedDTO.setFiltersOptions(filtersOptionsDTO); //Opciones de cada sección de filtro.
+        
+        return paginatedDTO; //Retornamos el objeto paginado.
 	}
 	
 	//Ordenar:
