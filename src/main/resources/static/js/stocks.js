@@ -389,10 +389,7 @@ document.getElementById("tbody").addEventListener("click", (event) =>
 				}
 				else
 				{
-					//Eliminamos la fila porque no coincide con el filtro aplicado:
-            		row.remove();
-            		
-            		//Obtenemos los stocks que se adecúan a los filtros y actualizamos las opciones de los filtros:
+					//Obtenemos los stocks que se adecúan a los filtros y actualizamos las opciones de los filtros:
             		filterStocks();
 				}
             }
