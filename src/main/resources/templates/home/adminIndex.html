@@ -171,10 +171,15 @@
 								<button><a th:href="@{/supplyOrder/supplyOrderForm/}+${stock.product.productId}">Generate Supply Order</a></button>
 						    </td>
 						</tr>
+						<tr th:if="${paginated.stocks.size() == 0}">
+					        <td colspan="15" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
 					</tbody>
 				</table>
 				<div id="pagination">
-					<button th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
+					<button th:if="${paginted.totalPages > 0}" th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
 					        th:text="${pageNum + 1}"
 					        th:classappend="${pageNum == 0} ? 'active' : ''"
 					        th:data-page="${pageNum}"

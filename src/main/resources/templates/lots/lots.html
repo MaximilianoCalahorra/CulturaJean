@@ -105,7 +105,7 @@
 					</tbody>
 				</table>
 				<div id="paginationSO">
-					<button th:each="pageNum: ${#numbers.sequence(0, paginatedSO.totalPages - 1)}"
+					<button th:if="${pagintedSO.totalPages > 0}" th:each="pageNum: ${#numbers.sequence(0, paginatedSO.totalPages - 1)}"
 					        th:text="${pageNum + 1}"
 					        th:classappend="${pageNum == 0} ? 'active' : ''"
 					        th:data-page="${pageNum}"
@@ -214,7 +214,7 @@
 					</tbody>
 				</table>
 				<div id="paginationL">
-					<button th:each="pageNum: ${#numbers.sequence(0, paginatedLots.totalPages - 1)}"
+					<button th:if="${pagintedLots.totalPages > 0}" th:each="pageNum: ${#numbers.sequence(0, paginatedLots.totalPages - 1)}"
 					        th:text="${pageNum + 1}"
 					        th:classappend="${pageNum == 0} ? 'active' : ''"
 					        th:data-page="${pageNum}"
