@@ -49,7 +49,7 @@ export function isAnyCheckedInSection(sectionName)
 }
 
 /* VERIFICAMOS SI TODAS LAS SECCIONES TIENEN AL MENOS UN CHECKBOX MARCADO */
-export function checkFiltersState(sections, buttonIds) 
+export function checkFiltersState(sections, buttonIds, containerId) 
 {
 	//Suponemos que todas las secciones están con al menos una opción marcada:
 	let allSectionsChecked = true;
@@ -62,7 +62,7 @@ export function checkFiltersState(sections, buttonIds)
 	const filterButton = document.getElementById(buttonIds[1]);  
 	
 	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
-	if(document.querySelectorAll(".error-message").length > 0)
+	if(document.getElementById(containerId).querySelectorAll(".error-message").length > 0)
 	{
 		//Los botones deben permanecer deshabilitados sin importar el estado de los filtros:
 		filterButton.disabled = true;

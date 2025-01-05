@@ -10,7 +10,7 @@
 			<div>
 				<h1>Welcome to the supply orders, admin!</h1>
 			</div>
-			<section>
+			<section id="uSupplyOrdersSection">
 				<h2>Undelivered Supply Orders</h2>
 				<form>
 					<label>Choose The Order:
@@ -121,7 +121,7 @@
 					</button>
 				</div>
 			</section>
-			<section>
+			<section id="dSupplyOrdersSection">
 				<h2>Delivered Supply Orders</h2>
 				<form>
 					<label>Choose The Order:
@@ -232,5 +232,4 @@
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
 	<script type="module" src="/js/supplyOrders.js"></script>
-	<script type="module" src="/js/amountValidations.js"></script>
 </html>

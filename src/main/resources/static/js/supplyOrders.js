@@ -38,6 +38,10 @@ const uButtonIds = [applyOrderUButtonId, applyFiltersUButtonId];
 const dSections = ["pCodeD", "sNameD", "usernameD"];
 const uSections = ["pCodeU", "sNameU", "usernameU"];
 
+//Ids de las secciones:
+const containerIdUSO = "uSupplyOrdersSection";
+const containerIdDSO = "dSupplyOrdersSection";
+
 //Definimos la configuración para los inputs de los pedidos no entregados:
 const amountsUConfig =
 {
@@ -48,7 +52,8 @@ const amountsUConfig =
         { id: "uAmountU", min: 1 },
         { range: ["rFAmountU", "rUAmountU"], min: 1 }
     ],
-    buttonIds: uButtonIds
+    buttonIds: uButtonIds,
+    containerId: containerIdUSO
 };
 
 //Definimos la configuración para los inputs de los pedidos entregados:
@@ -61,7 +66,8 @@ const amountsDConfig =
         { id: "uAmountD", min: 1 },
         { range: ["rFAmountD", "rUAmountD"], min: 1 }
     ],
-	buttonIds: dButtonIds
+	buttonIds: dButtonIds,
+	containerId: containerIdDSO
 }
 
 //Unificamos ambas configuraciones:
@@ -532,7 +538,7 @@ dSections.forEach(sectionName =>
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkFiltersState(dSections, dButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+            checkFiltersState(dSections, dButtonIds, containerIdDSO); //Habilitamos o deshabilitamos los botones según el estado del filtro.
         }
     });
 });
@@ -549,7 +555,7 @@ uSections.forEach(sectionName =>
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkFiltersState(uSections, uButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+            checkFiltersState(uSections, uButtonIds, containerIdUSO); //Habilitamos o deshabilitamos los botones según el estado del filtro.
         }
     });
 });

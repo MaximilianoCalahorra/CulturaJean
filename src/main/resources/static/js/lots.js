@@ -48,6 +48,10 @@ const dateLInputIds = ["rDate", "fRDate", "uRDate", "rFRDate", "rURDate"];
 let filtersSOSections = ["pCode", "sName"];
 let filtersLSections = ["stockId"];
 
+//Ids de las secciones:
+const containerIdSO = "supplyOrdersSection";
+const containerIdL = "lotsSection";
+
 //Definimos la configuración para los inputs de los pedidos:
 const amountsSOConfig =
 {
@@ -58,7 +62,8 @@ const amountsSOConfig =
         { id: "uAmount", min: 1 },
         { range: ["rFAmount", "rUAmount"], min: 1 }
     ],
-    buttonIds: soButtonIds
+    buttonIds: soButtonIds,
+    containerId: containerIdSO
 };
 
 //Definimos la configuración para los inputs de los lotes:
@@ -71,7 +76,8 @@ const amountsLConfig =
         { id: "uEAmount", min: 0 },
         { range: ["rFEAmount", "rUEAmount"], min: 0 }
     ],
-    buttonIds: lButtonIds
+    buttonIds: lButtonIds,
+    containerId: containerIdL
 }
 
 //Unificamos ambas configuraciones:
@@ -81,7 +87,7 @@ const amountsConfig = [amountsSOConfig, amountsLConfig];
 const sections = [filtersSOSections, filtersLSections];
 
 //Definimos la configuración de los inputs de las fechas:
-const datesConfig = {rangeFromDateId: "rFRDate", rangeUntilDateId: "rURDate", buttonIds: lButtonIds};
+const datesConfig = {rangeFromDateId: "rFRDate", rangeUntilDateId: "rURDate", buttonIds: lButtonIds, containerId: containerIdL};
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LOS PEDIDOS */
 function getSupplyOrdersFiltersValues()
@@ -521,12 +527,12 @@ document.addEventListener("DOMContentLoaded", () => configAmountValidations(amou
 document.getElementById(datesConfig.rangeFromDateId).addEventListener("change", () => 
 {
 	validateDates(datesConfig);
-	checkFiltersState(filtersLSections, lButtonIds);	
+	checkFiltersState(filtersLSections, lButtonIds, containerIdL);	
 });
 document.getElementById(datesConfig.rangeUntilDateId).addEventListener("change", () => 
 {
 	validateDates(datesConfig);
-	checkFiltersState(filtersLSections, lButtonIds);		
+	checkFiltersState(filtersLSections, lButtonIds, containerIdL);		
 });
 
 /* ORDENAMOS LOS PEDIDOS */ 
@@ -568,7 +574,7 @@ document.getElementById("stockId-all").addEventListener("click", (event) => chan
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkFiltersState(filtersSOSections, soButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+            checkFiltersState(filtersSOSections, soButtonIds, containerIdSO); //Habilitamos o deshabilitamos los botones según el estado del filtro.
         }
     });
 });
@@ -583,7 +589,7 @@ sectionContainer.addEventListener("click", (event) =>
     //Si el clic fue en un input dentro de la sección:
     if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
     {
-        checkFiltersState(filtersLSections, lButtonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+        checkFiltersState(filtersLSections, lButtonIds, containerIdL); //Habilitamos o deshabilitamos los botones según el estado del filtro.
     }
 });
 

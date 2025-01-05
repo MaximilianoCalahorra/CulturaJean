@@ -20,7 +20,7 @@
 					<a th:href="@{/modifyProfileForm/admin/}+${member.username}">Modify My Profile</a>
 				</div>
 			</section>
-			<section>
+			<section id="supplyOrdersSection">
 				<h2>My Supply Orders</h2>
 				<form>
 					<label>Choose The Order:
@@ -126,5 +126,4 @@
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
 	<script type="module" src="/js/adminAccount.js"></script>
-	<script type="module" src="/js/amountValidations.js"></script>
 </html>

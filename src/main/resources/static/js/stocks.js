@@ -28,6 +28,9 @@ const filterSections = ["cat", "gen", "size", "col"];
 //Cantidad de stocks por página:
 const size = 12;
 
+//Id de la sección:
+const containerIdS = "stocksSection";
+
 //Ids de los inputs de cantidad:
 const amountInputIds = ["amount", "fAmount", "uAmount", "rFAmount", "rUAmount"];
 
@@ -311,7 +314,7 @@ if(document.getElementById("enabledContainer"))
 		    //Si el clic fue en un input dentro de la sección:
 		    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 		    {
-		        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+		        checkFiltersState(filterSections, buttonIds, containerIdS); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 		    }
 		});
 	});

@@ -20,7 +20,7 @@
 					<a th:href="@{/modifyProfileForm/customer/}+${member.username}">Modify My Profile</a>
 				</div>
 			</section>
-			<section>
+			<section id="purchasesSection">
 				<h2>My Purchases</h2>
 				<form>
 					<label>Choose The Order:
@@ -161,6 +161,5 @@
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
-	<script type="module" src="/js/purchasesAndSales.js"></script>
 	<script type="module" src="/js/purchases.js"></script>
 </html>

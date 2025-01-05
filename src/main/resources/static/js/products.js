@@ -27,6 +27,9 @@ const filterSections = ["cat", "gen", "size", "col"];
 //Cantidad de productos por página:
 const size = 6;
 
+//Id de la sección:
+const containerIdP = "productsSection";
+
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LOS PRODUCTOS */
 export function getProductsFiltersValues()
 {
@@ -282,7 +285,7 @@ if(!document.getElementById("enabledContainer"))
 		    //Si el clic fue en un input dentro de la sección:
 		    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 		    {
-		        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+		        checkFiltersState(filterSections, buttonIds, containerIdP); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 		    }
 		});
 	});

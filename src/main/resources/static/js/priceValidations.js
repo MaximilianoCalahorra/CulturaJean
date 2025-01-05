@@ -113,7 +113,7 @@ const validateRangeInputs = (fromInput, untilInput, min) =>
 const validateGroup = (group, sectionsFilters) => 
 {
 	//Descomponemos el grupo:
-    const { inputs, buttonIds } = group;
+    const { inputs, buttonIds, containerId } = group;
     
     //Seleccionamos el botón de ordenar y el de aplicar filtros:
     const orderButton = document.getElementById(buttonIds[0]);
@@ -156,7 +156,7 @@ const validateGroup = (group, sectionsFilters) =>
     });
     
     //Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
-	if(document.querySelectorAll(".error-message").length > 0)
+	if(document.getElementById(containerId).querySelectorAll(".error-message").length > 0)
 	{
 		//Los botones deben permanecer deshabilitados sin importar el estado de los filtros:
 		orderButton.disabled = true;
@@ -171,7 +171,7 @@ const validateGroup = (group, sectionsFilters) =>
 	}
 	
 	//Habilitamos o deshabilitamos los botones según el estado de los checkboxes:
-	checkFiltersState(sectionsFilters, buttonIds);
+	checkFiltersState(sectionsFilters, buttonIds, containerId);
 };
 
 //Validamos el formato del número ingresado:

@@ -31,6 +31,9 @@ const size = 6;
 //Names de las secciones de filtro:
 const filterSections = ["username", "methodOfPay"];
 
+//Id de la sección:
+const containerIdS = "salesSection";
+
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LAS VENTAS */
 function getSalesFiltersValues()
 {
@@ -292,7 +295,7 @@ if(document.getElementById("usernameContainer"))
 	    //Si el clic fue en un input dentro de la sección:
 	    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 	    {
-	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+	        checkFiltersState(filterSections, buttonIds, containerIdS); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
 	});
 	
@@ -306,7 +309,7 @@ if(document.getElementById("usernameContainer"))
 	    //Si el clic fue en un input dentro de la sección:
 	    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 	    {
-	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+	        checkFiltersState(filterSections, buttonIds, containerIdS); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
 	});
 	

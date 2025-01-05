@@ -35,6 +35,9 @@ if(!document.getElementById("usernameContainer"))
 //Name de la sección de filtro:
 const filterSections = ["methodOfPay"];
 
+//Id de la sección:
+const containerIdP = "purchasesSection";
+
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LAS COMPRAS */
 export function getPurchasesFiltersValues()
 {
@@ -310,7 +313,7 @@ if(!document.getElementById("usernameContainer"))
 	    //Si el clic fue en un input dentro de la sección:
 	    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 	    {
-	        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+	        checkFiltersState(filterSections, buttonIds, containerIdP); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 	    }
 	});
 	

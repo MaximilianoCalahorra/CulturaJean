@@ -30,6 +30,16 @@ if(document.getElementById("statesContainer"))
 	filterSections.push("ena");
 }
 
+//Ids de las secciones:
+const containerIdP = "productsSection";
+const containerIdS = "stocksSection";
+
+let containerId = containerIdP;
+if(document.getElementById("statesContainer"))
+{
+	containerId = containerIdS;
+}
+
 //Definimos la configuración para los inputs de precios:
 const pricesConfig =
 {
@@ -40,7 +50,8 @@ const pricesConfig =
         { id: "uSPri", min: 0 },
         { range: ["rFSPri", "rUSPri"], min: 0 }
     ],
-    buttonIds: buttonIds
+    buttonIds: buttonIds,
+    containerId: containerId
 };
 
 /* ACTUALIZAMOS LOS CHECKBOXES DE LA SECCIÓN COLOR */

@@ -30,6 +30,9 @@ const orderName = "order";
 //Ids de los inputs de cantidad:
 const amountInputIds = ["amount", "fAmount", "uAmount", "rFAmount", "rUAmount"];
 
+//Id de la sección:
+const containerIdSO = "supplyOrdersSection";
+
 //Definimos la configuración para los inputs de los pedidos de aprovisionamiento:
 const amountsSupplyOrdersConfig =
 {
@@ -40,7 +43,8 @@ const amountsSupplyOrdersConfig =
         { id: "uAmount", min: 1 },
         { range: ["rFAmount", "rUAmount"], min: 1 }
     ],
-    buttonIds: buttonIds
+    buttonIds: buttonIds,
+    containerId: containerIdSO
 };
 
 //Definimos la configuración de los filtros a chequear para habilitar o no los botones:
@@ -311,7 +315,7 @@ document.getElementById("sName-all").addEventListener("click", (event) => change
         //Si el clic fue en un input dentro de la sección:
         if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
         {
-            checkFiltersState(sectionsFilters, buttonIds); //Habilitamos o deshabilitamos los botones según el estado de los filtros.
+            checkFiltersState(sectionsFilters, buttonIds, containerIdSO); //Habilitamos o deshabilitamos los botones según el estado de los filtros.
         }
     });
 });
