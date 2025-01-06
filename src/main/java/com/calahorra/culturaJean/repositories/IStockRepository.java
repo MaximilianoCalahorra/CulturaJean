@@ -70,7 +70,7 @@ public interface IStockRepository extends JpaRepository<Stock, Serializable>
 	//Encontramos los productos con un precio de venta entre determinado rango:
 	@Query("SELECT s FROM Stock s INNER JOIN FETCH s.product p WHERE p.salePrice >= (:minimumPrice) AND p.salePrice <= (:maximumPrice)")
 	public abstract List<Stock> findBySalePriceRange(@Param("minimumPrice")float minimumPrice, @Param("maximumPrice")float maximumPrice);
-	
+		
 	//Ordenar:
 	
 	//Ordenamos los stocks por id de manera ascendente con su producto asociado:

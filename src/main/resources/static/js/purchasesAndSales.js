@@ -29,6 +29,16 @@ export const priceInputIds = ["fPrice", "uPrice", "rFPrice", "rUPrice"];
 //Configuración de filtros a chequear para compras:
 let filtersSections = ["methodOfPay"];
 
+//Ids de las secciones:
+const containerIdP = "purchasesSection";
+const containerIdS = "salesSection";
+
+let containerId = containerIdP;
+if(document.getElementById("usernameContainer"))
+{
+	containerId = containerIdS;
+}
+
 //Si se trata de ventas, agregamos un filtro más a chequear:
 if(document.getElementById("usernameContainer"))
 {
@@ -36,10 +46,10 @@ if(document.getElementById("usernameContainer"))
 }
 
 //Definimos la configuración de los inputs de las fechas:
-const datesConfig = {rangeFromDateId: "rFDate", rangeUntilDateId: "rUDate", buttonIds: buttonIds};
+const datesConfig = {rangeFromDateId: "rFDate", rangeUntilDateId: "rUDate", buttonIds: buttonIds, containerId: containerId};
 
 //Definimos la configuración de los inputs de las horas:
-const timesConfig = {rangeFromTimeId: "rFTime", rangeUntilTimeId: "rUTime", buttonIds: buttonIds};
+const timesConfig = {rangeFromTimeId: "rFTime", rangeUntilTimeId: "rUTime", buttonIds: buttonIds, containerId: containerId};
 
 //Definimos la configuración para los inputs de las compras/ventas:
 const pricesConfig =
@@ -50,64 +60,9 @@ const pricesConfig =
         { id: "uPrice", min: 0 },
         { range: ["rFPrice", "rUPrice"], min: 0 }
     ],
-    buttonIds: buttonIds
+    buttonIds: buttonIds,
+    containerId: containerId
 };
-
-//Función para calcular el subtotal de un ítem:
-const calculateSubtotal = (amount, price) => amount * price;
-
-//Función para calcular el total de la compra:
-const calculateTotalSale = (purchaseItems) => 
-{
-    return purchaseItems.reduce((total, item) => total + calculateSubtotal(item.amount, item.product.salePrice), 0);
-};
-
-/* GENERAMOS EL HTML CON LOS DATOS DE LAS VENTAS/COMPRAS OBTENIDAS */
-export function generateHTMLForSalesOrPurchases(purchases) 
-{
-    let html = '';
-    purchases.forEach(purchase => 
-    {
-        const totalSale = calculateTotalSale(purchase.purchaseItems);
-        html += `<tr>
-                	<td>
-                    	<details>
-                            <summary>${purchase.purchaseId}</summary>
-                            <summary>Details Of The Sale</summary>
-                            <table border="3">
-                                <thead>
-                                    <tr>
-                                        <th>Sale Item Id</th>
-                                        <th>Product Code</th>
-                                        <th>Amount</th>
-                                        <th>Subtotal Sale</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
-                                
-        purchase.purchaseItems.forEach(purchaseItem => 
-        {
-            const subtotal = calculateSubtotal(purchaseItem.amount, purchaseItem.product.salePrice);
-            html += `<tr>
-                        <td>${purchaseItem.purchaseItemId}</td>
-                        <td>${purchaseItem.product.code}</td>
-                        <td>${purchaseItem.amount}</td>
-                        <td>${subtotal.toFixed(2)}</td>
-                    </tr>`;
-        });
-
-        html += `       </tbody>
-                        </table>
-                    </details>
-                </td>
-                <td>${purchase.member.username}</td>
-                <td>${purchase.methodOfPay}</td>
-                <td>${purchase.dateTime}</td>
-                <td>${totalSale.toFixed(2)}</td>
-            </tr>`;
-    });
-    return html;
-}
 
 /* DETECTAMOS CLICS EN EL CHECKBOX "all" DE MÉTODOS DE PAGO */
 document.getElementById("methodOfPay-all").addEventListener("click", (event) => changeStatusOtherOptions(event, "methodOfPay"));
@@ -117,12 +72,12 @@ document.getElementById("methodOfPay-all").addEventListener("click", (event) => 
 document.getElementById(datesConfig.rangeFromDateId).addEventListener("change", () => 
 {
 	validateDates(datesConfig); 
-	checkFiltersState(filtersSections, buttonIds);
+	checkFiltersState(filtersSections, buttonIds, containerId);
 });
 document.getElementById(datesConfig.rangeUntilDateId).addEventListener("change", () =>
 {
 	validateDates(datesConfig);	
-	checkFiltersState(filtersSections, buttonIds);
+	checkFiltersState(filtersSections, buttonIds, containerId);
 });
 
 /* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE HORAS DE LAS COMPRAS/VENTAS */
@@ -130,12 +85,12 @@ document.getElementById(datesConfig.rangeUntilDateId).addEventListener("change",
 document.getElementById(timesConfig.rangeFromTimeId).addEventListener("change", () => 
 {
 	validateTimes(timesConfig);
-	checkFiltersState(filtersSections, buttonIds);	
+	checkFiltersState(filtersSections, buttonIds, containerId);	
 });
 document.getElementById(timesConfig.rangeUntilTimeId).addEventListener("change", () =>
 {
 	validateTimes(timesConfig);
-	checkFiltersState(filtersSections, buttonIds);
+	checkFiltersState(filtersSections, buttonIds, containerId);
 });
 
 /* ESCUCHAMOS LA ENTRADA DE DATOS EN LOS INPUTS DE PRECIOS DE LAS COMPRAS/VENTAS */

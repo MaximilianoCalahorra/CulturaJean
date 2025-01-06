@@ -49,7 +49,7 @@ export function isAnyCheckedInSection(sectionName)
 }
 
 /* VERIFICAMOS SI TODAS LAS SECCIONES TIENEN AL MENOS UN CHECKBOX MARCADO */
-export function checkFiltersState(sections, buttonIds) 
+export function checkFiltersState(sections, buttonIds, containerId) 
 {
 	//Suponemos que todas las secciones están con al menos una opción marcada:
 	let allSectionsChecked = true;
@@ -62,7 +62,7 @@ export function checkFiltersState(sections, buttonIds)
 	const filterButton = document.getElementById(buttonIds[1]);  
 	
 	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
-	if(document.querySelectorAll(".error-message").length > 0)
+	if(document.getElementById(containerId).querySelectorAll(".error-message").length > 0)
 	{
 		//Los botones deben permanecer deshabilitados sin importar el estado de los filtros:
 		filterButton.disabled = true;
@@ -100,40 +100,44 @@ export function updateCheckboxes(containerId, name, values, selectedValues)
     const options = container.querySelectorAll('input[type="checkbox"]:not([value="all"])');
     options.forEach(option => option.parentElement.remove());
 
-    //Generamos el checkbox para las demás opciones:
-    values.forEach((value, index) => 
-    {	
-		//Definimos la primera parte de la opción:
-		let option = `<div>
-	                      <input type="checkbox" name=${name} value="${value}" id="${name}-${index + 1}" autocomplete="off"`;            
-		            
-		//Si está seleccionada la opción "all" en este tipo de filtro:    
-		if(selectedValues.includes("all"))
-		{
-			//Entonces generamos las opciones pero desactivadas:
-			option += ` disabled>
-		              <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;
-		}
-		
-		//Si no está seleccionada la opción de "all" y dentro de las seleccionadas está la opción que estamos estamos evaluando:
-		else if(selectedValues.includes(String(value)))
-		{
-			//Entonces la insertamos al HTML marcada:
-			option += ` checked>
-					  <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;	
-		}
-		else //Para el resto de los casos:
-		{
-			//Entonces generamos la opción por defecto, sin marcar y habilitada:
-			option += `>
-					  <label for="${name}-${index + 1}">${value}</label>
-		          </div>`;
-		}
-		
-		container.insertAdjacentHTML("beforeend", option); //Agregamos la opción al final.
-    });
+	//Si hay alguna sección de filtros para añadir:
+	if(values !== null)
+	{
+		//Generamos el checkbox para las demás opciones:
+	    values.forEach((value, index) => 
+	    {	
+			//Definimos la primera parte de la opción:
+			let option = `<div>
+		                      <input type="checkbox" name=${name} value="${value}" id="${name}-${index + 1}" autocomplete="off"`;            
+			            
+			//Si está seleccionada la opción "all" en este tipo de filtro:    
+			if(selectedValues.includes("all"))
+			{
+				//Entonces generamos las opciones pero desactivadas:
+				option += ` disabled>
+			              <label for="${name}-${index + 1}">${value}</label>
+			          </div>`;
+			}
+			
+			//Si no está seleccionada la opción de "all" y dentro de las seleccionadas está la opción que estamos estamos evaluando:
+			else if(selectedValues.includes(String(value)))
+			{
+				//Entonces la insertamos al HTML marcada:
+				option += ` checked>
+						  <label for="${name}-${index + 1}">${value}</label>
+			          </div>`;	
+			}
+			else //Para el resto de los casos:
+			{
+				//Entonces generamos la opción por defecto, sin marcar y habilitada:
+				option += `>
+						  <label for="${name}-${index + 1}">${value}</label>
+			          </div>`;
+			}
+			
+			container.insertAdjacentHTML("beforeend", option); //Agregamos la opción al final.
+	    });	
+	}
 }
 
 /* ALTERAMOS LAS DEMÁS OPCIONES DE UNA SECCIÓN EN BASE AL ESTADO DE LA OPCIÓN "all" */
@@ -173,4 +177,33 @@ export function reinicializeInputs(inputIds, buttonIds)
 	
 	//Habilitamos el botón de aplicar filtros y el de ordenar:
 	buttonIds.forEach(buttonId => document.getElementById(buttonId).disabled = false);
+}
+
+/* ACTUALIZAMOS LOS BOTONES DE PÁGINAS */
+export function updatePagination(totalPages, currentPage, endPaginationContainerId = "") 
+{
+    const pagination = document.getElementById('pagination' + endPaginationContainerId); //Seleccionamos el contenedor de los botones.
+    pagination.innerHTML = ''; //Limpiamos los botones de paginación.
+
+	//Por cada página:
+    for(let i = 0; i < totalPages; i++) 
+    {
+        const button = document.createElement('button'); //Creamos un botón.
+        button.textContent = i + 1; //Le damos el número.
+        button.classList.toggle('active', i === currentPage);
+        button.setAttribute("data-page", i);
+
+        pagination.appendChild(button); //Agregamos el botón al contenedor.
+    }
+    
+    //Si por lo menos tenemos una página:
+    if(totalPages > 0)
+    {
+		//Cambiamos el color de fondo del botón de la página que se está mostrando:
+    	pagination.querySelector(".active").setAttribute("style", "background-color: orange;");
+	}
+	else
+	{
+		pagination.innerHTML = ''; //Removemos los botones porque no hay resultados.
+	}
 }

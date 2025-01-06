@@ -6,16 +6,26 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import com.calahorra.culturaJean.dtos.FiltersOptionsSupplyOrderDTO;
+import com.calahorra.culturaJean.dtos.PaginatedSupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
+import com.calahorra.culturaJean.dtos.SupplyOrderFiltersDataDTO;
 import com.calahorra.culturaJean.entities.SupplyOrder;
 import com.calahorra.culturaJean.repositories.ISupplyOrderRepository;
+import com.calahorra.culturaJean.repositories.custom.ICustomSupplyOrderRepository;
 import com.calahorra.culturaJean.services.ISupplyOrderService;
+import com.calahorra.culturaJean.services.IUtilsService;
 
 ///Clase SupplyOrderService:
 @Service("supplyOrderService")
@@ -23,12 +33,17 @@ public class SupplyOrderService implements ISupplyOrderService
 {
 	//Atributos:
 	private ISupplyOrderRepository supplyOrderRepository;
+	private ICustomSupplyOrderRepository customSupplyOrderRepository;
+	private IUtilsService utilsService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
-	public SupplyOrderService(ISupplyOrderRepository supplyOrderRepository) 
+	public SupplyOrderService(ISupplyOrderRepository supplyOrderRepository, ICustomSupplyOrderRepository customSupplyOrderRepository,
+							  IUtilsService utilsService) 
 	{
 		this.supplyOrderRepository = supplyOrderRepository;
+		this.customSupplyOrderRepository = customSupplyOrderRepository;
+		this.utilsService = utilsService;
 	}
 	
 	//Encontrar:
@@ -209,6 +224,183 @@ public class SupplyOrderService implements ISupplyOrderService
 				.stream()
 				.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)) //Convertimos cada entidad en un DTO.
 				.collect(Collectors.toList()); //Almacenamos cada DTO en una lista y la retornamos.;
+	}
+	
+	//Obtenemos los pedidos de aprovisionamiento filtrados de una página:
+	@Override
+	public PaginatedSupplyOrderDTO getFilteredSupplyOrders(@Param("filters")SupplyOrderFiltersDataDTO filters, int page, int size) 
+	{
+		//Instanciamos un Pageable con la página y la cantidad de elementos a traer para hacer la query:
+        Pageable pageable = PageRequest.of(page, size);
+
+        //Adaptamos los filtros para poder hacer la consulta:
+        List<String> productCodes = utilsService.cleanFilter(filters.getProductCodes());
+        List<String> supplierNames = utilsService.cleanFilter(filters.getSupplierNames());
+        List<String> adminUsernames = utilsService.cleanFilter(filters.getAdminUsernames());
+        Integer amount = utilsService.convertStringFilterToInteger(filters.getAmount());
+        Integer fromAmount = utilsService.convertStringFilterToInteger(filters.getFromAmount());
+        Integer untilAmount = utilsService.convertStringFilterToInteger(filters.getUntilAmount());
+        Integer rangeFromAmount = utilsService.convertStringFilterToInteger(filters.getRangeFromAmount());
+        Integer rangeUntilAmount = utilsService.convertStringFilterToInteger(filters.getRangeUntilAmount());
+        Boolean delivered = utilsService.convertStringFilterToBoolean(filters.getDelivered());
+        
+        //Obtenemos el criterio de ordenamiento:
+        String sort = filters.getOrder();
+        
+        //Definimos el principio de la query para obtener los pedidos de aprovisionamiento:
+        String findSOQueryBase = """
+    	SELECT so.*
+	    FROM supply_order so
+	    INNER JOIN product p ON so.product_id = p.product_id
+	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
+	    INNER JOIN member m ON so.member_id = m.member_id
+	    WHERE 1=1	
+    	""";
+        
+        //Definimos el prinicipio de la query para obtener la cantidad de pedidos de aprovisionamiento obtenidos con la query anterior:
+        String countSOQueryBase = """
+    	SELECT COUNT(*)
+	    FROM supply_order so
+	    INNER JOIN product p ON so.product_id = p.product_id
+	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
+	    INNER JOIN member m ON so.member_id = m.member_id
+	    WHERE 1=1	
+    	""";
+        
+        //Obtenemos la página de pedidos de aprovisionamiento según los filtros y el criterio de ordenamiento:
+        Page<SupplyOrder> supplyOrderPage = customSupplyOrderRepository.findFilteredSupplyOrders(productCodes, supplierNames, 
+        																					     adminUsernames, amount, fromAmount, 
+        																					     untilAmount, rangeFromAmount, 
+        																					     rangeUntilAmount, delivered, sort, 
+        																					     pageable, findSOQueryBase, 
+        																					     countSOQueryBase);
+
+        //Definimos el principio de la query para obtener las opciones de los filtros de los pedidos de aprovisionamiento resultantes:
+        String findOptionsQueryBase = """
+	    SELECT 
+	        ARRAY_AGG(DISTINCT p.code)::TEXT[] AS productCodes,
+	        ARRAY_AGG(DISTINCT s.name)::TEXT[] AS supplierNames,
+	        ARRAY_AGG(DISTINCT m.username)::TEXT[] AS adminUsernames
+	    FROM supply_order so
+	    INNER JOIN product p ON so.product_id = p.product_id
+	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
+	    INNER JOIN member m ON so.member_id = m.member_id
+	    WHERE 1=1		
+		""";
+        
+        //Obtenemos todas las opciones de cada sección de filtro según la configuración de filtros aplicada:
+        List<Map<String, Object>> results = customSupplyOrderRepository.findFiltersOptions(productCodes, supplierNames, adminUsernames,
+				   																		   amount, fromAmount, untilAmount, 
+				   																		   rangeFromAmount, rangeUntilAmount, delivered,
+				   																		   findOptionsQueryBase); 
+        
+        //Desglosamos las opciones y las asignamos a cada parte de nuestro DTO específico de opciones de filtros de pedidos de aprovisionamiento:
+        FiltersOptionsSupplyOrderDTO filtersOptionsDTO = new FiltersOptionsSupplyOrderDTO();
+        for(Map<String, Object> result : results) 
+        { 
+        	filtersOptionsDTO.setProductCodes(utilsService.convertPostgresArrayToList((String[]) result.get("productCodes"))); //Códigos de producto.
+        	filtersOptionsDTO.setSupplierNames(utilsService.convertPostgresArrayToList((String[]) result.get("supplierNames"))); //Nombres de proveedor.
+        	filtersOptionsDTO.setAdminUsernames(utilsService.convertPostgresArrayToList((String[]) result.get("adminUsernames"))); //Usernames de administrador.
+        }
+        
+        //Construimos el objeto paginado con su información:
+        PaginatedSupplyOrderDTO paginatedDTO = new PaginatedSupplyOrderDTO();
+        paginatedDTO.setSupplyOrders(supplyOrderPage.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)).getContent()); //Pedidos de aprovisionamiento.
+        paginatedDTO.setTotalPages(supplyOrderPage.getTotalPages()); //Cantidad de páginas.
+        paginatedDTO.setTotalElements(supplyOrderPage.getTotalElements()); //Cantidad de pedidos de aprovisionamiento.
+        paginatedDTO.setFiltersOptions(filtersOptionsDTO); //Opciones de cada sección de filtro.
+        
+        return paginatedDTO; //Retornamos el objeto paginado.
+	}
+	
+	//Obtenemos los pedidos de aprovisionamiento que pueden dar de alta un lote filtrados de una página:
+	@Override
+	public PaginatedSupplyOrderDTO getFilteredSupplyOrdersToLots(@Param("filters")SupplyOrderFiltersDataDTO filters, int page, int size) 
+	{
+		//Instanciamos un Pageable con la página y la cantidad de elementos a traer para hacer la query:
+		Pageable pageable = PageRequest.of(page, size);
+		
+		//Adaptamos los filtros para poder hacer la consulta:
+		List<String> productCodes = utilsService.cleanFilter(filters.getProductCodes());
+		List<String> supplierNames = utilsService.cleanFilter(filters.getSupplierNames());
+		List<String> adminUsernames = utilsService.cleanFilter(filters.getAdminUsernames());
+		Integer amount = utilsService.convertStringFilterToInteger(filters.getAmount());
+		Integer fromAmount = utilsService.convertStringFilterToInteger(filters.getFromAmount());
+		Integer untilAmount = utilsService.convertStringFilterToInteger(filters.getUntilAmount());
+		Integer rangeFromAmount = utilsService.convertStringFilterToInteger(filters.getRangeFromAmount());
+		Integer rangeUntilAmount = utilsService.convertStringFilterToInteger(filters.getRangeUntilAmount());
+		Boolean delivered = utilsService.convertStringFilterToBoolean(filters.getDelivered());
+		
+		//Obtenemos el criterio de ordenamiento:
+		String sort = filters.getOrder();
+		
+		//Definimos el principio de la query para obtener los pedidos de aprovisionamiento:
+		String findSOQueryBase = """
+    	SELECT so.*
+	    FROM supply_order so
+	    INNER JOIN product p ON so.product_id = p.product_id
+	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
+	    INNER JOIN member m ON so.member_id = m.member_id
+	    LEFT JOIN lot l ON so.supply_order_id = l.supply_order_id
+	    WHERE l.supply_order_id IS NULL
+    	""";
+		
+		//Definimos el prinicipio de la query para obtener la cantidad de pedidos de aprovisionamiento obtenidos con la query anterior:
+		String countSOQueryBase = """
+    	SELECT COUNT(*)
+	    FROM supply_order so
+	    INNER JOIN product p ON so.product_id = p.product_id
+	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
+	    INNER JOIN member m ON so.member_id = m.member_id
+	    LEFT JOIN lot l ON so.supply_order_id = l.supply_order_id
+	    WHERE l.supply_order_id IS NULL	
+    	""";
+		
+		//Obtenemos la página de pedidos de aprovisionamiento según los filtros y el criterio de ordenamiento:
+		Page<SupplyOrder> supplyOrderPage = customSupplyOrderRepository.findFilteredSupplyOrders(productCodes, supplierNames, 
+																								 adminUsernames, amount, fromAmount, 
+																								 untilAmount, rangeFromAmount, 
+																								 rangeUntilAmount, delivered, sort, 
+																								 pageable, findSOQueryBase, 
+																								 countSOQueryBase);
+		
+		//Definimos el principio de la query para obtener las opciones de los filtros de los pedidos de aprovisionamiento resultantes:
+		String findOptionsQueryBase = """
+	    SELECT 
+	        ARRAY_AGG(DISTINCT p.code)::TEXT[] AS productCodes,
+	        ARRAY_AGG(DISTINCT s.name)::TEXT[] AS supplierNames,
+	        ARRAY_AGG(DISTINCT m.username)::TEXT[] AS adminUsernames
+	    FROM supply_order so
+	    INNER JOIN product p ON so.product_id = p.product_id
+	    INNER JOIN supplier s ON so.supplier_id = s.supplier_id
+	    INNER JOIN member m ON so.member_id = m.member_id
+	    LEFT JOIN lot l ON so.supply_order_id = l.supply_order_id
+	    WHERE l.supply_order_id IS NULL		
+		""";
+		
+		//Obtenemos todas las opciones de cada sección de filtro según la configuración de filtros aplicada:
+		List<Map<String, Object>> results = customSupplyOrderRepository.findFiltersOptions(productCodes, supplierNames, adminUsernames,
+																						   amount, fromAmount, untilAmount, 
+																						   rangeFromAmount, rangeUntilAmount, delivered,
+																						   findOptionsQueryBase); 
+		
+		//Desglosamos las opciones y las asignamos a cada parte de nuestro DTO específico de opciones de filtros de pedidos de aprovisionamiento:
+		FiltersOptionsSupplyOrderDTO filtersOptionsDTO = new FiltersOptionsSupplyOrderDTO();
+		for(Map<String, Object> result : results) 
+		{ 
+			filtersOptionsDTO.setProductCodes(utilsService.convertPostgresArrayToList((String[]) result.get("productCodes"))); //Códigos de producto.
+			filtersOptionsDTO.setSupplierNames(utilsService.convertPostgresArrayToList((String[]) result.get("supplierNames"))); //Nombres de proveedor.
+			filtersOptionsDTO.setAdminUsernames(utilsService.convertPostgresArrayToList((String[]) result.get("adminUsernames"))); //Usernames de administrador.
+		}
+		
+		//Construimos el objeto paginado con su información:
+		PaginatedSupplyOrderDTO paginatedDTO = new PaginatedSupplyOrderDTO();
+		paginatedDTO.setSupplyOrders(supplyOrderPage.map(supplyOrder -> modelMapper.map(supplyOrder, SupplyOrderDTO.class)).getContent()); //Pedidos de aprovisionamiento.
+		paginatedDTO.setTotalPages(supplyOrderPage.getTotalPages()); //Cantidad de páginas.
+		paginatedDTO.setTotalElements(supplyOrderPage.getTotalElements()); //Cantidad de pedidos de aprovisionamiento.
+		paginatedDTO.setFiltersOptions(filtersOptionsDTO); //Opciones de cada sección de filtro.
+		
+		return paginatedDTO; //Retornamos el objeto paginado.
 	}
 	
 	//Ordenar:

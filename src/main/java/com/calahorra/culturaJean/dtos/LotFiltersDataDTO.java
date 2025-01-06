@@ -18,9 +18,9 @@ public class LotFiltersDataDTO
 	private String untilReceptionDate;
 	private String rangeFromReceptionDate;
 	private String rangeUntilReceptionDate;
-	private String amount;
-	private String fromAmount;
-	private String untilAmount;
-	private String rangeFromAmount;
-	private String rangeUntilAmount;
+	private String existingAmount;
+	private String fromExistingAmount;
+	private String untilExistingAmount;
+	private String rangeFromExistingAmount;
+	private String rangeUntilExistingAmount;
 }

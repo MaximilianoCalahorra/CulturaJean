@@ -9,7 +9,7 @@ import lombok.Setter;
 public class MemberDTO 
 {
 	//Atributos:
-	private int MemberId;
+	private int memberId;
 	private String username;
 	private boolean enabled;
 	private String name;

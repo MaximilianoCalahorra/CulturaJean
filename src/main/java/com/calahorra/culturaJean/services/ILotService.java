@@ -3,7 +3,11 @@ package com.calahorra.culturaJean.services;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
 import com.calahorra.culturaJean.dtos.LotDTO;
+import com.calahorra.culturaJean.dtos.LotFiltersDataDTO;
+import com.calahorra.culturaJean.dtos.PaginatedLotDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.entities.Lot;
 
@@ -85,6 +89,9 @@ public interface ILotService
 	
 	//Obtenemos todos los lotes:
 	public List<LotDTO> getAll();
+	
+	//Obtenemos los lotes filtrados de una página:
+	public PaginatedLotDTO getFilteredLots(@Param("filters")LotFiltersDataDTO filters, int page, int size);
 	
 	//Ordernar:
 	

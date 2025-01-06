@@ -2,7 +2,6 @@ package com.calahorra.culturaJean.controllers;
 
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -12,11 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.calahorra.culturaJean.dtos.LotDTO;
 import com.calahorra.culturaJean.dtos.LotFiltersDataDTO;
+import com.calahorra.culturaJean.dtos.PaginatedLotDTO;
+import com.calahorra.culturaJean.dtos.PaginatedSupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.ProductDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
@@ -51,101 +53,59 @@ public class LotController
 		//Definimos la vista a cargar:
 		ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.LOTS);
 		
-		//Obtenemos los lotes que pueden ser dados de alta:
-		//Primero obtenemos los pedidos de aprovisionamiento que han sido entregados:
-		List<SupplyOrderDTO> supplyOrdersToLots = supplyOrderService.findByDelivered(true); 
-				
-		//Ahora filtramos esos pedidos de aprovisionamiento para quedarnos solo con los que no hayan generado un pedido de aprovisionamiento:
-		supplyOrdersToLots = lotService.filterBySupplyOrderWithInexistingLot(supplyOrdersToLots);
+		/* LOTES POR DAR DE ALTA */
+		String defaultOrderSupplyOrders = "so.amount DESC"; //Definimos el criterio de ordenamiento por defecto de los pedidos de aprovisionamiento.
 		
-		//Aplicamos el ordenamiento por defecto:
-		String orderSupplyOrders = "orderDescByAmount";
-		supplyOrdersToLots = supplyOrderService.applyOrder(supplyOrdersToLots, orderSupplyOrders);
+		SupplyOrderFiltersDataDTO filtersSupplyOrders = new SupplyOrderFiltersDataDTO(); //Definimos todos los filtros de los pedidos de aprovisionamiento en su estado por defecto.
+		filtersSupplyOrders.setOrder(defaultOrderSupplyOrders); //Pasamos el criterio de ordenamiento.
+		int pageSupplyOrders = 0; //Definimos que es la primera página.
+		int sizeSupplyOrders = 10; //Definimos la cantidad de elementos de la página.
 		
-		//Obtenemos todos los lotes:
-		List<LotDTO> lotsRegistered = lotService.getAll();
-		
-		//Aplicamos el ordenamiento por defecto:
-		String orderLots = "orderAscByExistingAmount";
-		lotsRegistered = lotService.applyOrder(lotsRegistered, orderLots);
+		//Obtenemos los pedidos de aprovisionamiento de la página:
+		PaginatedSupplyOrderDTO paginatedSupplyOrders = supplyOrderService.getFilteredSupplyOrdersToLots(filtersSupplyOrders, 
+																										 pageSupplyOrders, 
+																										 sizeSupplyOrders);
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("orderSO", orderSupplyOrders); //Adjuntamos el criterio de ordenamiento de los pedidos de aprovisionamiento.
+		modelAndView.addObject("orderSO", defaultOrderSupplyOrders); //Adjuntamos el criterio de ordenamiento de los pedidos de aprovisionamiento.
 		modelAndView.addObject("pCode", "all"); //Adjuntamos el código del producto del filtro.
 		modelAndView.addObject("sName", "all"); //Adjuntamos el nombre del proveedor del filtro.
-		modelAndView.addObject("supplyOrdersToLots", supplyOrdersToLots); //Adjuntamos los pedidos de aprovisionamiento que pueden generar lotes.
-		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode(supplyOrdersToLots)); //Adjuntamos los códigos de los productos.
-		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrdersToLots)); //Adjuntamos los nombres de los proveedores.
+		modelAndView.addObject("paginatedSO", paginatedSupplyOrders); //Adjuntamos los pedidos de aprovisionamiento que pueden generar lotes.
+		modelAndView.addObject("productCodes", paginatedSupplyOrders.getFiltersOptions().getProductCodes()); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", paginatedSupplyOrders.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores.
+	
+		/* LOTES EXISTENTES */
+		String defaultOrderLots = "l.existing_amount ASC"; //Definimos el criterio de ordenamiento por defecto de los lotes.
 		
-		modelAndView.addObject("orderL", orderLots); //Adjuntamos el criterio de ordenamiento de los lotes registrados.
+		LotFiltersDataDTO filtersLots = new LotFiltersDataDTO(); //Definimos todos los filtros de los lotes en su estado por defecto.
+		filtersLots.setOrder(defaultOrderLots); //Pasamos el criterio de ordenamiento.
+		int pageLots = 0; //Definimos que es la primera página.
+		int sizeLots = 10; //Definimos la cantidad de elementos de la página.
+		
+		PaginatedLotDTO paginatedLots = lotService.getFilteredLots(filtersLots, pageLots, sizeLots); //Obtenemos los lotes de la página.
+		
+		modelAndView.addObject("orderL", defaultOrderLots); //Adjuntamos el criterio de ordenamiento de los lotes registrados.
 		modelAndView.addObject("stockId", "all"); //Adjuntamos el filtro de un stock específico.
-		modelAndView.addObject("lotsRegistered", lotsRegistered); //Adjuntamos los lotes registrados.
-		modelAndView.addObject("stockIds", lotService.findUniqueEachStockId(lotsRegistered)); //Adjuntamos los ids de los stocks.
+		modelAndView.addObject("paginatedLots", paginatedLots); //Adjuntamos el paginado de los lotes.
+		modelAndView.addObject("stockIds", paginatedLots.getFiltersOptions().getStockIds()); //Adjuntamos los ids de los stocks.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
 	//Respondemos a las peticiones de filtrado y/u ordenamiento sobre los pedidos de aprovisionamiento que pueden dar de alta lotes:
 	@PostMapping("/lots/supplyOrdersToLots/filter")
-	public ResponseEntity<List<SupplyOrderDTO>> filteredSupplyOrdersToLots(@RequestBody SupplyOrderFiltersDataDTO filtersData)
+	public ResponseEntity<PaginatedSupplyOrderDTO> filteredSupplyOrdersToLots(@RequestBody SupplyOrderFiltersDataDTO filters,
+																		   @RequestParam("page")int page, @RequestParam("size")int size)
 	{
-		//Obtenemos los valores asignados a los filtros:
-		String order = filtersData.getOrder();
-		List<String> productCodes = filtersData.getProductCodes();
-		List<String> supplierNames = filtersData.getSupplierNames();
-		List<String> adminUsernames = filtersData.getAdminUsernames();
-		int amount = Integer.parseInt(filtersData.getAmount());
-    	int fromAmount = Integer.parseInt(filtersData.getFromAmount());
-    	int untilAmount = Integer.parseInt(filtersData.getUntilAmount());
-    	int rangeFromAmount = Integer.parseInt(filtersData.getRangeFromAmount());
-    	int rangeUntilAmount = Integer.parseInt(filtersData.getRangeUntilAmount());
-		
-		//Obtenemos los lotes que pueden ser dados de alta:
-		//Primero obtenemos los pedidos de aprovisionamiento que han sido entregados:
-		List<SupplyOrderDTO> supplyOrdersToLots = supplyOrderService.findByDelivered(true); 
-		
-		//Ahora filtramos esos pedidos de aprovisionamiento para quedarnos solo con los que no hayan generado un pedido de aprovisionamiento:
-		supplyOrdersToLots = lotService.filterBySupplyOrderWithInexistingLot(supplyOrdersToLots);
-		
-		//Aplicamos los filtros seleccionados:
-		supplyOrdersToLots = supplyOrderService.applyFilters(supplyOrdersToLots, productCodes, supplierNames, adminUsernames, amount, 
-															 fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
-				
-		//Aplicamos el ordenamiento seleccionado:
-		supplyOrdersToLots = supplyOrderService.applyOrder(supplyOrdersToLots, order);
-		
-		return ResponseEntity.ok(supplyOrdersToLots); //Retornamos los pedidos.
+		return ResponseEntity.ok(supplyOrderService.getFilteredSupplyOrdersToLots(filters, page, size)); //Retornamos el paginado.
 	}
 	
 	//Respondemos a las peticiones de filtrado y/u ordenamiento sobre los lotes:
 	@PostMapping("/lots/filter")
-	public ResponseEntity<List<LotDTO>> filteredLots(@RequestBody LotFiltersDataDTO filtersData)
+	public ResponseEntity<PaginatedLotDTO> filteredLots(@RequestBody LotFiltersDataDTO filters, @RequestParam("page")int page, 
+													 @RequestParam("size")int size)
 	{
-		//Obtenemos los valores asignados a los filtros:
-		String order = filtersData.getOrder();
-		List<String> stockIds = filtersData.getStockIds(); 
-		String receptionDate = filtersData.getReceptionDate();
-		String fromReceptionDate = filtersData.getFromReceptionDate();
-		String untilReceptionDate = filtersData.getUntilReceptionDate();
-		String rangeFromReceptionDate = filtersData.getRangeFromReceptionDate();
-		String rangeUntilReceptionDate = filtersData.getRangeUntilReceptionDate();
-		int amount = Integer.parseInt(filtersData.getAmount());
-		int fromAmount = Integer.parseInt(filtersData.getFromAmount());
-		int untilAmount = Integer.parseInt(filtersData.getUntilAmount());
-		int rangeFromAmount = Integer.parseInt(filtersData.getRangeFromAmount());
-		int rangeUntilAmount = Integer.parseInt(filtersData.getRangeUntilAmount());
-		
-		//Obtenemos todos los lotes:
-		List<LotDTO> lots = lotService.getAll();
-		
-		//Aplicamos los filtros seleccionados:
-		lots = lotService.applyFilters(lots, stockIds, receptionDate, fromReceptionDate, untilReceptionDate, rangeFromReceptionDate,
-									   rangeUntilReceptionDate, amount, fromAmount, untilAmount, rangeFromAmount, rangeUntilAmount);
-		
-		//Aplicamos el ordenamiento seleccionado:
-		lots = lotService.applyOrder(lots, order);
-		
-		return ResponseEntity.ok(lots); //Retornamos los lotes.
+		return ResponseEntity.ok(lotService.getFilteredLots(filters, page, size)); //Retornamos el paginado.
 	}
 	
 	//Respondemos a la petición de dar de alta un lote:

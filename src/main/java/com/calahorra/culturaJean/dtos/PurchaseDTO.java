@@ -16,6 +16,7 @@ public class PurchaseDTO
 	private MemberDTO member;
 	private Set<PurchaseItemDTO> purchaseItems;
 	private String methodOfPay;
+	private float totalPrice;
 	private LocalDateTime dateTime;
 	
 	//Constructor:
@@ -25,24 +26,12 @@ public class PurchaseDTO
 		this.purchaseItems = purchaseItems;
 	}
 	
-	public PurchaseDTO(int purchaseId, MemberDTO member, String methodOfPay, LocalDateTime dateTime) 
+	public PurchaseDTO(int purchaseId, MemberDTO member, String methodOfPay, float totalPrice, LocalDateTime dateTime) 
 	{
 		setPurchaseId(purchaseId);
 		this.member = member;
 		this.methodOfPay = methodOfPay;
+		this.totalPrice = totalPrice;
 		this.dateTime = dateTime;
-	}
-	
-	//Calcular:
-	
-	//Calculamos el total de la compra:
-	public float calculateTotalSale()
-	{
-		float total = 0;
-		for(PurchaseItemDTO purchaseItem: getPurchaseItems()) 
-		{
-			total += purchaseItem.calculateSubtotalSale();
-		}
-		return total;
 	}
 }

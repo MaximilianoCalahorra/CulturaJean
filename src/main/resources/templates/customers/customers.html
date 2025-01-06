@@ -14,12 +14,12 @@
 				<form>
 					<label>Choose The Order:
 						<select name="order">
-							<option value="orderAscByName" th:selected="${order == 'orderAscByName'}">Ascendent By Name</option>
-							<option value="orderDescByName" th:selected="${order == 'orderDescByName'}">Descendent By Name</option>
-							<option value="orderAscByLastName" th:selected="${order == 'orderAscByLastName'}">Ascendent By Last Name</option>
-							<option value="orderDescByLastName" th:selected="${order == 'orderDescByLastName'}">Descendent By Last Name</option>
-							<option value="orderAscByUsername" th:selected="${order == 'orderAscByUsername'}">Ascendent By Username</option>
-							<option value="orderDescByUsername" th:selected="${order == 'orderDescByUsername'}">Descendent By Username</option>
+							<option value="m.name ASC" th:selected="${order == 'm.name ASC'}">Ascendent By Name</option>
+							<option value="m.name DESC" th:selected="${order == 'm.name DESC'}">Descendent By Name</option>
+							<option value="m.last_name ASC" th:selected="${order == 'm.last_name ASC'}">Ascendent By Last Name</option>
+							<option value="m.last_name DESC" th:selected="${order == 'm.last_name DESC'}">Descendent By Last Name</option>
+							<option value="m.username ASC" th:selected="${order == 'm.username ASC'}">Ascendent By Username</option>
+							<option value="m.username DESC" th:selected="${order == 'm.username DESC'}">Descendent By Username</option>
 						</select>
 					</label>
 					<button type="button" id="applyOrderButton">Apply</button>
@@ -48,10 +48,15 @@
 						</tr>
 					</thead>
 					<tbody id="tBodyCustomerTable">
-						<tr th:each="customer: ${customers}" th:id="'row-' + ${customer.memberId}">
+						<tr th:if="${paginated.members.size() == 0}">
+							<td colspan="7" style="text-align: center; font-style: italic; color: gray;">
+								No results found.
+					        </td>
+				        </tr>
+						<tr th:each="customer: ${paginated.members}" th:id="'row-' + ${customer.memberId}">
 							<td th:text="${customer.memberId}"></td>
 							<td th:text="${customer.username}"></td>
-							<td th:text="${customer.enabled}" class="enabled-status"></td>
+							<td th:text="${customer.enabled ? 'Yes' : 'No'}" class="enabled-status"></td>
 							<td th:text="${customer.name}"></td>
 							<td th:text="${customer.lastName}"></td>
 							<td th:text="${customer.email}"></td>
@@ -66,6 +71,14 @@
 						</tr>
 					</tbody>
 				</table>
+				<div id="pagination">
+					<button th:if="${paginated.totalPages > 0}" th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>

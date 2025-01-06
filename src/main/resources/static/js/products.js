@@ -17,11 +17,18 @@ import
 	descheckedAndDisableOtherOptions, 
 	updateCheckboxes,
 	reinicializeInputs,
-	checkFiltersState
+	checkFiltersState,
+	updatePagination
 } from "/js/general.js";
 
 //Names de las secciones de filtros:
 const filterSections = ["cat", "gen", "size", "col"];
+
+//Cantidad de productos por página:
+const size = 6;
+
+//Id de la sección:
+const containerIdP = "productsSection";
 
 /* OBTENEMOS LOS VALORES DE CADA FILTRO DE LOS PRODUCTOS */
 export function getProductsFiltersValues()
@@ -39,36 +46,11 @@ export function getProductsFiltersValues()
 	};
 }
 
-/* OBTENEMOS LOS TALLES ÚNICOS SEGÚN EL LISTADO ACTUAL DE PRODUCTOS */
-async function getUniqueSizes(products) 
-{
-    return fetch('/product/products/unique-sizes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(products)
-    })
-    .then(response =>
-    {
-		//Si hubo algún error:
-        if(!response.ok) 
-        {
-            throw new Error("Error in the response of server");
-        }
-        return response.json(); //Retornamos el JSON con los talles.
-	})
-	.then(data => data)
-    .catch(error => 
-    {
-        console.error("Error in the Fetch request:", error);
-        throw error;
-    });
-}
-
 /* OBTENEMOS LOS PRODUCTOS QUE CUMPLEN CON DETERMINADOS FILTROS Y ORDENADAS SEGÚN DETERMINADO CRITERIO */
-async function applyFilterProducts(filtersData)
+async function applyFilterProducts(filtersData, page = 0, size = 6)
 {
 	//Realizamos la consulta para obtener los productos:
-    return fetch(`/product/products/filter`, {
+    return fetch(`/product/products/filter?page=${page}&size=${size}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(filtersData)
@@ -91,35 +73,13 @@ async function applyFilterProducts(filtersData)
 }
 
 /* ACTUALIZAMOS LAS OPCIONES DE CADA FILTRO SEGÚN EL LISTADO DE PRODUCTOS ACTUAL */
-async function updateProductsFilterOptions(products, selectedFilters) 
+async function updateProductsFilterOptions(filters, selectedFilters) 
 {
-	//Extraemos valores únicos para las siguientes secciones:
-    const categories = [...new Set(products.map(item => item.category))]; //Categorías.
-    const genders = [...new Set(products.map(item => item.gender))]; //Géneros.
-    const colors = [...new Set(products.map(item => item.color))]; //Colores.
-    
-    //Talles:
-	const sizesSelected = selectedFilters.sizes; //Opciones elegidas.
-	const uniqueSizesOfProducts = await getUniqueSizes(products); //Todas las opciones disponibles según el listado actual de productos.
-	
-	let sizes;
-	//Si se seleccionó la opción de "all":
-	if(sizesSelected.indexOf("all") !== -1)
-	{
-		sizes = uniqueSizesOfProducts; //Cargamos todas las opciones disponibles.
-	}
-	else //Por el contrario:
-	{
-		//Nos quedamos con los talles que estén tanto en el grupo de elegidos como de disponibles:
-		const setUniqueSizesOfProducts = new Set(uniqueSizesOfProducts);
-		sizes = sizesSelected.filter(size => setUniqueSizesOfProducts.has(size));
-	}
-    
-    //Actualizamos las secciones de filtros:
-    updateCheckboxes("categoriesContainer", "cat", categories, selectedFilters.categories); 
-    updateCheckboxes("gendersContainer", "gen", genders, selectedFilters.genders); 
-    updateCheckboxes("sizesContainer", "size", sizes, selectedFilters.sizes); 
-    updateColorCheckboxes("colorsContainer", "col", colors, selectedFilters.colors);
+	//Actualizamos las secciones de filtros:
+    updateCheckboxes("categoriesContainer", "cat", filters.categories, selectedFilters.categories); 
+    updateCheckboxes("gendersContainer", "gen", filters.genders, selectedFilters.genders); 
+    updateCheckboxes("sizesContainer", "size", filters.sizes, selectedFilters.sizes); 
+    updateColorCheckboxes("colorsContainer", "col", filters.colors, selectedFilters.colors);
     
     //Cerramos los details de precios:
     document.getElementById("salePricesContainer").removeAttribute("open"); //Contenedor general.
@@ -130,7 +90,7 @@ async function updateProductsFilterOptions(products, selectedFilters)
 }
 
 /* GENERAMOS EL HTML CON LOS DATOS DE LOS PRODUCTOS OBTENIDOS */
-function generateHTMLForProducts(products) 
+function generateHTMLForProducts(products, role) 
 {
     let html = '';
     products.forEach(product => 
@@ -140,7 +100,7 @@ function generateHTMLForProducts(products)
 					<td>${product.salePrice}</td>
 					<td><img src="/assets/img/products/${product.gender}/${product.category}/${product.imageName}.jpeg"></td>
 					<td>
-						<button><a href="/product/moreDetails/customer/${product.productId}">More Details</a></button>
+						<button><a href="/product/moreDetails/${role}/${product.productId}">More Details</a></button>
 					</td>
 				</tr>`;
     });
@@ -170,7 +130,7 @@ function generateHTMLForEmptyProducts()
 }
 
 /* APLICAMOS LOS FILTROS Y EL ORDENAMIENTO A LOS PRODUCTOS Y ACTUALIZAMOS LA VISTA CON LOS QUE APLIQUEN */
-function filterProducts()
+function filterProducts(role, page = 0)
 {
 	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento. 
 	const filters = getProductsFiltersValues(); //Obtenemos los valores de filtrado.
@@ -179,20 +139,20 @@ function filterProducts()
 	const filtersData = {order, ...filters};
 	
 	//Filtramos y ordenamos según la configuración anterior:
-	applyFilterProducts(filtersData)
+	applyFilterProducts(filtersData, page, size)
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado resultante:
-		updateProductsFilterOptions(data, filters);
+		updateProductsFilterOptions(data.filtersOptions, filters);
 		
 		//Seleccionamos el body de la tabla:
 		const tbody = document.getElementById("tbody");
 		
 		//Si hay al menos un producto después del filtro:
-		if(data.length > 0)
+		if(data.products.length > 0)
 		{
 			//Generamos el HTML a partir de los datos obtenidos:
-	        const htmlContent = generateHTMLForProducts(data);
+	        const htmlContent = generateHTMLForProducts(data.products, role);
 	
 	        //Actualizamos los productos en la vista:
 	        tbody.innerHTML = htmlContent;	
@@ -202,6 +162,8 @@ function filterProducts()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyProducts();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page)); //Actualizamos las opciones de páginas.
     })
     .catch(error => 
     {
@@ -210,7 +172,7 @@ function filterProducts()
 }
 
 /* RESETEAMOS LOS FILTROS DE LOS PRODUCTOS Y OBTENEMOS LOS QUE APLIQUEN A ESA CONFIGURACIÓN */
-function resetProductsFilters()
+function resetProductsFilters(role)
 {
 	const order = getOrderValue(orderName, defaultOrder); //Obtenemos el criterio de ordenamiento.
 	
@@ -236,16 +198,16 @@ function resetProductsFilters()
 	.then(data => 
 	{
 		//Actualizamos las opciones de cada tipo de filtro según el listado obtenido:
-		updateProductsFilterOptions(data, filters);
+		updateProductsFilterOptions(data.filtersOptions, filters);
 		
 		//Si hubo resultados luego del filtrado:
-		if(data.length > 0)
+		if(data.products.length > 0)
 		{	
 			//Seleccionamos el body de la tabla:
 			const tbody = document.getElementById("tbody");
 			
 			//Generamos el HTML a partir de los datos obtenidos:
-		    const htmlContent = generateHTMLForProducts(data);
+		    const htmlContent = generateHTMLForProducts(data.products, role);
 		        
 			//Actualizamos los productos en la vista:
 		    tbody.innerHTML = htmlContent;
@@ -286,6 +248,9 @@ function resetProductsFilters()
 			//Generamos el HTML acorde a no haber encontrado resultados:
 			generateHTMLForEmptyProducts();
 		}
+		
+		//Actualizamos las opciones de páginas:
+		updatePagination(data.totalPages, 0);
     })
     .catch(error => 
     {
@@ -296,14 +261,17 @@ function resetProductsFilters()
 //Agregamos los oyentes de eventos solo si se trata de la página de productos:
 if(!document.getElementById("enabledContainer"))
 {
+	//Obtenemos si el usuario es cliente o visitante:
+	const role = document.getElementById("role").dataset.role;
+
 	/* ORDENAMOS LOS PRODUCTOS */ 
-	document.getElementById(applyOrderButtonId).addEventListener("click", () => filterProducts());
+	document.getElementById(applyOrderButtonId).addEventListener("click", () => filterProducts(role));
 	
 	/* FILTRAMOS LOS PRODUCTOS */ 
-	document.getElementById(applyFiltersButtonId).addEventListener("click", () => filterProducts());
+	document.getElementById(applyFiltersButtonId).addEventListener("click", () => filterProducts(role));
 	
 	/* RESETEO DE LOS FILTROS DE LOS PRODUCTOS */
-	document.getElementById("resetAllButton").addEventListener("click", () => resetProductsFilters());
+	document.getElementById("resetAllButton").addEventListener("click", () => resetProductsFilters(role));
 	
 	/* AGREGAMOS LISTENERS AL CONTENEDOR DE LAS SECCIONES DE FILTRO DE LOS PRODUCTOS */
 	//Obtenemos el elemento contenedor del input:
@@ -317,8 +285,23 @@ if(!document.getElementById("enabledContainer"))
 		    //Si el clic fue en un input dentro de la sección:
 		    if(event.target.tagName === "INPUT" && event.target.type === "checkbox") 
 		    {
-		        checkFiltersState(filterSections, buttonIds); //Habilitamos o deshabilitamos los botones según el estado del filtro.
+		        checkFiltersState(filterSections, buttonIds, containerIdP); //Habilitamos o deshabilitamos los botones según el estado del filtro.
 		    }
 		});
+	});
+	
+	/* OBTENEMOS LOS PRODUCTOS CORRESPONDIENTES A CADA PÁGINA SEGÚN LOS FILTROS SELECCIONADOS */
+	document.addEventListener("DOMContentLoaded", function () 
+	{
+	    const paginationContainer = document.getElementById("pagination"); //Seleccionamos el contenedor de los botones de las páginas.
+	    paginationContainer.addEventListener("click", function (event) 
+	    {
+	        const button = event.target; //Obtenemos el botón de página clicleado.
+	        if(button.tagName === "BUTTON")
+	        {
+	            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+	            filterProducts(role, pageNum); //Disparamos la solicitud de los productos de esa página.
+	        }
+	    });
 	});
 }

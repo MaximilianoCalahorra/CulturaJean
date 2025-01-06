@@ -10,17 +10,17 @@
 			<div>
 				<h1>Welcome to the lots, admin!</h1>
 			</div>
-			<section>
+			<section id="supplyOrdersSection">
 				<h2>Lots To Register</h2>
 				<form>
 					<label>Choose The Order:
 						<select name="orderSO">
-							<option value="orderAscByProductCode" th:selected="${orderSO == 'orderAscByProductCode'}">Ascendent By Product Code</option>
-							<option value="orderDescByProductCode" th:selected="${orderSO == 'orderDescByProductCode'}">Descendent By Product Code</option>
-							<option value="orderAscBySupplierName" th:selected="${orderSO == 'orderAscBySupplierName'}">Ascendent By Supplier Name</option>
-							<option value="orderDescBySupplierName" th:selected="${orderSO == 'orderDescBySupplierName'}">Descendent By Supplier Name</option>
-							<option value="orderAscByAmount" th:selected="${orderSO == 'orderAscByAmount'}">Ascendent By Amount</option>
-							<option value="orderDescByAmount" th:selected="${orderSO == 'orderDescByAmount'}">Descendent By Amount</option>
+							<option value="p.code ASC" th:selected="${orderSO == 'p.code ASC'}">Ascendent By Product Code</option>
+							<option value="p.code DESC" th:selected="${orderSO == 'p.code DESC'}">Descendent By Product Code</option>
+							<option value="s.name ASC" th:selected="${orderSO == 's.name ASC'}">Ascendent By Supplier Name</option>
+							<option value="s.name DESC" th:selected="${orderSO == 's.name DESC'}">Descendent By Supplier Name</option>
+							<option value="so.amount ASC" th:selected="${orderSO == 'so.amount ASC'}">Ascendent By Amount</option>
+							<option value="so.amount DESC" th:selected="${orderSO == 'so.amount DESC'}">Descendent By Amount</option>
 						</select>
 					</label>
 					<button type="button" id="applyOrderSOButton">Apply</button>
@@ -83,7 +83,7 @@
 						</tr>
 					</thead>
 					<tbody id="tbodySupplyOrdersTable">
-						<tr th:each="supplyOrder: ${supplyOrdersToLots}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
+						<tr th:each="supplyOrder: ${paginatedSO.supplyOrders}" th:id="'row-' + ${supplyOrder.supplyOrderId}">
 							<td th:text="${supplyOrder.supplyOrderId}"></td>
 							<td th:text="${supplyOrder.product.code}"></td>
 							<td th:text="${supplyOrder.member.username}"></td>
@@ -97,25 +97,33 @@
 								</button>
 							</td>
 						</tr>
-						<tr th:if="${supplyOrdersToLots.size() == 0}">
+						<tr th:if="${paginatedSO.supplyOrders.size() == 0}">
 					        <td colspan="6" style="text-align: center; font-style: italic; color: gray;">
 					            No results found.
 					        </td>
 					    </tr>
 					</tbody>
 				</table>
+				<div id="paginationSO">
+					<button th:if="${paginatedSO.totalPages > 0}" th:each="pageNum: ${#numbers.sequence(0, paginatedSO.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
-			<section>
+			<section id="lotsSection">
 				<h2>Registered Lots</h2>
 				<form>
 					<label>Choose The Order:
 						<select name="orderL">
-							<option value="orderAscByStockId" th:selected="${orderL == 'orderAscByStockId'}">Ascendent By Stock Id</option>
-							<option value="orderDescByStockId" th:selected="${orderL == 'orderDescByStockId'}">Descendent By Stock Id</option>
-							<option value="orderAscByReceptionDate" th:selected="${orderL == 'orderAscByReceptionDate'}">Ascendent By Reception Date</option>
-							<option value="orderDescByReceptionDate" th:selected="${orderL == 'orderDescByReceptionDate'}">Descendent By Reception Date</option>
-							<option value="orderAscByExistingAmount" th:selected="${orderL == 'orderAscByExistingAmount'}">Ascendent By Existing Amount</option>
-							<option value="orderDescByExistingAmount" th:selected="${orderL == 'orderDescByExistingAmount'}">Descendent By Existing Amount</option>
+							<option value="s.stock_id ASC" th:selected="${orderL == 's.stock_id ASC'}">Ascendent By Stock Id</option>
+							<option value="s.stock_id DESC" th:selected="${orderL == 's.stock_id DESC'}">Descendent By Stock Id</option>
+							<option value="l.reception_date ASC" th:selected="${orderL == 'l.reception_date ASC'}">Ascendent By Reception Date</option>
+							<option value="l.reception_date DESC" th:selected="${orderL == 'l.reception_date DESC'}">Descendent By Reception Date</option>
+							<option value="l.existing_amount ASC" th:selected="${orderL == 'l.existing_amount ASC'}">Ascendent By Existing Amount</option>
+							<option value="l.existing_amount DESC" th:selected="${orderL == 'l.existing_amount DESC'}">Descendent By Existing Amount</option>
 						</select>
 					</label>
 					<button type="button" id="applyOrderLButton">Apply</button>
@@ -189,7 +197,7 @@
 						</tr>
 					</thead>
 					<tbody id="tbodyLotsTable">
-						<tr th:each="lot: ${lotsRegistered}">
+						<tr th:each="lot: ${paginatedLots.lots}">
 							<td th:text="${lot.lotId}"></td>
 							<td th:text="${lot.stock.stockId}"></td>
 							<td th:text="${lot.receptionDate}"></td>
@@ -198,18 +206,24 @@
 							<td th:text="${lot.purchasePrice}"></td>
 							<td th:text="${lot.supplyOrder.supplyOrderId}"></td>
 						</tr>
-						<tr th:if="${lotsRegistered.size() == 0}">
+						<tr th:if="${paginatedLots.lots.size() == 0}">
 					        <td colspan="7" style="text-align: center; font-style: italic; color: gray;">
 					            No results found.
 					        </td>
 					    </tr>
 					</tbody>
 				</table>
+				<div id="paginationL">
+					<button th:if="${paginatedLots.totalPages > 0}" th:each="pageNum: ${#numbers.sequence(0, paginatedLots.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>
 	</body>
 	<script type="module" src="/js/lots.js"></script>
-	<script type="module" src="/js/amountValidations.js"></script>
-	<script type="module" src="/js/dateValidations.js"></script>
 </html>

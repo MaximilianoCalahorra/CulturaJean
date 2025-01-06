@@ -1,7 +1,6 @@
 package com.calahorra.culturaJean.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,9 +18,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.calahorra.culturaJean.dtos.MemberDTO;
-import com.calahorra.culturaJean.dtos.PurchaseDTO;
+import com.calahorra.culturaJean.dtos.PaginatedPurchaseDTO;
+import com.calahorra.culturaJean.dtos.PaginatedSupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.PurchaseFiltersDataDTO;
-import com.calahorra.culturaJean.dtos.SupplyOrderDTO;
 import com.calahorra.culturaJean.dtos.SupplyOrderFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.entities.UserRole;
@@ -145,70 +144,37 @@ public class MemberController
 		
 		//Obtenemos el DTO del cliente:
 		MemberDTO member = memberService.findByUsername(user.getUsername());
+	
+		String defaultOrder = "p.date_time DESC"; //Definimos el criterio de ordenamiento por defecto.
 		
-		//Obtenemos todas las compras del cliente:
-		List<PurchaseDTO> purchases = purchaseService.findByMember(member.getUsername()); 
+		PurchaseFiltersDataDTO filters = new PurchaseFiltersDataDTO(); //Definimos todos los filtros en su estado por defecto.
+		filters.setOrder(defaultOrder); //Pasamos el criterio de ordenamiento.
+		filters.setUsernames(Arrays.asList(member.getUsername())); //Pasamos el username del cliente.
+		int page = 0; //Definimos que es la primera página.
+		int size = 6; //Definimos la cantidad de elementos de la página.
 		
-		//Ordenamos las compras por el criterio por defecto:
-		String order = "orderDescByDateTime";
-		purchases = purchaseService.applyOrder(purchases, order);
+		PaginatedPurchaseDTO paginated = purchaseService.getFilteredPurchases(filters, page, size); //Obtenemos las compras de la página.
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento elegido.
+		modelAndView.addObject("order", defaultOrder); //Adjuntamos el criterio de ordenamiento elegido.
 		modelAndView.addObject("methodOfPay", "all"); //Adjuntamos el método de pago aplicado como filtro.
-		modelAndView.addObject("fromPurchasePrice", ""); //Adjuntamos el filtro por mayores o iguales a un precio.
-		modelAndView.addObject("untilPurchasePrice", ""); //Adjuntamos el filtro por menores o iguales a un precio.
-		modelAndView.addObject("rangeFromPurchasePrice", ""); //Adjuntamos el filtro por mayores o iguales a un precio dentro de un rango elegido.
-		modelAndView.addObject("rangeUntilPurchasePrice", ""); //Adjuntamos el filtro por menores o iguales a un precio dentro de un rango elegido.
+		modelAndView.addObject("fromPrice", ""); //Adjuntamos el filtro por mayores o iguales a un precio.
+		modelAndView.addObject("untilPrice", ""); //Adjuntamos el filtro por menores o iguales a un precio.
+		modelAndView.addObject("rangeFromPrice", ""); //Adjuntamos el filtro por mayores o iguales a un precio dentro de un rango elegido.
+		modelAndView.addObject("rangeUntilPrice", ""); //Adjuntamos el filtro por menores o iguales a un precio dentro de un rango elegido.
 		modelAndView.addObject("member", member); //Adjuntamos el cliente.
-		modelAndView.addObject("purchases", purchases); //Adjuntamos su listado de compras.
+		modelAndView.addObject("methodsOfPay", paginated.getFiltersOptions().getMethodsOfPay()); //Adjuntamos las opciones de método de pago.
+		modelAndView.addObject("paginated", paginated); //Adjuntamos el paginado.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
 	//Respondemos a las peticiones de filtrado/ordenamiento de las compras:
 	@PostMapping("/myAccount/customer/filter")
-	public ResponseEntity<List<PurchaseDTO>> filteredPurchases(@RequestBody PurchaseFiltersDataDTO filtersData) 
+	public ResponseEntity<PaginatedPurchaseDTO> filteredPurchases(@RequestBody PurchaseFiltersDataDTO filters, 
+																  @RequestParam("page")int page, @RequestParam("size")int size) 
 	{
-		//Obtenemos los valores seleccionados para hacer el filtrado y ordenamiento:
-    	String order = filtersData.getOrder();
-    	String date = filtersData.getDate();
-    	String fromDate = filtersData.getFromDate();
-    	String untilDate = filtersData.getUntilDate();
-    	String rangeFromDate = filtersData.getRangeFromDate();
-    	String rangeUntilDate = filtersData.getRangeUntilDate();
-    	String fromTime = filtersData.getFromTime();
-    	String untilTime = filtersData.getUntilTime();
-    	String rangeFromTime = filtersData.getRangeFromTime();
-    	String rangeUntilTime = filtersData.getRangeUntilTime();
-    	List<String> methodsOfPay = filtersData.getMethodsOfPay();
-    	float fromPrice = Float.parseFloat(filtersData.getFromPrice());
-    	float untilPrice = Float.parseFloat(filtersData.getUntilPrice());
-    	float rangeFromPrice = Float.parseFloat(filtersData.getRangeFromPrice());
-    	float rangeUntilPrice = Float.parseFloat(filtersData.getRangeUntilPrice());
-    	
-    	//Obtenemos el cliente que inició sesión:
-		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		
-		//Obtenemos todas las compras del cliente:
-		List<PurchaseDTO> purchases = purchaseService.findByMember(user.getUsername());
-    	
-    	//Aplicamos los filtros seleccionados de fechas:
-		purchases = purchaseService.applyFilterTypeDateOnList(purchases, date, fromDate, untilDate, rangeFromDate, rangeUntilDate);
-		
-		//Aplicamos los filtros seleccionados de horas:	
-		purchases = purchaseService.applyFilterTypeTime(purchases, fromTime, untilTime, rangeFromTime, rangeUntilTime);
-		
-		//Aplicamos los filtros seleccionados de métodos de pago:
-		purchases = purchaseService.filterByMethodOfPay(purchases, methodsOfPay);
-	
-		//Aplicamos los filtros seleccionados de precios:
-		purchases = purchaseService.applyFilterTypePurchasePrice(purchases, fromPrice, untilPrice, rangeFromPrice, rangeUntilPrice);
-		
-		//Aplicamos el ordenamiento seleccionado:
-		purchases = purchaseService.applyOrder(purchases, order);
-		
-        return ResponseEntity.ok(purchases); //Retornamos las compras filtradas y ordenadas como JSON.
+		return ResponseEntity.ok(purchaseService.getFilteredPurchases(filters, page, size)); //Retornamos el paginado.
 	}
 	
 	//Respondemos a las peticiones de acceso al perfil del administrador presentando la vista:
@@ -224,66 +190,36 @@ public class MemberController
 		//Obtenemos el DTO del administrador:
 		MemberDTO member = memberService.findByUsername(user.getUsername());
 		
-		//Obtenemos los pedidos de aprovisionamiento del administrador:
-		List<SupplyOrderDTO> supplyOrders = supplyOrderService.findByMember(member.getUsername());
+		String defaultOrder = "p.code ASC"; //Definimos el criterio de ordenamiento por defecto.
 		
-		//Definimos el tipo de ordenamiento por defecto:
-		String order = "orderAscByProductCode";
+		SupplyOrderFiltersDataDTO filters = new SupplyOrderFiltersDataDTO(); //Definimos todos los filtros en su estado por defecto.
+		filters.setOrder(defaultOrder); //Pasamos el criterio de ordenamiento.
+		filters.setAdminUsernames(Arrays.asList(member.getUsername())); //Pasamos el username del administrador.
+		int page = 0; //Definimos que es la primera página.
+		int size = 10; //Definimos la cantidad de elementos de la página.
 		
-		//Aplicamos el ordenamiento:
-		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
+		 //Obtenemos los pedidos de aprovisionamiento de la página:
+		PaginatedSupplyOrderDTO paginated = supplyOrderService.getFilteredSupplyOrders(filters, page, size);
 		
 		//Agregamos la información a la vista:
-		modelAndView.addObject("order", order); //Adjuntamos el criterio de ordenamiento.
+		modelAndView.addObject("order", defaultOrder); //Adjuntamos el criterio de ordenamiento.
 		modelAndView.addObject("pCode", "all"); //Adjuntamos el código del producto del filtro.
 		modelAndView.addObject("sName", "all"); //Adjuntamos el nombre del proveedor del filtro.
 		modelAndView.addObject("delivered", "all"); //Adjuntamos el filtro de estado de entrega.
 		modelAndView.addObject("member", member); //Adjuntamos el administrador.
-		modelAndView.addObject("supplyOrders", supplyOrders); //Adjuntamos los pedidos de aprovisionamiento.
-		modelAndView.addObject("productCodes", supplyOrderService.findUniqueEachProductCode(supplyOrders)); //Adjuntamos los códigos de los productos.
-		modelAndView.addObject("supplierNames", supplyOrderService.findUniqueEachSupplierName(supplyOrders)); //Adjuntamos los nombres de los proveedores.
+		modelAndView.addObject("paginated", paginated); //Adjuntamos el paginado.
+		modelAndView.addObject("productCodes", paginated.getFiltersOptions().getProductCodes()); //Adjuntamos los códigos de los productos.
+		modelAndView.addObject("supplierNames", paginated.getFiltersOptions().getSupplierNames()); //Adjuntamos los nombres de los proveedores.
 		
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
 	
 	//Respondemos a las peticiones de filtrado y/u ordenamiento de los pedidos generados por el administrador:
 	@PostMapping("/myAccount/admin/filter")
-	public ResponseEntity<List<SupplyOrderDTO>> filteredSupplyOrders(@RequestBody SupplyOrderFiltersDataDTO filtersData) 
+	public ResponseEntity<PaginatedSupplyOrderDTO> filteredSupplyOrders(@RequestBody SupplyOrderFiltersDataDTO filters,
+																	 @RequestParam("page")int page, @RequestParam("size")int size) 
 	{	
-		//Obtenemos los criterios para filtrar y ordenar:
-		String order = filtersData.getOrder();
-		List<String> productCodes = filtersData.getProductCodes();
-		List<String> supplierNames = filtersData.getSupplierNames();
-		List<String> adminUsernames = filtersData.getAdminUsernames(); //Va a ser solo uno, el administrador que está en su cuenta.
-		int amount = Integer.parseInt(filtersData.getAmount());
-    	int fromAmount = Integer.parseInt(filtersData.getFromAmount());
-    	int untilAmount = Integer.parseInt(filtersData.getUntilAmount());
-    	int rangeFromAmount = Integer.parseInt(filtersData.getRangeFromAmount());
-    	int rangeUntilAmount = Integer.parseInt(filtersData.getRangeUntilAmount());
-    	String delivered = filtersData.getDelivered();
-		
-    	//Definimos un listado donde cargaremos los pedidos:
-    	List<SupplyOrderDTO> supplyOrders = new ArrayList<>();
-    	
-    	//Si se pidió solamente los entregados/no entregados:
-    	if(!delivered.equals("all")) 
-    	{
-    		boolean deliveredBoolean = Boolean.parseBoolean(delivered); //Obtenemos el valor booleano para saber cuáles pedidos se piden.
-    		supplyOrders = supplyOrderService.findByDelivered(deliveredBoolean); //Obtenemos los pedidos en ese estado.
-    	}
-    	else //Por el contrario, si se solicitaron todos los pedidos:
-    	{
-    		supplyOrders = supplyOrderService.getAll(); //Obtenemos todos.
-    	}
-    	
-    	//Aplicamos los filtros seleccionados:
-    	supplyOrders = supplyOrderService.applyFilters(supplyOrders, productCodes, supplierNames, adminUsernames, amount, fromAmount, 
-    												   untilAmount, rangeFromAmount, rangeUntilAmount);
-		
-		//Aplicamos el ordenamiento seleccionado:
-		supplyOrders = supplyOrderService.applyOrder(supplyOrders, order);
-		
-		return ResponseEntity.ok(supplyOrders); //Retornamos los pedidos.
+		return ResponseEntity.ok(supplyOrderService.getFilteredSupplyOrders(filters, page, size)); //Retornamos el paginado.
 	}
 	
 	//Respondemos a la solicitud de modificación del perfil con una vista que tiene un formulario para ello:

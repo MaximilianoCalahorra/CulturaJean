@@ -71,8 +71,11 @@ export const validateTimes = (config) =>
 	const orderButton = document.getElementById(config.buttonIds[0]);
 	const filterButton = document.getElementById(config.buttonIds[1]);
 	
+	//Seleccionamos el id del contenedor de los filtros:
+	const containerId = config.containerId;
+	
 	//Si alguna validación encontró una inconsistencia y hay mensaje en la vista:
-	if(document.querySelectorAll(".error-message").length > 0)
+	if(document.getElementById(containerId).querySelectorAll(".error-message").length > 0)
 	{
 		//Los botones deben permanecer deshabilitados sin importar el estado de los filtros:
 		orderButton.disabled = true;

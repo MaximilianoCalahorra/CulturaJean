@@ -2,6 +2,10 @@ package com.calahorra.culturaJean.services;
 
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
+import com.calahorra.culturaJean.dtos.PaginatedStockDTO;
+import com.calahorra.culturaJean.dtos.ProductFiltersDataDTO;
 import com.calahorra.culturaJean.dtos.StockDTO;
 import com.calahorra.culturaJean.entities.Stock;
 
@@ -56,6 +60,9 @@ public interface IStockService
 	
 	//Obtenemos todos los stocks:
 	public List<StockDTO> getAll();
+	
+	//Obtenemos los stocks filtrados de una página:
+	public PaginatedStockDTO getFilteredStocks(@Param("filters")ProductFiltersDataDTO filters, int page, int size);
 	
 	//Ordenar:
 	

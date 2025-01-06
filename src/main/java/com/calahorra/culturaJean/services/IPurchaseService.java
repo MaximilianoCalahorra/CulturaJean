@@ -5,7 +5,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.data.repository.query.Param;
+
+import com.calahorra.culturaJean.dtos.PaginatedPurchaseDTO;
 import com.calahorra.culturaJean.dtos.PurchaseDTO;
+import com.calahorra.culturaJean.dtos.PurchaseFiltersDataDTO;
 import com.calahorra.culturaJean.entities.Purchase;
 
 public interface IPurchaseService 
@@ -67,6 +71,9 @@ public interface IPurchaseService
 	
 	//Obtener todas las compras:
 	public List<PurchaseDTO> getAll();
+	
+	//Obtenemos las compras filtradas de una página:
+	public PaginatedPurchaseDTO getFilteredPurchases(@Param("filters")PurchaseFiltersDataDTO filters, int page, int size);
 	
 	//Ordenar:
 	

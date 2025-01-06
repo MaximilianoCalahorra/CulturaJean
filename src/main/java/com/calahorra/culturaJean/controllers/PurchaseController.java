@@ -83,7 +83,7 @@ public class PurchaseController
 		////Recorremos los ítems de la compra para hallar esos valores y el total de la compra:
 		for(PurchaseItemDTO purchaseItem : purchaseItems.values()) 
 		{
-			purchaseTotal += purchaseItem.calculateSubtotalSale(); //Acumulamos el subtotal del ítem.
+			purchaseTotal += purchaseItem.getTotalPrice(); //Acumulamos el subtotal del ítem.
 			
 			//Del ítem de la compra obtenemos el producto, a partir de este su stock asociado y de este útlimo la cantidad actual para agregarla a la lista:
 			actualAmounts.add(stockService.findByProduct(purchaseItem.getProduct().getProductId()).getActualAmount());
@@ -92,7 +92,6 @@ public class PurchaseController
 		modelAndView.addObject("purchaseTotal", purchaseTotal); //Cargamos el total de la compra en la vista.
 		modelAndView.addObject("actualAmounts", actualAmounts); //Cargamos la lista de stocks actuales en la vista.
 		modelAndView.addObject("purchaseItems", purchaseItems); //Enviamos los ítems a la vista como una colección.
-		//modelAndView.addObject("purchaseItems", purchaseItems.values()); //Enviamos los ítems a la vista como una colección.
 
 		return modelAndView; //Retornamos la vista con la información adjunta.
 	}
@@ -119,8 +118,10 @@ public class PurchaseController
 		}
 		else
 		{
-			//Como no existe un ítem con ese producto, debemos crear uno nuevo y agregarlo al mapa:s
-			PurchaseItemDTO purchaseItem = new PurchaseItemDTO(product, amount); //Instanciamos un nuevo ítem con el producto y cantidad indicados.
+			//Como no existe un ítem con ese producto, debemos crear uno nuevo y agregarlo al mapa:
+			float totalPrice = product.getSalePrice() * amount;
+			PurchaseItemDTO purchaseItem = new PurchaseItemDTO(product, amount, totalPrice); //Instanciamos un nuevo ítem con el producto,
+																							 //cantidad y precio indicados.
 			purchaseItems.put(productId, purchaseItem); //Agregamos el ítem al mapa.
 		}
 
@@ -273,8 +274,8 @@ public class PurchaseController
 	    }
 
 	    //Calculamos el subtotal y el total de la compra según cómo haya quedado conformado el ítem:
-	    float subtotal = purchaseItem.calculateSubtotalSale();
-	    float purchaseTotal = (float)purchaseItems.values().stream().mapToDouble(PurchaseItemDTO::calculateSubtotalSale).sum();
+	    float subtotal = purchaseItem.getTotalPrice();
+	    float purchaseTotal = (float)purchaseItems.values().stream().mapToDouble(PurchaseItemDTO::getTotalPrice).sum();
 	    
 	    //Banderas para detectar si la cantidad alcanzó el mínimo o el máximo que se puede comprar:
 	    //En principio, suponemos que no:

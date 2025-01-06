@@ -10,15 +10,16 @@
 			<div>
 				<h1>Welcome to the shop, visitor!</h1>
 			</div>
-			<section>
+			<span id="role" th:data-role="visitor" hidden></span>
+			<section id="productsSection">
 				<h2>Products</h2>
 				<form>
 					<label>Choose The Order:
 						<select name="order">
-							<option value="orderAscByName" th:selected="${order == 'orderAscByProduct'}">Ascendent By Name</option>
-							<option value="orderDescByName" th:selected="${order == 'orderDescByName'}">Descendent By Name</option>
-							<option value="orderAscBySalePrice" th:selected="${order == 'orderAscBySalePrice'}">Ascendent By Sale Price</option>
-							<option value="orderDescBySalePrice" th:selected="${order == 'orderDescBySalePrice'}">Descendent By Sale Price</option>
+							<option value="p.name ASC" th:selected="${order == 'p.name ASC'}">Ascendent By Name</option>
+							<option value="p.name DESC" th:selected="${order == 'p.name DESC'}">Descendent By Name</option>
+							<option value="p.sale_price ASC" th:selected="${order == 'p.sale_price ASC'}">Ascendent By Sale Price</option>
+							<option value="p.sale_price DESC" th:selected="${order == 'p.sale_price DESC'}">Descendent By Sale Price</option>
 						</select>
 					</label>
 					<button type="button" id="applyOrderButton">Apply</button>
@@ -99,7 +100,7 @@
 						 </tr>
 					  </thead>
 					  <tbody id="tbody">
-						 <tr th:each="product: ${products}">
+						 <tr th:each="product: ${paginated.products}">
 							<td th:text="${product.name}"></td>
 							<td th:text="${product.salePrice}"></td>
 							<td><img th:src="@{${'/assets/img/products/' + product.gender + '/' + product.category + '/' + product.imageName + '.jpeg'}}"/></td>
@@ -107,8 +108,21 @@
 								<button><a th:href="@{/product/moreDetails/visitor/}+${product.productId}">More Details</a></button>
 							</td>
 						</tr>
+						<tr th:if="${paginated.products.size() == 0}">
+					        <td colspan="4" style="text-align: center; font-style: italic; color: gray;">
+					            No results found.
+					        </td>
+					    </tr>
 					</tbody>
 				</table>
+				<div id="pagination">
+					<button th:if="${paginated.totalPages > 0}" th:each="pageNum: ${#numbers.sequence(0, paginated.totalPages - 1)}"
+					        th:text="${pageNum + 1}"
+					        th:classappend="${pageNum == 0} ? 'active' : ''"
+					        th:data-page="${pageNum}"
+					        th:style="${pageNum == 0} ? 'background-color: orange;' : ''">
+					</button>
+				</div>
 			</section>
 		</main>
 		<div th:insert="~{footer/footer.html::footer}"></div>

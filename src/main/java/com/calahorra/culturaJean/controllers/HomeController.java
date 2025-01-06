@@ -1,8 +1,5 @@
 package com.calahorra.culturaJean.controllers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -10,10 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.calahorra.culturaJean.dtos.ProductDTO;
-import com.calahorra.culturaJean.dtos.StockDTO;
+import com.calahorra.culturaJean.dtos.PaginatedStockDTO;
+import com.calahorra.culturaJean.dtos.ProductFiltersDataDTO;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
-import com.calahorra.culturaJean.services.IProductService;
 import com.calahorra.culturaJean.services.IStockService;
 
 ///Clase HomeController:
@@ -23,13 +19,11 @@ public class HomeController
 {
 	//Atributos:
 	private IStockService stockService;
-	private IProductService productService;
 	
 	//Constructor:
-	public HomeController(IStockService stockService, IProductService productService) 
+	public HomeController(IStockService stockService) 
 	{
 		this.stockService = stockService;
-		this.productService = productService;
 	} 
 	
 	//Respondemos a la ruta base del sitio web con la vista de inicio del visitante:
@@ -54,18 +48,17 @@ public class HomeController
 			//La vista a cargar es la de inicio del administrador:
 			modelAndView = new ModelAndView(ViewRouteHelper.ADMIN_INDEX);
 			
-			//Instanciamos un listado de stock donde se guardarán el stock de cada producto filtrado y ordenado:
-			List<StockDTO> stocks = stockService.getAllInOrderAscByActualAmount();
+			String defaultOrder = "s.actual_amount ASC"; //Definimos el criterio de ordenamiento por defecto.
 			
-			//Copiamos a otra lista los productos para obtener información sobre ellos posteriormente:
-			List<ProductDTO> products = new ArrayList<>();
-			for(StockDTO stock: stocks) 
-			{
-				products.add(stock.getProduct());
-			}
+			ProductFiltersDataDTO filters = new ProductFiltersDataDTO(); //Definimos todos los filtros en su estado por defecto.
+			filters.setOrder(defaultOrder); //Pasamos el criterio de ordenamiento.
+			int page = 0; //Definimos que es la primera página.
+			int size = 12; //Definimos la cantidad de elementos de la página.
+			
+			PaginatedStockDTO paginated = stockService.getFilteredStocks(filters, page, size); //Obtenemos los stocks de la página.
 			
 			//Agregamos la información a la vista:
-			modelAndView.addObject("order", "orderAscByActualAmount"); //Adjuntamos el criterio de ordenamiento.
+			modelAndView.addObject("order", defaultOrder); //Adjuntamos el criterio de ordenamiento.
 			modelAndView.addObject("cat", "all"); //Adjuntamos la categoría para el filtro.
 			modelAndView.addObject("gen", "all"); //Adjuntamos el género para el filtro.
 			modelAndView.addObject("size", "all"); //Adjuntamos el talle para el filtro.
@@ -76,11 +69,13 @@ public class HomeController
 			modelAndView.addObject("uSPri", ""); //Adjuntamos el precio de venta menor o igual para el filtro.
 			modelAndView.addObject("rFSPri", ""); //Adjuntamos el precio mayor o igual de un rango para el filtro.
 			modelAndView.addObject("rUSPri", ""); //Adjuntamos el precio menor o igual de un rango para el filtro.
-			modelAndView.addObject("productCategories", productService.findUniqueEachCategory(products)); //Adjuntamos el listado de categorías de producto.
-			modelAndView.addObject("productGenders", productService.findUniqueEachGender(products)); //Adjuntamos el listado de géneros de producto.
-			modelAndView.addObject("productSizes", productService.findUniqueEachSize(products)); //Adjuntamos el listado de talles de producto.
-			modelAndView.addObject("productColors", productService.findUniqueEachColor(products)); //Adjuntamos el listado de colores de producto.
-			modelAndView.addObject("stocks", stocks); //Adjuntamos los stocks filtrados y ordenados.
+			
+			modelAndView.addObject("categories", paginated.getFiltersOptions().getCategories()); //Adjuntamos el listado de categorías de producto.
+			modelAndView.addObject("genders", paginated.getFiltersOptions().getGenders()); //Adjuntamos el listado de géneros de producto.
+			modelAndView.addObject("sizes", paginated.getFiltersOptions().getSizes()); //Adjuntamos el listado de talles de producto.
+			modelAndView.addObject("colors", paginated.getFiltersOptions().getColors()); //Adjuntamos el listado de colores de producto.
+			
+			modelAndView.addObject("paginated", paginated); //Adjuntamos el paginado.
 		}
 		else //En caso contrario, el miembro logueado es un cliente, por lo que procedemos de la siguiente forma:
 		{

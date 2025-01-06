@@ -10,6 +10,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -19,9 +22,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.calahorra.culturaJean.dtos.MemberDTO;
+import com.calahorra.culturaJean.dtos.PaginatedMemberDTO;
 import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.entities.UserRole;
 import com.calahorra.culturaJean.repositories.IMemberRepository;
+import com.calahorra.culturaJean.repositories.custom.ICustomMemberRepository;
+import com.calahorra.culturaJean.services.IUtilsService;
 
 ///Clase MemberService:
 @Service("memberService")
@@ -29,12 +35,16 @@ public class MemberService implements UserDetailsService
 {
 	//Atributos:
 	private IMemberRepository memberRepository;
+	private ICustomMemberRepository customMemberRepository;
+	private IUtilsService utilsService;
 	private ModelMapper modelMapper = new ModelMapper();
 	
 	//Constructor:
-	public MemberService(IMemberRepository memberRepository)
+	public MemberService(IMemberRepository memberRepository, ICustomMemberRepository customMemberRepository, IUtilsService utilsService)
 	{
 		this.memberRepository = memberRepository;
+		this.customMemberRepository = customMemberRepository;
+		this.utilsService = utilsService;
 	}
 
 	@Override
@@ -105,6 +115,28 @@ public class MemberService implements UserDetailsService
 	public List<Member> getAll()
 	{
 		return memberRepository.findAll();
+	}
+	
+	//Obtenemos los clientes filtrados de una página:
+	public PaginatedMemberDTO getFilteredCustomers(String enabledString, String sort, int page, int size)
+	{
+		//Instanciamos un Pageable con la página y la cantidad de elementos a traer para hacer la query:
+        Pageable pageable = PageRequest.of(page, size);
+
+        //Adapto el filtro de estado para poder hacer la consulta:
+        Boolean enabled = utilsService.convertStringFilterToBoolean(enabledString);
+        String role = "ROLE_CUSTOMER"; //Se solicitan los clientes.
+        
+        //Obtenemos la página de clientes según el filtro y el criterio de ordenamiento:
+        Page<Member> customerPage = customMemberRepository.findFilteredMembers(role, enabled, sort, pageable);
+        
+        //Construimos el objeto paginado con su información:
+        PaginatedMemberDTO paginatedDTO = new PaginatedMemberDTO();
+        paginatedDTO.setMembers(customerPage.map(member -> modelMapper.map(member, MemberDTO.class)).getContent()); //Clientes.
+        paginatedDTO.setTotalPages(customerPage.getTotalPages()); //Cantidad de páginas.
+        paginatedDTO.setTotalElements(customerPage.getTotalElements()); //Cantidad de clientes.
+        
+        return paginatedDTO; //Retornamos el objeto paginado.
 	}
 	
 	//Ordenar:

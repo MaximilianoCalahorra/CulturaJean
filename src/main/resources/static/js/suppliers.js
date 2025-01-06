@@ -1,7 +1,7 @@
 /* OBTENEMOS LOS PROVEEDORES ORDENADOS POR EL CRITERIO INDICADO */
 async function orderSuppliers(order)
 {
-	return fetch(`/supplier/suppliers/${order}`,{
+	return fetch(`/supplier/suppliers/order?order=${order}&page=0&size=10`,{
 		method: 'GET'		
 	})
 	.then(response => 
@@ -66,16 +66,16 @@ document.addEventListener('DOMContentLoaded', () =>
 
 		//Obtenemos los proveedores ordenados:
        	orderSuppliers(order)
-       	.then(suppliers => 
+       	.then(data => 
        	{
 			//Si al menos hay un proveedor:
-			if(suppliers.length > 0)
+			if(data.suppliers.length > 0)
 			{
 				//Seleccionamos la etiqueta donde van los proveedores:
 				const tbody = document.getElementById("supplierTBodyTable");
 				
 				//Cargamos los proveedores en la vista:
-				tbody.innerHTML = generateHTMLForSuppliers(suppliers);
+				tbody.innerHTML = generateHTMLForSuppliers(data.suppliers);
 			}
 			else
 			{
@@ -89,5 +89,3 @@ document.addEventListener('DOMContentLoaded', () =>
 	    });
     });
 });
-
-

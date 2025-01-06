@@ -2,6 +2,7 @@ package com.calahorra.culturaJean.services;
 
 import java.util.List;
 
+import com.calahorra.culturaJean.dtos.PaginatedSupplierDTO;
 import com.calahorra.culturaJean.dtos.SupplierDTO;
 import com.calahorra.culturaJean.entities.Supplier;
 
@@ -29,6 +30,9 @@ public interface ISupplierService
 	
 	//Obtenemos todos los proveedores:
 	public List<Supplier> getAll();
+	
+	//Obtenemos los proveedores de una página ordenados:
+	public PaginatedSupplierDTO getOrderedSuppliers(String sort, int page, int size);
 	
 	//Ordenar:
 	

@@ -16,26 +16,21 @@ public class PurchaseItemDTO implements Serializable
 	private int purchaseItemId;
 	private ProductDTO product;
 	private int amount;
+	private float totalPrice;
 	
 	//Constructor:
-	public PurchaseItemDTO(ProductDTO product, int amount) 
+	public PurchaseItemDTO(ProductDTO product, int amount, float totalPrice) 
 	{
 		this.product = product;
 		this.amount = amount;
+		this.totalPrice = totalPrice;
 	}
 	
-	public PurchaseItemDTO(int purchaseItemId, ProductDTO product, int amount) 
+	public PurchaseItemDTO(int purchaseItemId, ProductDTO product, int amount, float totalPrice) 
 	{
 		setPurchaseItemId(purchaseItemId);
 		this.product = product;
 		this.amount = amount;
-	}
-	
-	//Calcular:
-	
-	//Calculamos el subtotal del ítem de la compra:
-	public float calculateSubtotalSale() 
-	{
-		return getAmount() * getProduct().getSalePrice();
+		this.totalPrice = totalPrice;
 	}
 }

@@ -40,7 +40,7 @@ public class SecurityConfiguration
 				.authorizeHttpRequests(auth -> {
 					auth.requestMatchers("/css/*", "/assets/img/**", "/js/*", "/vendor/bootstrap/css/*",
 							"/vendor/jquery/*", "/vendor/bootstrap/js/*", "/api/v1/**", "/", "/registerAdd", "/aboutUs/visitor", "/help/visitor",
-							"/register", "/product/products/visitor", "/product/products/filter", "/product/products/unique-sizes", "/stores/visitor", 
+							"/register", "/product/products/visitor", "/product/products/filter", "/stores/visitor", 
 							"/product/moreDetails/visitor/**", "/error/**").permitAll();
 					auth.anyRequest().authenticated();
 				})

@@ -1,8 +1,6 @@
 package com.calahorra.culturaJean.controllers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -15,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.calahorra.culturaJean.dtos.MemberDTO;
+import com.calahorra.culturaJean.dtos.PaginatedMemberDTO;
 import com.calahorra.culturaJean.entities.Member;
 import com.calahorra.culturaJean.helpers.ViewRouteHelper;
 import com.calahorra.culturaJean.services.implementation.MemberService;
@@ -41,47 +39,30 @@ public class CustomerController
     	//Definimos la vista a cargar:
     	ModelAndView modelAndView = new ModelAndView(ViewRouteHelper.CUSTOMERS);
     	
-        //Obtenemos todos los clientes:
-        List<MemberDTO> customers = memberService.findByUserRole("ROLE_CUSTOMER");
+    	String defaultOrder = "m.last_name ASC"; //Definimos el criterio de ordenamiento por defecto.
+		String enabled = "all"; //Definimos el filtro de estado por defecto (sin filtrado).
+    	
+		int page = 0; //Definimos que es la primera página.
+		int size = 10; //Definimos la cantidad de elementos de la página.
+		
+		//Obtenemos los miembros de la página:
+		PaginatedMemberDTO paginated = memberService.getFilteredCustomers(enabled, defaultOrder, page, size);
         
-        //Los ordenamos por apellido de forma alfabética:
-        customers = memberService.inOrderAscByLastName(customers);
-        
-        //Adjuntamos a la vista los clientes y los criterios de filtro y ordenamiento aplicados:
-        modelAndView.addObject("customers", customers);
-        modelAndView.addObject("order", "orderAscByLastName");
-        modelAndView.addObject("enabled", "all");
+        //Adjuntamos a la vista el paginado y el criterio de ordenamiento y filtro por defecto:
+        modelAndView.addObject("paginated", paginated);
+        modelAndView.addObject("order", defaultOrder);
+        modelAndView.addObject("enabled", enabled);
         
         return modelAndView; //Retornamos la vista con la información adjunta.
     }
     
     //Respondemos a las solicitudes de filtrado/ordenamiento sobre los clientes:
     @GetMapping("/customers/filter")
-    public ResponseEntity<List<MemberDTO>> filteredCustomers(@RequestParam("order") String order, @RequestParam("enabled") String enabled) 
+    public ResponseEntity<PaginatedMemberDTO> filteredCustomers(@RequestParam("order") String order, 
+    															@RequestParam("enabled") String enabled, @RequestParam("page")int page,
+															    @RequestParam("size")int size) 
     {
-    	//Instanciamos una lista de miembros para cargarla con los clientes filtrados y/u ordenados:
-    	List<MemberDTO> customers = new ArrayList<MemberDTO>(); 
-		
-		//Aplicamos el filtro de clientes habilitados/inhabilitados o no:
-		switch(enabled) 
-		{
-			case "all": customers = memberService.findByUserRole("ROLE_CUSTOMER"); break; //Obtenemos todos los clientes.
-			case "true": customers = memberService.findByEnabledAndUserRole(true, "ROLE_CUSTOMER"); break; //Obtenemos los clientes habilitados.
-			case "false": customers = memberService.findByEnabledAndUserRole(false, "ROLE_CUSTOMER"); break; //Obtenemos los clientes deshabilitados.
-		}
-		
-		//Ordenamos el listado de clientes resultante del proceso anterior en base al tipo de ordenamiento elegido:
-		switch(order) 
-		{
-			case "orderAscByName": customers = memberService.inOrderAscByName(customers); break; //Alfabéticamente por nombre.
-			case "orderDescByName": customers = memberService.inOrderDescByName(customers); break; //Inverso al alfabeto por nombre.
-			case "orderAscByLastName": customers = memberService.inOrderAscByLastName(customers); break; //Alfabéticamente por apellido.
-			case "orderDescByLastName": customers = memberService.inOrderDescByLastName(customers); break; //Inverso al alfabeto por apellido.
-			case "orderAscByUsername": customers = memberService.inOrderAscByUsername(customers); break; //Alfabéticamente por nombre de usuario.
-			case "orderDescByUsername": customers = memberService.inOrderDescByUsername(customers); break; //Inverso al alfabeto por nombre de usuario.
-		}
-
-        return ResponseEntity.ok(customers); //Retornamos los clientes como JSON.
+    	return ResponseEntity.ok(memberService.getFilteredCustomers(enabled, order, page, size)); //Retornamos el paginado.
     }
     
     //Invertimos el estado del cliente indicado:

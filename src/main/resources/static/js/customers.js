@@ -1,9 +1,12 @@
 //Importamos una funcionalidad que necesitamos:
-import { getOrderValue } from "/js/general.js";
+import { getOrderValue, updatePagination } from "/js/general.js";
 
 //Ids de los botones de aplicar ordenamiento y filtros:
 const applyOrderButtonId = "applyOrderButton";
 const applyFilterButtonId = "applyFilterButton";
+
+//Cantidad de clientes por página:
+const size = 10;
 
 //Name de la etiqueta que permite seleccionar el ordenamiento:
 const orderName = "order";
@@ -12,10 +15,10 @@ const orderName = "order";
 const defaultOrder = "orderAscByLastName";
 
 /* OBTENEMOS LOS CLIENTES FILTRADOS Y ORDENADOS */
-async function filteredCustomers(order, enabled)
+async function filteredCustomers(order, enabled, page = 0, size = 10)
 {
 	//Hacemos la solicitud al controller:
-	return fetch(`/customer/customers/filter?order=${order}&enabled=${enabled}`,{
+	return fetch(`/customer/customers/filter?order=${order}&enabled=${enabled}&page=${page}&size=${size}`,{
 		method: 'GET'
 	})
 	.then(response => 
@@ -46,7 +49,7 @@ function generateHTMLForCustomers(customers)
 		html += `<tr id="row-${customer.memberId}">
         			<td>${customer.memberId}</td>
                     <td>${customer.username}</td>
-                    <td class="enabled-status">${customer.enabled}</td>
+                    <td class="enabled-status">${customer.enabled ? 'Yes' : 'No'}</td>
                     <td>${customer.name}</td>
                     <td>${customer.lastName}</td>
                     <td>${customer.email}</td>
@@ -82,15 +85,15 @@ function getEnabled()
 }
 
 /* APLICAMOS EL FILTRADO Y ORDENAMIENTO SELECCIONADOS */
-function applyFilter()
+function applyFilter(page = 0)
 {
 	//Obtenemos el criterio de ordenamiento y el de filtrado elegidos:
     const order = getOrderValue(orderName, defaultOrder);
     const enabled = getEnabled();
 
     //Realizamos la consulta para obtener los clientes:
-    filteredCustomers(order, enabled)
-    .then(customers =>
+    filteredCustomers(order, enabled, page, size)
+    .then(data =>
     {
 		//Seleccionamos el cuerpo de la tabla:
 		const tbody = document.getElementById("tBodyCustomerTable");
@@ -102,16 +105,18 @@ function applyFilter()
 		container.removeAttribute("open");
 		
 		//Si al menos hay un cliente:
-		if(customers.length > 0)
+		if(data.members.length > 0)
 		{
 			//Cargamos los clientes en la vista:
-			tbody.innerHTML = generateHTMLForCustomers(customers);
+			tbody.innerHTML = generateHTMLForCustomers(data.members);
 		}
 		else
 		{
 			//Cargamos el mensaje de que no hay clientes en la vista:
 			tbody.innerHTML = generateHTMLForEmptyCustomers();
 		}
+		
+		updatePagination(data.totalPages, Number.parseInt(page)); //Actualizamos las opciones de páginas.
 	})
 	.catch(error => 
     {
@@ -123,10 +128,25 @@ function applyFilter()
 document.addEventListener('DOMContentLoaded', () =>
 {
     //Ante un clic en el botón de aplicar determinado ordenamiento:
-    document.getElementById(applyOrderButtonId).addEventListener('click', applyFilter);
+    document.getElementById(applyOrderButtonId).addEventListener('click', () => applyFilter());
 
     //Ante un clic en el botón de aplicar el filtro:
-    document.getElementById(applyFilterButtonId).addEventListener('click', applyFilter)
+    document.getElementById(applyFilterButtonId).addEventListener('click', () => applyFilter())
+});
+
+/* OBTENEMOS LOS CLIENTES CORRESPONDIENTES A CADA PÁGINA SEGÚN LOS FILTROS SELECCIONADOS */
+	document.addEventListener("DOMContentLoaded", function () 
+	{
+	    const paginationContainer = document.getElementById("pagination"); //Seleccionamos el contenedor de los botones de las páginas.
+	    paginationContainer.addEventListener("click", function (event) 
+	    {
+	        const button = event.target; //Obtenemos el botón de página clicleado.
+	        if(button.tagName === "BUTTON")
+	        {
+	            const pageNum = button.getAttribute("data-page"); //Obtenemos el número de página en cuestión.
+	            applyFilter(pageNum); //Disparamos la solicitud de los clientes de esa página.
+	        }
+	 });
 });
 
 //Seleccionamos el cuerpo de la tabla de clientes y escuchamos eventos de clic en él:
@@ -164,24 +184,22 @@ document.getElementById("tBodyCustomerTable").addEventListener("click", (event) 
                	{	
 					//Obtenemos la celda donde va el valor de 'enabled':
     				const enabledCell = row.querySelector(".enabled-status");
-					enabledCell.textContent = newStatus; //Actualiza el estado del cliente en la tabla.
+    				
+    				let textNewStatus = "No"; //Suponemos que el nuevo estado es deshabilitado.
+    				
+    				//Si es habilitado:
+    				if(newStatus)
+    				{
+						textNewStatus = "Yes"; //Cambiamos el texto a incorporar a la celda.
+					}
+					enabledCell.textContent = textNewStatus; //Actualiza el estado del cliente en la tabla.
 			  
 			        button.setAttribute("data-current-status", newStatus); //Actualizamos el estado del cliente en el botón.	
 				}
 				else
 				{
-					//Eliminamos la fila porque no coincide con el filtro aplicado:
-            		row.remove();
-            		
-            		//Seleccionamos el cuerpo de la tabla:
-      				const tbody = document.getElementById("tBodyCustomerTable");
-            		
-            		//Si se quedó sin clientes:
-            		if(!tbody.hasChildNodes())
-            		{
-						//Cargamos el mensaje de que no hay clientes:
-						tbody.innerHTML = generateHTMLForEmptyCustomers();	
-					}
+					//Obtenemos los clientes que cumplen con el filtro y actualizamos los botones de las páginas:
+					applyFilter();
 				}
             }
             else
